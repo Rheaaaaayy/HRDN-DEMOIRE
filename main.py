@@ -230,23 +230,28 @@ def val(model, dataloader):
 
 
 if __name__ == '__main__':
-    # dummy_input = torch.rand(
-    #     (4, 3, 256, 256)
-    # )
-    #
-    # cfg.merge_from_file("experiments/mpii/hrnet/w32_256x256_adam_lr1e-3.yaml")
-    # model = get_pose_net(cfg)
-    # model = model.cuda()
+    dummy_input = torch.rand(
+        (1, 3, 256, 256)
+    )
+
+    cfg.merge_from_file("experiments/mpii/hrnet/w32_256x256_adam_lr1e-3.yaml")
+    model = get_pose_net(cfg)
+    model = model.cuda()
+
+    input_ = dummy_input.clone()
+    input_ = input_.cuda()
+
+    output = model(input_)
+    print(output.size())
+
+
+    # train()
+
+
+
+
     # # final_layer = model.final_layer
     #
     # # para = sum([np.prod(list(p.size())) for p in model.parameters()])
     # # print(para)
     # # print('Model {} : params: {:4f}M'.format(model._get_name(), para * 4 / 1000 / 1000))
-    #
-    # input_ = dummy_input.clone()
-    # input_ = input_.cuda()
-    # output = model(input_)
-    # print(output.size())
-    # output.sum().backward()
-
-    train()

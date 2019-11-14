@@ -533,16 +533,16 @@ class PoseHighResolutionNet(nn.Module):
         y_list = self.stage6(x_list)
 
 
-        upsample = self.final_TransConv1(y_list[1])
-        x = y_list[0] + self.final_bn(upsample)
-        x = self.relu(x)
-        x = self.final_layer(x)
+        # upsample = self.final_TransConv1(y_list[1])
+        # x = y_list[0] + self.final_bn(upsample)
+        # x = self.relu(x)
+        # x = self.final_layer(x)
 
         # for ii, feature_map in enumerate(y_list):
         #     print(ii)
         #     print(feature_map.size())
 
-        return x
+        return y_list
 
     def init_weights(self, pretrained=''):
         logger.info('=> init weights from normal distribution')
