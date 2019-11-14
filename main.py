@@ -78,16 +78,16 @@ def train(**kwargs):
         vis = Visualizer(opt.env)
 
     #dataset
-    # train_transforms = transforms.Compose([
-    #     transforms.FiveCrop(256),
-    #     transforms.Lambda(lambda crops: torch.stack([transforms.ToTensor()(crop) for crop in crops]))
-    # ])
-    data_transforms = transforms.Compose([
+    train_transforms = transforms.Compose([
+        transforms.FiveCrop(256),
+        transforms.Lambda(lambda crops: torch.stack([transforms.ToTensor()(crop) for crop in crops]))
+    ])
+    val_transforms = transforms.Compose([
         transforms.RandomCrop(256),
         transforms.ToTensor()
     ])
-    train_data = MoireData(opt.train_path, data_transforms)
-    val_data = MoireData(opt.valid_path, data_transforms)
+    train_data = MoireData(opt.train_path, train_transforms)
+    val_data = MoireData(opt.valid_path, val_transforms)
     train_dataloader = DataLoader(train_data,
                             batch_size=opt.train_batch_size if opt.is_dev == False else 4,
                             shuffle=True,
@@ -232,9 +232,8 @@ def val(model, dataloader):
 
 
 if __name__ == '__main__':
-    '''
     dummy_input = torch.rand(
-        (1, 3, 256, 256)
+        (5, 3, 256, 256)
     )
 
     cfg.merge_from_file("config/cfg.yaml")
@@ -245,9 +244,8 @@ if __name__ == '__main__':
     input_ = input_.cuda()
 
     output = model(input_)
-    '''
 
-    train()
+    # train()
 
 
 
