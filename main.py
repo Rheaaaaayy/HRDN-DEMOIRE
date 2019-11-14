@@ -246,6 +246,6 @@ if __name__ == '__main__':
     input_ = input_.cuda()
     output = model(input_)
     print(output.size())
-    output.sum.backward()
+    output.sum().backward()
 
     # train()
