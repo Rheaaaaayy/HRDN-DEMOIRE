@@ -105,7 +105,7 @@ def train(**kwargs):
 
     model = model.to(opt.device)
 
-    criterion = nn.MSELoss(reduction='mean').to(opt.device)
+    criterion = nn.MSELoss(reduction='mean')
     lr = opt.lr
     optimizer = torch.optim.Adam(
         model.parameters(),
@@ -200,7 +200,7 @@ def train(**kwargs):
 @torch.no_grad()
 def val(model, dataloader):
     model.eval()
-    criterion = nn.MSELoss().to(opt.device)
+    criterion = nn.MSELoss()
 
     loss_meter = meter.AverageValueMeter()
     psnr_meter = meter.AverageValueMeter()
@@ -222,23 +222,13 @@ def val(model, dataloader):
 
 
 if __name__ == '__main__':
-    # dump_input = torch.rand(
-    #     (10, 3, 256, 256)
-    # )
-    # dump_input_1 = torch.Tensor(10, 3, 256, 256)
-    # dump_input_1.copy_(dump_input)
-    # dump_input_1 += 0.001
-    #
-    # print(colour.utilities.metric_psnr(dump_input, dump_input_1))
-    #
-    # all_psnr = 0
-    # for i in range(10):
-    #     for j in range(3):
-    #         psnr = colour.utilities.metric_psnr(dump_input[i][j], dump_input_1[i][j])
-    #         all_psnr += psnr
-    #
-    # all_psnr /= 30
-    # print(psnr)
+    dump_input = torch.rand(
+        (10, 3, 256, 256)
+    )
+    cfg.merge_from_file("experiments/mpii/hrnet/w32_256x256_adam_lr1e-3.yaml")
+    model = models.HRNet(cfg)
+    output = model(dump_input)
+    print(output.size())
 
 
-    train()
+    # train()
