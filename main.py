@@ -51,7 +51,7 @@ class Config(object):
     num_workers = 4
     image_size = 64
     train_batch_size = 2 #train的维度为(2, 3, 256, 256)
-    val_batch_size = 2
+    val_batch_size = 10
     max_epoch = 200
     lr = 0.0002
     beta1 = 0.5  # Adam优化器的beta1参数
@@ -59,7 +59,7 @@ class Config(object):
 
     vis = False if temp_winorserver else True
     env = 'demoire'
-    plot_every = 40 #每隔20个batch, visdom画图一次
+    plot_every = 20 #每隔20个batch, visdom画图一次
 
     debug_file = 'F:\\workspaces\\learn_pytorch\\GAN\\debug'  # 存在该文件则进入debug模式
 
@@ -126,9 +126,9 @@ def train(**kwargs):
         psnr_meter.reset()
 
         for ii, (moires, clears) in tqdm(enumerate(train_dataloader)):
-            # bs, ncrops, c, h, w = moires.size()
-            moires = moires.to(opt.device)
-            clears = clears.to(opt.device)
+            bs, ncrops, c, h, w = moires.size()
+            moires = moires.view(-1, c, h, w).to(opt.device)
+            clears = clears.view(-1, c, h, w).to(opt.device)
 
             outputs = model(moires)
             loss = criterion(outputs, clears)
@@ -145,7 +145,7 @@ def train(**kwargs):
             loss_meter.add(loss.item())
             psnr_meter.add(psnr)
 
-            if opt.vis and (ii + 1) % opt.plot_every == 0: #40个batch画图一次
+            if opt.vis and (ii + 1) % opt.plot_every == 0: #20个batch画图一次
                 vis.images(moires.detach().cpu().numpy(), win='moire_image')
                 vis.images(outputs.detach().cpu().numpy(), win='output_image')
                 vis.images(clears.cpu().numpy(), win='clear_image')
@@ -232,21 +232,21 @@ def val(model, dataloader):
 
 
 if __name__ == '__main__':
-    dummy_input = torch.rand(
-        (10, 3, 256, 256)
-    )
+    # dummy_input = torch.rand(
+    #     (10, 3, 256, 256)
+    # )
+    #
+    # cfg.merge_from_file("config/cfg.yaml")
+    # model = get_pose_net(cfg)
+    # model = model.cuda()
+    #
+    # input_ = dummy_input.clone()
+    # input_ = input_.cuda()
+    #
+    # output = model(input_)
+    # output.sum().backward()
 
-    cfg.merge_from_file("config/cfg.yaml")
-    model = get_pose_net(cfg)
-    model = model.cuda()
-
-    input_ = dummy_input.clone()
-    input_ = input_.cuda()
-
-    output = model(input_)
-    output.sum().backward()
-
-    # train()
+    train()
 
 
 
