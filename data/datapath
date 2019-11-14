@@ -1,0 +1,6 @@
+train_moire:T:\\dataset\\AIM2019 demoireing challenge\\Training\\Training\\moire
+train_clear:T:\\dataset\\AIM2019 demoireing challenge\\Training\\Training\\clear
+valid_moire:T:\\dataset\\AIM2019 demoireing challenge\\ValidationMoire
+valid_clear:T:\\dataset\\AIM2019 demoireing challenge\\ValidationClear
+test:T:\\dataset\\AIM2019 demoireing challenge\\TestingMoire
+
