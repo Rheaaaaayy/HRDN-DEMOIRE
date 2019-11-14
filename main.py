@@ -59,7 +59,7 @@ class Config(object):
 
     vis = False if temp_winorserver else True
     env = 'demoire'
-    plot_every = 20 #每隔20个batch, visdom画图一次
+    plot_every = 40 #每隔20个batch, visdom画图一次
 
     debug_file = 'F:\\workspaces\\learn_pytorch\\GAN\\debug'  # 存在该文件则进入debug模式
 
@@ -145,8 +145,9 @@ def train(**kwargs):
             loss_meter.add(loss.item())
             psnr_meter.add(psnr)
 
-            if opt.vis and (ii + 1) % opt.plot_every == 0: #20个batch画图一次
+            if opt.vis and (ii + 1) % opt.plot_every == 0: #40个batch画图一次
                 vis.images(moires.detach().cpu().numpy(), win='moire_image')
+                vis.images(outputs.detach().cpu().numpy(), win='output_image')
                 vis.images(clears.cpu().numpy(), win='clear_image')
 
                 vis.plot('train_loss', loss_meter.value()[0]) #meter.value() return 2 value of mean and std
