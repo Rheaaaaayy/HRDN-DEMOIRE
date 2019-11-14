@@ -242,7 +242,8 @@ if __name__ == '__main__':
     input_ = input_.cuda()
 
     output = model(input_)
-    print(output.size())
+    for i in output:
+        print(i.size())
 
 
     # train()
