@@ -1,3 +1,4 @@
 checkpoints/*
 .idea/
 *.out
+*.pyc
