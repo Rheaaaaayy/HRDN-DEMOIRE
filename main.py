@@ -28,6 +28,7 @@ from utils.visualize import Visualizer
 
 
 import models
+from models.HRNet import get_pose_net
 from config import cfg, update_config
 # from myconfig import opt
 from data.dataset import MoireData
@@ -49,8 +50,8 @@ class Config(object):
                   0: "clear"}
     num_workers = 4
     image_size = 64
-    train_batch_size = 2 #train的维度为(2, 5, 3, 256, 256)
-    val_batch_size = 10
+    train_batch_size = 2 #train的维度为(2, 3, 256, 256)
+    val_batch_size = 2
     max_epoch = 200
     lr = 0.0002
     beta1 = 0.5  # Adam优化器的beta1参数
@@ -77,16 +78,16 @@ def train(**kwargs):
         vis = Visualizer(opt.env)
 
     #dataset
-    train_transforms = transforms.Compose([
-        transforms.FiveCrop(256),
-        transforms.Lambda(lambda crops: torch.stack([transforms.ToTensor()(crop) for crop in crops]))
-    ])
-    val_transforms = transforms.Compose([
+    # train_transforms = transforms.Compose([
+    #     transforms.FiveCrop(256),
+    #     transforms.Lambda(lambda crops: torch.stack([transforms.ToTensor()(crop) for crop in crops]))
+    # ])
+    data_transforms = transforms.Compose([
         transforms.RandomCrop(256),
         transforms.ToTensor()
     ])
-    train_data = MoireData(opt.train_path, train_transforms)
-    val_data = MoireData(opt.valid_path, val_transforms)
+    train_data = MoireData(opt.train_path, data_transforms)
+    val_data = MoireData(opt.valid_path, data_transforms)
     train_dataloader = DataLoader(train_data,
                             batch_size=opt.train_batch_size if opt.is_dev == False else 4,
                             shuffle=True,
@@ -100,7 +101,7 @@ def train(**kwargs):
 
     #model_init
     cfg.merge_from_file("config/cfg.yaml")
-    model = models.HRNet(cfg)
+    model = get_pose_net(cfg) #initweight
     map_location = lambda storage, loc: storage
     if opt.model_path:
         model.load_state_dict(torch.load(opt.model_path, map_location=map_location))
@@ -229,23 +230,23 @@ def val(model, dataloader):
 
 
 if __name__ == '__main__':
-    dummy_input = torch.rand(
-        (4, 3, 256, 256)
-    )
+    # dummy_input = torch.rand(
+    #     (4, 3, 256, 256)
+    # )
+    #
+    # cfg.merge_from_file("experiments/mpii/hrnet/w32_256x256_adam_lr1e-3.yaml")
+    # model = get_pose_net(cfg)
+    # model = model.cuda()
+    # # final_layer = model.final_layer
+    #
+    # # para = sum([np.prod(list(p.size())) for p in model.parameters()])
+    # # print(para)
+    # # print('Model {} : params: {:4f}M'.format(model._get_name(), para * 4 / 1000 / 1000))
+    #
+    # input_ = dummy_input.clone()
+    # input_ = input_.cuda()
+    # output = model(input_)
+    # print(output.size())
+    # output.sum().backward()
 
-    cfg.merge_from_file("experiments/mpii/hrnet/w32_256x256_adam_lr1e-3.yaml")
-    model = models.HRNet(cfg)
-    model = model.cuda()
-    # final_layer = model.final_layer
-
-    # para = sum([np.prod(list(p.size())) for p in model.parameters()])
-    # print(para)
-    # print('Model {} : params: {:4f}M'.format(model._get_name(), para * 4 / 1000 / 1000))
-
-    input_ = dummy_input.clone()
-    input_ = input_.cuda()
-    output = model(input_)
-    print(output.size())
-    output.sum().backward()
-
-    # train()
+    train()
