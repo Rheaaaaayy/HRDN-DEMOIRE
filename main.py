@@ -31,7 +31,7 @@ from config import cfg, update_config
 from data.dataset import MoireData
 
 class Config(object):
-    temp_winorserver = True
+    temp_winorserver = False
     is_dev = True if temp_winorserver else False
     is_linux = False if temp_winorserver else True
     gpu = False if temp_winorserver else True # 是否使用GPU
@@ -47,7 +47,8 @@ class Config(object):
                   0: "clear"}
     num_workers = 4
     image_size = 96
-    batch_size = 40
+    train_batch_size = 40 #train的维度为(40, 10, 3, 256, 256)
+    val_batch_size = 256
     max_epoch = 200
     lr = 0.0002
     beta1 = 0.5  # Adam优化器的beta1参数
@@ -74,19 +75,23 @@ def train(**kwargs):
         vis = Visualizer(opt.env)
 
     #dataset
-    data_transforms = transforms.Compose([
+    train_transforms = transforms.Compose([
         transforms.TenCrop(256),
         transforms.Lambda(lambda crops: torch.stack([transforms.ToTensor()(crop) for crop in crops]))
     ])
-    train_data = MoireData(opt.train_path, data_transforms)
-    val_data = MoireData(opt.valid_path, data_transforms)
+    val_transforms = transforms.Compose([
+        transforms.RandomCrop(256),
+        transforms.ToTensor()
+    ])
+    train_data = MoireData(opt.train_path, train_transforms)
+    val_data = MoireData(opt.valid_path, val_transforms)
     train_dataloader = DataLoader(train_data,
-                            batch_size=opt.batch_size if opt.is_dev == False else 4,
+                            batch_size=opt.train_batch_size if opt.is_dev == False else 4,
                             shuffle=True,
                             num_workers=opt.num_workers if opt.is_dev == False else 0,
                             drop_last=True)
     val_dataloader = DataLoader(val_data,
-                            batch_size=opt.batch_size if opt.is_dev == False else 4,
+                            batch_size=opt.val_batch_size if opt.is_dev == False else 4,
                             shuffle=True,
                             num_workers=opt.num_workers if opt.is_dev == False else 0,
                             drop_last=True)
@@ -117,8 +122,9 @@ def train(**kwargs):
         psnr_meter.reset()
 
         for ii, (moires, clears) in tqdm(enumerate(train_dataloader)):
-            moires = moires.to(opt.device)
-            clears = clears.to(opt.device)
+            bs, ncrops, c, h, w = moires.size()
+            moires = moires.view(-1, c, h, w).to(opt.device)
+            clears = clears.view(-1, c, h, w).to(opt.device)
 
             optimizer.zero_grad()
             outputs = model(moires)
