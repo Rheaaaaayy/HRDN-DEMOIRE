@@ -233,7 +233,7 @@ def val(model, dataloader):
 
 if __name__ == '__main__':
     dummy_input = torch.rand(
-        (5, 3, 256, 256)
+        (10, 3, 256, 256)
     )
 
     cfg.merge_from_file("config/cfg.yaml")
@@ -244,6 +244,7 @@ if __name__ == '__main__':
     input_ = input_.cuda()
 
     output = model(input_)
+    output.sum().backward()
 
     # train()
 
