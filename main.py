@@ -126,9 +126,9 @@ def train(**kwargs):
         psnr_meter.reset()
 
         for ii, (moires, clears) in tqdm(enumerate(train_dataloader)):
-            bs, ncrops, c, h, w = moires.size()
-            moires = moires.view(-1, c, h, w).to(opt.device)
-            clears = clears.view(-1, c, h, w).to(opt.device)
+            # bs, ncrops, c, h, w = moires.size()
+            moires = moires.to(opt.device)
+            clears = clears.to(opt.device)
 
             outputs = model(moires)
             loss = criterion(outputs, clears)
