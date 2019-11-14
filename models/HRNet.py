@@ -376,13 +376,10 @@ class PoseHighResolutionNet(nn.Module):
         #     padding=1 if extra.FINAL_CONV_KERNEL == 3 else 0
         # )
 
-        self.final_TransConv1 = nn.ConvTranspose2d(256, 128, kernel_size=3, stride=2, padding=1, output_padding=1)
-        self.final_bn = nn.BatchNorm2d(128, momentum=BN_MOMENTUM)
+        self.final_TransConv1 = nn.ConvTranspose2d(32, 16, kernel_size=3, stride=2, padding=1, output_padding=1)
+        self.final_bn = nn.BatchNorm2d(16, momentum=BN_MOMENTUM)
         self.final_layer = nn.Sequential(
-            nn.Conv2d(128, 32, 1, 1, 0),
-            nn.BatchNorm2d(32, momentum=BN_MOMENTUM),
-            nn.ReLU(inplace=True),
-            nn.Conv2d(32, 3, 3, 1, 1),
+            nn.Conv2d(16, 3, 3, 1, 1),
             nn.BatchNorm2d(3, momentum=BN_MOMENTUM),
             nn.ReLU(inplace=True)
         )
@@ -533,16 +530,12 @@ class PoseHighResolutionNet(nn.Module):
         y_list = self.stage6(x_list)
 
 
-        # upsample = self.final_TransConv1(y_list[1])
-        # x = y_list[0] + self.final_bn(upsample)
-        # x = self.relu(x)
-        # x = self.final_layer(x)
+        upsample = self.final_TransConv1(y_list[1])
+        x = y_list[0] + self.final_bn(upsample)
+        x = self.relu(x)
+        x = self.final_layer(x)
 
-        # for ii, feature_map in enumerate(y_list):
-        #     print(ii)
-        #     print(feature_map.size())
-
-        return y_list
+        return x
 
     def init_weights(self, pretrained=''):
         logger.info('=> init weights from normal distribution')

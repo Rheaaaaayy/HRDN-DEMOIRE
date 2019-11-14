@@ -230,6 +230,7 @@ def val(model, dataloader):
 
 
 if __name__ == '__main__':
+    '''
     dummy_input = torch.rand(
         (1, 3, 256, 256)
     )
@@ -242,11 +243,9 @@ if __name__ == '__main__':
     input_ = input_.cuda()
 
     output = model(input_)
-    for i in output:
-        print(i.size())
+    '''
 
-
-    # train()
+    train()
 
 
 
