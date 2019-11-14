@@ -108,6 +108,8 @@ def train(**kwargs):
 
     model = model.to(opt.device)
 
+    val_loss, val_psnr = val(model, val_dataloader)
+
     criterion = nn.MSELoss(reduction='mean')
     lr = opt.lr
     optimizer = torch.optim.Adam(
@@ -162,7 +164,7 @@ def train(**kwargs):
                                                                                             lr=lr,
                                                                                             val_psnr=val_psnr))
 
-        if (epoch + 1) % opt.save_every == 0: # 10个epoch保存一次
+        if (epoch + 1) % opt.save_every == 0 or epoch == 0: # 10个epoch保存一次
             prefix = 'checkpoints/HRnet_epoch{}_'.format(epoch+1)
             name = time.strftime(prefix + '%m%d_%H_%M_%S.pth')
             torch.save(model.state_dict(), name)
@@ -221,7 +223,7 @@ def val(model, dataloader):
         val_outputs = model(val_moires)
 
         loss = criterion(val_outputs, val_clears)
-        psnr = colour.utilities.metric_psnr(val_outputs, val_clears)
+        psnr = colour.utilities.metric_psnr(val_outputs.detach().cpu().numpy(), val_clears.cpu().numpy())
 
         loss_meter.add(loss.item())
         psnr_meter.add(psnr)
