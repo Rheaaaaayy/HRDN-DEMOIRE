@@ -133,9 +133,7 @@ def train(**kwargs):
             outputs = model(moires)
             loss = criterion(outputs, clears)
 
-            moires = moires.detach().cpu().numpy()
-            clears = clears.cpu().numpy()
-            psnr = colour.utilities.metric_psnr(outputs, clears)
+            psnr = colour.utilities.metric_psnr(outputs.detach().cpu().numpy(), clears.cpu().numpy())
             #saocaozuo gradient accumulation
             loss = loss/accumulation_steps
             loss.backward()
@@ -148,8 +146,8 @@ def train(**kwargs):
             psnr_meter.add(psnr)
 
             if opt.vis and (ii + 1) % opt.plot_every == 0: #20个batch画图一次
-                vis.images(moires, win='moire_image')
-                vis.images(clears, win='clear_image')
+                vis.images(moires.detach().cpu().numpy(), win='moire_image')
+                vis.images(clears.cpu().numpy(), win='clear_image')
 
                 vis.plot('train_loss', loss_meter.value()[0]) #meter.value() return 2 value of mean and std
                 vis.log("epoch:{epoch}, lr:{lr}, train_loss:{loss}, train_psnr:{train_psnr}".format(epoch=epoch,
