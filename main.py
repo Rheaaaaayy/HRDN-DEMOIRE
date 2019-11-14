@@ -224,9 +224,11 @@ def val(model, dataloader):
 if __name__ == '__main__':
     dump_input = torch.rand(
         (10, 3, 256, 256)
-    )
+    ).cuda()
     cfg.merge_from_file("experiments/mpii/hrnet/w32_256x256_adam_lr1e-3.yaml")
     model = models.HRNet(cfg)
+    model = model.cuda()
+
     output = model(dump_input)
     print(output.size())
 
