@@ -255,7 +255,10 @@ if __name__ == '__main__':
         if isinstance(m, nn.ReLU):
             if m.inplace:
                 continue
+        print(m)
+        print(input_.size())
         out = m(input_)
+        print(out.size())
         # out_sizes.append(np.array(out.size()))
         nums = np.prod(np.array(out.size()))
         total_nums += nums
