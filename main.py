@@ -21,6 +21,7 @@ from torch.utils.data import DataLoader
 from torchnet import meter
 from torch.autograd import Variable
 from torchvision import transforms, datasets
+from torch.utils.checkpoint import checkpoint
 
 
 from utils.visualize import Visualizer
@@ -32,7 +33,7 @@ from config import cfg, update_config
 from data.dataset import MoireData
 
 class Config(object):
-    temp_winorserver = False
+    temp_winorserver = True
     is_dev = True if temp_winorserver else False
     is_linux = False if temp_winorserver else True
     gpu = False if temp_winorserver else True # 是否使用GPU
@@ -47,15 +48,15 @@ class Config(object):
     label_dict = {1: "moire",
                   0: "clear"}
     num_workers = 4
-    image_size = 96
-    train_batch_size = 40 #train的维度为(40, 10, 3, 256, 256)
-    val_batch_size = 256
+    image_size = 64
+    train_batch_size = 2 #train的维度为(2, 5, 3, 256, 256)
+    val_batch_size = 10
     max_epoch = 200
     lr = 0.0002
     beta1 = 0.5  # Adam优化器的beta1参数
 
 
-    vis = True
+    vis = False if temp_winorserver else True
     env = 'demoire'
     plot_every = 20 #每隔20个batch, visdom画图一次
 
@@ -77,7 +78,7 @@ def train(**kwargs):
 
     #dataset
     train_transforms = transforms.Compose([
-        transforms.TenCrop(256),
+        transforms.FiveCrop(256),
         transforms.Lambda(lambda crops: torch.stack([transforms.ToTensor()(crop) for crop in crops]))
     ])
     val_transforms = transforms.Compose([
@@ -98,7 +99,7 @@ def train(**kwargs):
                             drop_last=True)
 
     #model_init
-    cfg.merge_from_file("experiments/mpii/hrnet/w32_256x256_adam_lr1e-3.yaml")
+    cfg.merge_from_file("config/cfg.yaml")
     model = models.HRNet(cfg)
     map_location = lambda storage, loc: storage
     if opt.model_path:
@@ -117,6 +118,7 @@ def train(**kwargs):
     loss_meter = meter.AverageValueMeter()
     psnr_meter = meter.AverageValueMeter()
     previous_loss = 1e100
+    accumulation_steps = 8
 
     for epoch in range(opt.max_epoch):
         loss_meter.reset()
@@ -127,12 +129,16 @@ def train(**kwargs):
             moires = moires.view(-1, c, h, w).to(opt.device)
             clears = clears.view(-1, c, h, w).to(opt.device)
 
-            optimizer.zero_grad()
             outputs = model(moires)
             loss = criterion(outputs, clears)
             psnr = colour.utilities.metric_psnr(outputs, clears)
+            #saocaozuo gradient accumulation
+            loss = loss/accumulation_steps
             loss.backward()
-            optimizer.step()
+
+            if (ii+1)%accumulation_steps == 0:
+                optimizer.step()
+                optimizer.zero_grad()
 
             loss_meter.add(loss.item())
             psnr_meter.add(psnr)
@@ -229,57 +235,15 @@ if __name__ == '__main__':
 
     cfg.merge_from_file("experiments/mpii/hrnet/w32_256x256_adam_lr1e-3.yaml")
     model = models.HRNet(cfg)
+    # final_layer = model.final_layer
 
-    # for p in model.parameters():
-    #     print(p.size())
-    #     ps = p[0][0][0][0].item()
-    #     print(ps, " ", sys.getsizeof(ps))
-    #     break
-    #
-
-    para = sum([np.prod(list(p.size())) for p in model.parameters()])
-    print(para)
-
-    print('Model {} : params: {:4f}M'.format(model._get_name(), para * 4 / 1000 / 1000))
+    # para = sum([np.prod(list(p.size())) for p in model.parameters()])
+    # print(para)
+    # print('Model {} : params: {:4f}M'.format(model._get_name(), para * 4 / 1000 / 1000))
 
     input_ = dummy_input.clone()
-    # 确保不需要计算梯度，因为我们的目的只是为了计算中间变量而已
-    input_.requires_grad_(requires_grad=False)
-
-
-    named_models = model.named_modules()
-    count = 0
-    total_nums = 0
-    for name, m in named_models:
-        if len(list(m.modules())) == 1:
-            # print(name)
-            # print(m)
-            count += 1
-            if isinstance(m, nn.ReLU):
-                if m.inplace:
-                    continue
-            if "downsample" in name:
-                continue
-
-            out = m(input_)
-
-            # print("input_size:", input_.size())
-            # print("output_size:", out.size())
-
-            # out_sizes.append(np.array(out.size()))
-            nums = np.prod(np.array(out.size()))
-            total_nums += nums
-            input_ = out
-
-    print(count)
-    print('Model {} : intermedite variables: {:3f} M (without backward)'
-          .format(model._get_name(), total_nums * 4 / 1000 / 1000))
-    print('Model {} : intermedite variables: {:3f} M (with backward)'
-          .format(model._get_name(), total_nums * 4 * 2 / 1000 / 1000))
-
-
-    # output = model(dummy_input)
-    # print(output.size())
-
+    output = model(input_)
+    print(output.size())
+    output.backward()
 
     # train()

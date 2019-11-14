@@ -15,7 +15,7 @@ import torch
 import torch.nn as nn
 
 
-BN_MOMENTUM = 0.1
+BN_MOMENTUM = 0.05
 logger = logging.getLogger(__name__)
 
 
@@ -377,6 +377,7 @@ class PoseHighResolutionNet(nn.Module):
         # )
 
         self.final_TransConv1 = nn.ConvTranspose2d(256, 128, kernel_size=3, stride=2, padding=1, output_padding=1)
+        self.final_bn = nn.BatchNorm2d(128, momentum=BN_MOMENTUM)
         self.final_layer = nn.Sequential(
             nn.Conv2d(128, 32, 1, 1, 0),
             nn.BatchNorm2d(32, momentum=BN_MOMENTUM),
@@ -533,7 +534,8 @@ class PoseHighResolutionNet(nn.Module):
 
 
         upsample = self.final_TransConv1(y_list[1])
-        x = y_list[0] + upsample
+        x = y_list[0] + self.final_bn(upsample)
+        x = self.relu(x)
         x = self.final_layer(x)
 
         # for ii, feature_map in enumerate(y_list):
