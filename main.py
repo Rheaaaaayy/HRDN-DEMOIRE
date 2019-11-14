@@ -8,7 +8,6 @@ import logging
 import numpy as np
 import matplotlib.pyplot as plt
 import colour
-import dill
 
 import fire
 import os
@@ -32,13 +31,18 @@ from config import cfg, update_config
 from data.dataset import MoireData
 
 class Config(object):
-    is_dev = True
-    gpu = False  # 是否使用GPU
+    temp_winorserver = True
+    is_dev = True if temp_winorserver else False
+    is_linux = False if temp_winorserver else True
+    gpu = False if temp_winorserver else True # 是否使用GPU
     device = torch.device('cuda') if gpu else torch.device('cpu')
 
-    data_path = 'T:\\dataset\\GAN\\'
-    train_path = "T:\\dataset\\AIM2019 demoireing challenge\\Training\\Training"
-    valid_path = "T:\\dataset\\AIM2019 demoireing challenge\\Validation"
+    if is_linux == False:
+        train_path = "T:\\dataset\\AIM2019 demoireing challenge\\Training\\Training"
+        valid_path = "T:\\dataset\\AIM2019 demoireing challenge\\Validation"
+    else:
+        train_path = "/home/publicuser/sayhi/dataset/demoire/Training"
+        valid_path = "/home/publicuser/sayhi/dataset/demoire/Validation"
     label_dict = {1: "moire",
                   0: "clear"}
     num_workers = 4
