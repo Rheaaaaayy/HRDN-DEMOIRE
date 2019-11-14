@@ -251,14 +251,15 @@ if __name__ == '__main__':
     total_nums = 0
     for i in range(1, len(mods)):
         m = mods[i]
-        # 注意这里，如果relu激活函数是inplace则不用计算
-        # if isinstance(m, nn.ReLU):
-        #     if m.inplace:
-        #         continue
         print(m)
-        print(input_.size())
+        # 注意这里，如果relu激活函数是inplace则不用计算
+        if isinstance(m, nn.ReLU):
+            if m.inplace:
+                continue
+
+        print("input_size:", input_.size())
         out = m(input_)
-        print(out.size())
+        print("output_size:", out.size())
         # out_sizes.append(np.array(out.size()))
         nums = np.prod(np.array(out.size()))
         total_nums += nums
