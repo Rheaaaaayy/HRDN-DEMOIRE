@@ -235,6 +235,7 @@ if __name__ == '__main__':
 
     cfg.merge_from_file("experiments/mpii/hrnet/w32_256x256_adam_lr1e-3.yaml")
     model = models.HRNet(cfg)
+    model = model.cuda()
     # final_layer = model.final_layer
 
     # para = sum([np.prod(list(p.size())) for p in model.parameters()])
