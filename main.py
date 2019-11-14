@@ -242,6 +242,7 @@ if __name__ == '__main__':
     # print('Model {} : params: {:4f}M'.format(model._get_name(), para * 4 / 1000 / 1000))
 
     input_ = dummy_input.clone()
+    input_ = input_.cuda()
     output = model(input_)
     print(output.size())
     output.backward()
