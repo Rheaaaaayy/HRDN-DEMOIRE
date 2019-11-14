@@ -11,6 +11,7 @@ import colour
 
 import fire
 import os
+import sys
 import ipdb
 from tqdm import tqdm
 import torch
@@ -47,8 +48,8 @@ class Config(object):
                   0: "clear"}
     num_workers = 4
     image_size = 96
-    train_batch_size = 1 #train的维度为(40, 10, 3, 256, 256)
-    val_batch_size = 64
+    train_batch_size = 40 #train的维度为(40, 10, 3, 256, 256)
+    val_batch_size = 256
     max_epoch = 200
     lr = 0.0002
     beta1 = 0.5  # Adam优化器的beta1参数
@@ -222,23 +223,52 @@ def val(model, dataloader):
 
 
 if __name__ == '__main__':
-    print('start')
-    dump_input = torch.rand(
+    dummy_input = torch.rand(
         (10, 3, 256, 256)
-    ).cuda()
-    print(dump_input.size())
+    )
 
-    dump_input1 = torch.rand(
-        (10, 3, 256, 256)
-    ).cuda()
-    print(dump_input1.size())
+    cfg.merge_from_file("experiments/mpii/hrnet/w32_256x256_adam_lr1e-3.yaml")
+    model = models.HRNet(cfg)
 
-
-    # cfg.merge_from_file("experiments/mpii/hrnet/w32_256x256_adam_lr1e-3.yaml")
-    # model = models.HRNet(cfg)
-    # model = model
+    # for p in model.parameters():
+    #     print(p.size())
+    #     ps = p[0][0][0][0].item()
+    #     print(ps, " ", sys.getsizeof(ps))
+    #     break
     #
-    # output = model(dump_input)
+
+    para = sum([np.prod(list(p.size())) for p in model.parameters()])
+    print(para)
+
+    print('Model {} : params: {:4f}M'.format(model._get_name(), para * 4 / 1000 / 1000))
+
+    input_ = dummy_input.clone()
+    # 确保不需要计算梯度，因为我们的目的只是为了计算中间变量而已
+    input_.requires_grad_(requires_grad=False)
+
+    mods = list(model.modules())
+    out_sizes = []
+    total_nums = 0
+    for i in range(1, len(mods)):
+        m = mods[i]
+        # 注意这里，如果relu激活函数是inplace则不用计算
+        if isinstance(m, nn.ReLU):
+            if m.inplace:
+                continue
+        out = m(input_)
+        # out_sizes.append(np.array(out.size()))
+        nums = np.prod(np.array(out.size()))
+        total_nums += nums
+        input_ = out
+
+
+    print('Model {} : intermedite variables: {:3f} M (without backward)'
+          .format(model._get_name(), total_nums * 4 / 1000 / 1000))
+    print('Model {} : intermedite variables: {:3f} M (with backward)'
+          .format(model._get_name(), total_nums * 4 * 2 / 1000 / 1000))
+
+
+    # output = model(dummy_input)
     # print(output.size())
 
 
