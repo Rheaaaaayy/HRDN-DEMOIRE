@@ -230,7 +230,7 @@ def val(model, dataloader):
 
 if __name__ == '__main__':
     dummy_input = torch.rand(
-        (10, 3, 256, 256)
+        (2, 3, 256, 256)
     )
 
     cfg.merge_from_file("experiments/mpii/hrnet/w32_256x256_adam_lr1e-3.yaml")
