@@ -47,7 +47,7 @@ class Config(object):
                   0: "clear"}
     num_workers = 4
     image_size = 96
-    train_batch_size = 6 #train的维度为(40, 10, 3, 256, 256)
+    train_batch_size = 1 #train的维度为(40, 10, 3, 256, 256)
     val_batch_size = 64
     max_epoch = 200
     lr = 0.0002
