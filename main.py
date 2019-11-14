@@ -246,26 +246,32 @@ if __name__ == '__main__':
     # 确保不需要计算梯度，因为我们的目的只是为了计算中间变量而已
     input_.requires_grad_(requires_grad=False)
 
-    mods = list(model.modules())
-    out_sizes = []
+
+    named_models = model.named_modules()
+    count = 0
     total_nums = 0
-    for i in range(1, len(mods)):
-        m = mods[i]
-        print(m)
-        # 注意这里，如果relu激活函数是inplace则不用计算
-        if isinstance(m, nn.ReLU):
-            if m.inplace:
+    for name, m in named_models:
+        if len(list(m.modules())) == 1:
+            # print(name)
+            # print(m)
+            count += 1
+            if isinstance(m, nn.ReLU):
+                if m.inplace:
+                    continue
+            if "downsample" in name:
                 continue
 
-        print("input_size:", input_.size())
-        out = m(input_)
-        print("output_size:", out.size())
-        # out_sizes.append(np.array(out.size()))
-        nums = np.prod(np.array(out.size()))
-        total_nums += nums
-        input_ = out
+            out = m(input_)
 
+            # print("input_size:", input_.size())
+            # print("output_size:", out.size())
 
+            # out_sizes.append(np.array(out.size()))
+            nums = np.prod(np.array(out.size()))
+            total_nums += nums
+            input_ = out
+
+    print(count)
     print('Model {} : intermedite variables: {:3f} M (without backward)'
           .format(model._get_name(), total_nums * 4 / 1000 / 1000))
     print('Model {} : intermedite variables: {:3f} M (with backward)'
