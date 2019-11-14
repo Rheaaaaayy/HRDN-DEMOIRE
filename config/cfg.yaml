@@ -57,8 +57,8 @@ MODEL:
       - 3
       - 3
       NUM_CHANNELS:
+      - 16
       - 32
-      - 64
       FUSE_METHOD: SUM
     STAGE3:
 #      NUM_MODULES: 4
@@ -70,9 +70,9 @@ MODEL:
       - 3
       - 3
       NUM_CHANNELS:
+      - 16
       - 32
       - 64
-      - 128
       FUSE_METHOD: SUM
     STAGE4:
 #      NUM_MODULES: 3
@@ -85,10 +85,10 @@ MODEL:
       - 3
       - 3
       NUM_CHANNELS:
+      - 16
       - 32
       - 64
       - 128
-      - 256
       FUSE_METHOD: SUM
     STAGE5:
 #      NUM_MODULES: 4
@@ -100,9 +100,9 @@ MODEL:
         - 3
         - 3
       NUM_CHANNELS:
+        - 16
         - 32
         - 64
-        - 128
       FUSE_METHOD: SUM
     STAGE6:
       NUM_MODULES: 1
@@ -112,8 +112,8 @@ MODEL:
         - 3
         - 3
       NUM_CHANNELS:
+        - 16
         - 32
-        - 64
       FUSE_METHOD: SUM
 LOSS:
   USE_TARGET_WEIGHT: true
