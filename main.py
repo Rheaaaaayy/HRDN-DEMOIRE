@@ -33,7 +33,7 @@ from config import cfg, update_config
 from data.dataset import MoireData
 
 class Config(object):
-    temp_winorserver = True
+    temp_winorserver = False
     is_dev = True if temp_winorserver else False
     is_linux = False if temp_winorserver else True
     gpu = False if temp_winorserver else True # 是否使用GPU
