@@ -234,7 +234,7 @@ if __name__ == '__main__':
         (1, 3, 256, 256)
     )
 
-    cfg.merge_from_file("experiments/mpii/hrnet/w32_256x256_adam_lr1e-3.yaml")
+    cfg.merge_from_file("config/cfg.yaml")
     model = get_pose_net(cfg)
     model = model.cuda()
 
