@@ -252,9 +252,9 @@ if __name__ == '__main__':
     for i in range(1, len(mods)):
         m = mods[i]
         # 注意这里，如果relu激活函数是inplace则不用计算
-        if isinstance(m, nn.ReLU):
-            if m.inplace:
-                continue
+        # if isinstance(m, nn.ReLU):
+        #     if m.inplace:
+        #         continue
         print(m)
         print(input_.size())
         out = m(input_)
