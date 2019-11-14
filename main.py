@@ -132,7 +132,7 @@ def train(**kwargs):
 
             outputs = model(moires)
             loss = criterion(outputs, clears)
-            psnr = colour.utilities.metric_psnr(outputs, clears)
+            psnr = colour.utilities.metric_psnr(outputs.cpu().numpy(), clears.cpu().numpy())
             #saocaozuo gradient accumulation
             loss = loss/accumulation_steps
             loss.backward()
