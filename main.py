@@ -152,10 +152,7 @@ def train(**kwargs):
             if opt.vis and (ii + 1) % opt.plot_every == 0: #20个batch画图一次
                 vis.images(moires.detach().cpu().numpy(), win='moire_image')
                 vis.images(outputs.detach().cpu().numpy(), win='output_image')
-                vis.text("current moires_size:{moires_size},\n moires:{moires}\n".format(
-                                                                                    moires_size=moires.size(),
-                                                                                    moires=moires), win="size")
-                vis.text("current outputs_size:{outputs_size},\n outputs:{outputs}\n".format(
+                vis.text("current outputs_size:{outputs_size},<br/> outputs:{outputs}<br/>".format(
                                                                                     outputs_size=outputs.size(),
                                                                                     outputs=outputs), win="size")
                 vis.images(clears.cpu().numpy(), win='clear_image')
