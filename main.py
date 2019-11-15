@@ -255,7 +255,7 @@ if __name__ == '__main__':
     # output = model(input_)
     # output.sum().backward()
 
-    train()
+    train(model_path='checkpoints/HRnet_epoch1_1115_18_35_27.pth')
 
 
 
