@@ -50,7 +50,7 @@ class Config(object):
         debug_file = '/home/publicuser/sayhi/demoire/debug'  # 存在该文件则进入debug模式
     label_dict = {1: "moire",
                   0: "clear"}
-    num_workers = 4
+    num_workers = 6
     image_size = 64
     train_batch_size = 2 #train的维度为(2, 5, 3, 256, 256)
     val_batch_size = 10
@@ -149,7 +149,7 @@ def train(**kwargs):
 
             if opt.vis and (ii + 1) % opt.plot_every == 0: #20个batch画图一次
                 vis.images(moires.detach().cpu().numpy(), win='moire_image')
-                print(outputs.size(), "\n", outputs, "\n")
+                vis.log("outputs_size:{0}, outputs_type:{1}".format(outputs.size(), type(outputs)), win="outputs_size")
                 vis.images(outputs.detach().cpu().numpy(), win='output_image')
                 vis.images(clears.cpu().numpy(), win='clear_image')
 
