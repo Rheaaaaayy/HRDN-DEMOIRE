@@ -165,10 +165,10 @@ def train(**kwargs):
                                                                                             lr=lr,
                                                                                             val_psnr=val_psnr))
 
-        # if (epoch + 1) % opt.save_every == 0 or epoch == 0: # 10个epoch保存一次
-        #     prefix = 'checkpoints/HRnet_epoch{}_'.format(epoch+1)
-        #     name = time.strftime(prefix + '%m%d_%H_%M_%S.pth')
-        #     torch.save(model.state_dict(), name)
+        if (epoch + 1) % opt.save_every == 0 or epoch == 0: # 10个epoch保存一次
+            prefix = 'checkpoints/HRnet_epoch{}_'.format(epoch+1)
+            name = time.strftime(prefix + '%m%d_%H_%M_%S.pth')
+            torch.save(model.state_dict(), name)
 
         ''' lr decay
         if loss_meter.value()[0] > previous_loss:
