@@ -47,7 +47,7 @@ class Config(object):
     else:
         train_path = "/home/publicuser/sayhi/dataset/demoire/Training"
         valid_path = "/home/publicuser/sayhi/dataset/demoire/Validation"
-        debug_file = '/home/publicuser/sayhi/demoire/debug'  # 存在该文件则进入debug模式
+        debug_file = '/home/publicuser/sayhi/demoire/HRnet-demoire/debug'  # 存在该文件则进入debug模式
     label_dict = {1: "moire",
                   0: "clear"}
     num_workers = 6
@@ -223,17 +223,17 @@ def val(model, dataloader):
 
     loss_meter = meter.AverageValueMeter()
     psnr_meter = meter.AverageValueMeter()
-
     for ii, (val_moires, val_clears) in tqdm(enumerate(dataloader)):
         val_moires = val_moires.to(opt.device)
         val_clears = val_clears.to(opt.device)
         val_outputs = model(val_moires)
+        val_outputs = (val_outputs + 1.0) / 2.0
 
-        loss = criterion(val_outputs, val_clears)
-        psnr = colour.utilities.metric_psnr(val_outputs.detach().cpu().numpy(), val_clears.cpu().numpy())
+        val_loss = criterion(val_outputs, val_clears)
+        val_psnr = colour.utilities.metric_psnr(val_outputs.detach().cpu().numpy(), val_clears.cpu().numpy())
 
-        loss_meter.add(loss.item())
-        psnr_meter.add(psnr)
+        loss_meter.add(val_loss.item())
+        psnr_meter.add(val_psnr)
 
     model.train()
     return loss_meter.value()[0], psnr_meter.value()[0]
