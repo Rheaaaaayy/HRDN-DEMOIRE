@@ -159,11 +159,12 @@ def train(**kwargs):
                                                                                           lr=lr,
                                                                                           train_psnr = psnr_meter.value()[0]))
         val_loss, val_psnr = val(model, val_dataloader)
-        vis.plot('val_loss', val_loss)
-        vis.log("epoch:{epoch}, lr:{lr}, val_loss:{val_loss}, val_psnr:{val_psnr}".format(epoch=epoch,
-                                                                                            val_loss=val_loss,
-                                                                                            lr=lr,
-                                                                                            val_psnr=val_psnr))
+        if opt.vis:
+            vis.plot('val_loss', val_loss)
+            vis.log("epoch:{epoch}, lr:{lr}, val_loss:{val_loss}, val_psnr:{val_psnr}".format(epoch=epoch,
+                                                                                                val_loss=val_loss,
+                                                                                                lr=lr,
+                                                                                                val_psnr=val_psnr))
 
         if (epoch + 1) % opt.save_every == 0 or epoch == 0: # 10个epoch保存一次
             prefix = 'checkpoints/HRnet_epoch{}_'.format(epoch+1)
