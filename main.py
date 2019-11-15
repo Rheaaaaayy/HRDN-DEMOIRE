@@ -128,36 +128,36 @@ def train(**kwargs):
         loss_meter.reset()
         psnr_meter.reset()
 
-        # for ii, (moires, clears) in tqdm(enumerate(train_dataloader)):
-        #     bs, ncrops, c, h, w = moires.size()
-        #     moires = moires.view(-1, c, h, w).to(opt.device)
-        #     clears = clears.view(-1, c, h, w).to(opt.device)
-        #
-        #     outputs = model(moires)
-        #     loss = criterion(outputs, clears)
-        #
-        #     psnr = colour.utilities.metric_psnr(outputs.detach().cpu().numpy(), clears.cpu().numpy())
-        #     #saocaozuo gradient accumulation
-        #     loss = loss/accumulation_steps
-        #     loss.backward()
-        #
-        #     if (ii+1)%accumulation_steps == 0:
-        #         optimizer.step()
-        #         optimizer.zero_grad()
-        #
-        #     loss_meter.add(loss.item())
-        #     psnr_meter.add(psnr)
-        #
-        #     if opt.vis and (ii + 1) % opt.plot_every == 0: #20个batch画图一次
-        #         vis.images(moires.detach().cpu().numpy(), win='moire_image')
-        #         vis.images(outputs.detach().cpu().numpy(), win='output_image')
-        #         vis.images(clears.cpu().numpy(), win='clear_image')
-        #
-        #         vis.plot('train_loss', loss_meter.value()[0]) #meter.value() return 2 value of mean and std
-        #         vis.log("epoch:{epoch}, lr:{lr}, train_loss:{loss}, train_psnr:{train_psnr}".format(epoch=epoch,
-        #                                                                                   loss=loss_meter.value()[0],
-        #                                                                                   lr=lr,
-        #                                                                                   train_psnr = psnr_meter.value()[0]))
+        for ii, (moires, clears) in tqdm(enumerate(train_dataloader)):
+            bs, ncrops, c, h, w = moires.size()
+            moires = moires.view(-1, c, h, w).to(opt.device)
+            clears = clears.view(-1, c, h, w).to(opt.device)
+
+            outputs = model(moires)
+            loss = criterion(outputs, clears)
+
+            psnr = colour.utilities.metric_psnr(outputs.detach().cpu().numpy(), clears.cpu().numpy())
+            #saocaozuo gradient accumulation
+            loss = loss/accumulation_steps
+            loss.backward()
+
+            if (ii+1)%accumulation_steps == 0:
+                optimizer.step()
+                optimizer.zero_grad()
+
+            loss_meter.add(loss.item())
+            psnr_meter.add(psnr)
+
+            if opt.vis and (ii + 1) % opt.plot_every == 0: #20个batch画图一次
+                vis.images(moires.detach().cpu().numpy(), win='moire_image')
+                vis.images(outputs.detach().cpu().numpy(), win='output_image')
+                vis.images(clears.cpu().numpy(), win='clear_image')
+
+                vis.plot('train_loss', loss_meter.value()[0]) #meter.value() return 2 value of mean and std
+                vis.log("epoch:{epoch}, lr:{lr}, train_loss:{loss}, train_psnr:{train_psnr}".format(epoch=epoch,
+                                                                                          loss=loss_meter.value()[0],
+                                                                                          lr=lr,
+                                                                                          train_psnr = psnr_meter.value()[0]))
         val_loss, val_psnr = val(model, val_dataloader)
         vis.plot('val_loss', val_loss)
         vis.log("epoch:{epoch}, lr:{lr}, val_loss:{val_loss}, val_psnr:{val_psnr}".format(epoch=epoch,
