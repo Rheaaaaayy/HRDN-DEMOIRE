@@ -43,9 +43,11 @@ class Config(object):
     if is_linux == False:
         train_path = "T:\\dataset\\AIM2019 demoireing challenge\\Training\\Training"
         valid_path = "T:\\dataset\\AIM2019 demoireing challenge\\Validation"
+        debug_file = 'F:\\workspaces\\demoire\\debug'  # 存在该文件则进入debug模式
     else:
         train_path = "/home/publicuser/sayhi/dataset/demoire/Training"
         valid_path = "/home/publicuser/sayhi/dataset/demoire/Validation"
+        debug_file = '/home/publicuser/sayhi/demoire/debug'  # 存在该文件则进入debug模式
     label_dict = {1: "moire",
                   0: "clear"}
     num_workers = 4
@@ -54,14 +56,13 @@ class Config(object):
     val_batch_size = 10
     max_epoch = 200
     lr = 0.0002
+    lr_decay = 0.95
     beta1 = 0.5  # Adam优化器的beta1参数
 
 
     vis = False if temp_winorserver else True
     env = 'demoire'
     plot_every = 20 #每隔20个batch, visdom画图一次
-
-    debug_file = 'F:\\workspaces\\learn_pytorch\\GAN\\debug'  # 存在该文件则进入debug模式
 
     save_every = 10  # 每10个epoch保存一次模型
     model_path = None #'checkpoints/HRnet_211.pth'
@@ -145,8 +146,10 @@ def train(**kwargs):
             psnr = colour.utilities.metric_psnr(outputs.detach().cpu().numpy(), clears.cpu().numpy())
             psnr_meter.add(psnr)
 
+
             if opt.vis and (ii + 1) % opt.plot_every == 0: #20个batch画图一次
                 vis.images(moires.detach().cpu().numpy(), win='moire_image')
+                print(outputs.size(), "\n", outputs, "\n")
                 vis.images(outputs.detach().cpu().numpy(), win='output_image')
                 vis.images(clears.cpu().numpy(), win='clear_image')
 
@@ -155,26 +158,27 @@ def train(**kwargs):
                                                                                           loss=loss_meter.value()[0],
                                                                                           lr=lr,
                                                                                           train_psnr = psnr_meter.value()[0]))
+                if os.path.exists(opt.debug_file):
+                    ipdb.set_trace()
+
         val_loss, val_psnr = val(model, val_dataloader)
         if opt.vis:
             vis.plot('val_loss', val_loss)
-            vis.log("epoch:{epoch}, lr:{lr}, val_loss:{val_loss}, val_psnr:{val_psnr}".format(epoch=epoch,
-                                                                                                val_loss=val_loss,
-                                                                                                lr=lr,
-                                                                                                val_psnr=val_psnr))
+            vis.log("epoch:{epoch}, val_loss:{val_loss}, val_psnr:{val_psnr}".format(epoch=epoch,
+                                                                                    val_loss=val_loss,
+                                                                                    val_psnr=val_psnr))
 
         if (epoch + 1) % opt.save_every == 0 or epoch == 0: # 10个epoch保存一次
             prefix = 'checkpoints/HRnet_epoch{}_'.format(epoch+1)
             name = time.strftime(prefix + '%m%d_%H_%M_%S.pth')
             torch.save(model.state_dict(), name)
 
-        ''' lr decay
         if loss_meter.value()[0] > previous_loss:
             lr = lr * opt.lr_decay
             for param_group in optimizer.param_groups:
                 param_group['lr'] = lr
         previous_loss = loss_meter.value()[0]
-        '''
+
 
     prefix = 'checkpoints/HRnet_final_'
     name = time.strftime(prefix + '%m%d_%H_%M_%S.pth')

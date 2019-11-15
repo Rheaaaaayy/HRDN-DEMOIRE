@@ -380,8 +380,7 @@ class PoseHighResolutionNet(nn.Module):
         self.final_bn = nn.BatchNorm2d(16, momentum=BN_MOMENTUM)
         self.final_layer = nn.Sequential(
             nn.Conv2d(16, 3, 3, 1, 1),
-            nn.BatchNorm2d(3, momentum=BN_MOMENTUM),
-            nn.ReLU(inplace=True)
+            nn.Tanh()
         )
 
 
