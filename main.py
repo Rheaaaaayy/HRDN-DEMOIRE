@@ -64,7 +64,7 @@ class Config(object):
     env = 'demoire'
     plot_every = 20 #每隔20个batch, visdom画图一次
 
-    save_every = 10  # 每10个epoch保存一次模型
+    save_every = 5  # 每5个epoch保存一次模型
     model_path = None #'checkpoints/HRnet_211.pth'
 
 opt = Config()
@@ -149,9 +149,10 @@ def train(**kwargs):
 
             if opt.vis and (ii + 1) % opt.plot_every == 0: #20个batch画图一次
                 vis.images(moires.detach().cpu().numpy(), win='moire_image')
-                vis.log(win="outputs_size", info = "outputs_size:{outputs_size}, outputs_type:{outputs_type}".format(outputs_size=outputs.size(),
-                                                                                          outputs_type=type(outputs) ))
                 vis.images(outputs.detach().cpu().numpy(), win='output_image')
+                vis.text("outputs_size:{outputs_size}, outputs_type:{outputs_type}".format(
+                                                                                    outputs_size=outputs.size(),
+                                                                                    outputs_type=type(outputs)), win="outputs_size")
                 vis.images(clears.cpu().numpy(), win='clear_image')
 
                 vis.plot('train_loss', loss_meter.value()[0]) #meter.value() return 2 value of mean and std
