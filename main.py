@@ -55,7 +55,7 @@ class Config(object):
     train_batch_size = 2 #train的维度为(2, 5, 3, 256, 256)
     val_batch_size = 10
     max_epoch = 200
-    lr = 0.0002
+    lr = 0.0001
     lr_decay = 0.95
     beta1 = 0.5  # Adam优化器的beta1参数
 
@@ -149,7 +149,8 @@ def train(**kwargs):
 
             if opt.vis and (ii + 1) % opt.plot_every == 0: #20个batch画图一次
                 vis.images(moires.detach().cpu().numpy(), win='moire_image')
-                vis.log("outputs_size:{0}, outputs_type:{1}".format(outputs.size(), type(outputs)), win="outputs_size")
+                vis.log(win="outputs_size", info = "outputs_size:{outputs_size}, outputs_type:{outputs_type}".format(outputs_size=outputs.size(),
+                                                                                          outputs_type=type(outputs) ))
                 vis.images(outputs.detach().cpu().numpy(), win='output_image')
                 vis.images(clears.cpu().numpy(), win='clear_image')
 
