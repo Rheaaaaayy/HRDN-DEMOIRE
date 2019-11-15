@@ -162,8 +162,8 @@ def train(**kwargs):
                                                                                           loss=loss_meter.value()[0],
                                                                                           lr=lr,
                                                                                           train_psnr = psnr_meter.value()[0]))
-                if os.path.exists(opt.debug_file):
-                    ipdb.set_trace()
+                # if os.path.exists(opt.debug_file):
+                #     ipdb.set_trace()
 
         val_loss, val_psnr = val(model, val_dataloader)
         if opt.vis:
