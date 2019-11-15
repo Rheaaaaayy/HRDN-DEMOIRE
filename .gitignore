@@ -2,3 +2,5 @@ checkpoints/*
 .idea/
 *.out
 *.pyc
+*.cpython-37.pyc
+*/__pycache__/*

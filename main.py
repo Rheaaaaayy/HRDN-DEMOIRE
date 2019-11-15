@@ -108,9 +108,6 @@ def train(**kwargs):
 
     model = model.to(opt.device)
 
-    val_loss, val_psnr = val(model, val_dataloader)
-    print("test_val", val_loss, val_psnr)
-
     criterion = nn.MSELoss(reduction='mean')
     lr = opt.lr
     optimizer = torch.optim.Adam(
@@ -135,8 +132,6 @@ def train(**kwargs):
 
             outputs = model(moires)
             loss = criterion(outputs, clears)
-
-            psnr = colour.utilities.metric_psnr(outputs.detach().cpu().numpy(), clears.cpu().numpy())
             #saocaozuo gradient accumulation
             loss = loss/accumulation_steps
             loss.backward()
@@ -146,6 +141,8 @@ def train(**kwargs):
                 optimizer.zero_grad()
 
             loss_meter.add(loss.item())
+
+            psnr = colour.utilities.metric_psnr(outputs.detach().cpu().numpy(), clears.cpu().numpy())
             psnr_meter.add(psnr)
 
             if opt.vis and (ii + 1) % opt.plot_every == 0: #20个batch画图一次
