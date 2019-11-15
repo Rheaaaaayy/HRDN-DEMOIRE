@@ -152,10 +152,10 @@ def train(**kwargs):
                 vis.images(outputs.detach().cpu().numpy(), win='output_image')
                 vis.text("current moires_size:{moires_size}, moires:{moires}".format(
                                                                                     moires_size=moires.size(),
-                                                                                    moires_type=moires), win="size")
+                                                                                    moires=moires), win="size")
                 vis.text("current outputs_size:{outputs_size}, outputs:{outputs}".format(
                                                                                     outputs_size=outputs.size(),
-                                                                                    outputs_type=outputs), win="size")
+                                                                                    outputs=outputs), win="size")
                 print(type(outputs))
                 vis.images(clears.cpu().numpy(), win='clear_image')
 
