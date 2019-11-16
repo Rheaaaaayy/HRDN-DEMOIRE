@@ -28,8 +28,8 @@ class MoireData(data.Dataset):
         moire = Image.open(moire_img_path).convert('RGB')
         clear = Image.open(clear_img_path).convert('RGB')
 
-        random_x =np.random.randint(127, moire.shape[0]-128)
-        random_y = np.random.randint(127, moire.shape[1]-128)
+        random_x =np.random.randint(127, moire.size()[0]-128)
+        random_y = np.random.randint(127, moire.size()[1]-128)
         moire = moire[(random_x-128): (random_x+128), (random_y-128): (random_y+128)]
         clear = clear[(random_x - 128): (random_x + 128), (random_y - 128): (random_y + 128)]
 
