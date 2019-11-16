@@ -239,10 +239,14 @@ def val(model, dataloader, vis=None):
         loss_meter.add(val_loss.item())
         psnr_meter.add(val_psnr)
 
-        if opt.vis and vis != None:  # 10个iter画图一次
+        if opt.vis and vis != None:  # 每个个iter画图一次
             vis.images(val_moires.detach().cpu().numpy(), win='val_moire_image')
             vis.images(val_outputs.detach().cpu().numpy(), win='val_output_image')
             vis.images(val_clears.cpu().numpy(), win='val_clear_image')
+
+            vis.log("epoch:{epoch}, val_loss:{val_loss}, val_psnr:{val_psnr}".format(epoch="init valid",
+                                                                                     val_loss=val_loss,
+                                                                                     val_psnr=val_psnr))
 
     model.train()
     return loss_meter.value()[0], psnr_meter.value()[0]
