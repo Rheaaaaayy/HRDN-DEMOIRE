@@ -105,7 +105,11 @@ def train(**kwargs):
     model = get_pose_net(cfg) #initweight
     map_location = lambda storage, loc: storage
     if opt.model_path:
-        model.load_state_dict(torch.load(opt.model_path, map_location=map_location))
+        checkpoint = torch.load(opt.model_path, map_location=map_location)
+        last_epoch = checkpoint["epoch"]
+        model_state = checkpoint["model"]
+        optimizer_state = checkpoint["optimizer"]
+        model.load_state_dict(model_state)
         print("load model {} is done!\n".format(opt.model_path))
 
     model = model.to(opt.device)
@@ -127,6 +131,8 @@ def train(**kwargs):
     accumulation_steps = 8
 
     for epoch in range(opt.max_epoch):
+        if epoch < last_epoch:
+            continue
         loss_meter.reset()
         psnr_meter.reset()
 
@@ -178,8 +184,13 @@ def train(**kwargs):
 
         if (epoch + 1) % opt.save_every == 0 or epoch == 0: # 10个epoch保存一次
             prefix = 'checkpoints/HRnet_epoch{}_'.format(epoch+1)
-            name = time.strftime(prefix + '%m%d_%H_%M_%S.pth')
-            torch.save(model.state_dict(), name)
+            file_name = time.strftime(prefix + '%m%d_%H_%M_%S.pth')
+            checkpoint = {
+                'epoch': epoch + 1,
+                "optimizer": optimizer.state_dict(),
+                "model": model.state_dict()
+            }
+            torch.save(checkpoint, file_name)
 
         if loss_meter.value()[0] > previous_loss:
             lr = lr * opt.lr_decay
@@ -189,8 +200,14 @@ def train(**kwargs):
 
 
     prefix = 'checkpoints/HRnet_final_'
-    name = time.strftime(prefix + '%m%d_%H_%M_%S.pth')
-    torch.save(model.state_dict(), name)
+    file_name = time.strftime(prefix + '%m%d_%H_%M_%S.pth')
+    checkpoint = {
+        'epoch': epoch + 1,
+        "optimizer": optimizer.state_dict(),
+        "model": model.state_dict()
+    }
+    torch.save(checkpoint, file_name)
+
 
 '''
     # plot the example
