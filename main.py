@@ -111,7 +111,7 @@ def train(**kwargs):
 
     model = model.to(opt.device)
 
-    val_loss, val_psnr = val(model, val_dataloader)
+    val_loss, val_psnr = val(model, val_dataloader, vis)
     print(val_loss, val_psnr)
 
     criterion = nn.MSELoss(reduction='mean')
