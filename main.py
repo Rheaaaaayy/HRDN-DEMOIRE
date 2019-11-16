@@ -52,7 +52,7 @@ class Config(object):
                   0: "clear"}
     num_workers = 6
     image_size = 64
-    train_batch_size = 2 #train的维度为(2, 5, 3, 256, 256)
+    train_batch_size = 10 #train的维度为(10, 3, 256, 256) 一个batch10张照片，要1000次iter
     val_batch_size = 10
     max_epoch = 200
     lr = 0.0001
@@ -64,7 +64,7 @@ class Config(object):
     env = 'demoire'
     plot_every = 20 #每隔20个batch, visdom画图一次
 
-    save_every = 5  # 每5个epoch保存一次模型
+    save_every = 2  # 每5个epoch保存一次模型
     model_path = None #'checkpoints/HRnet_211.pth'
 
 opt = Config()
@@ -83,12 +83,12 @@ def train(**kwargs):
         transforms.FiveCrop(256),
         transforms.Lambda(lambda crops: torch.stack([transforms.ToTensor()(crop) for crop in crops]))
     ])
-    val_transforms = transforms.Compose([
+    data_transforms = transforms.Compose([
         transforms.RandomCrop(256),
         transforms.ToTensor()
     ])
-    train_data = MoireData(opt.train_path, train_transforms)
-    val_data = MoireData(opt.valid_path, val_transforms)
+    train_data = MoireData(opt.train_path, data_transforms)
+    val_data = MoireData(opt.valid_path, data_transforms)
     train_dataloader = DataLoader(train_data,
                             batch_size=opt.train_batch_size if opt.is_dev == False else 4,
                             shuffle=True,
@@ -130,9 +130,9 @@ def train(**kwargs):
         psnr_meter.reset()
 
         for ii, (moires, clears) in tqdm(enumerate(train_dataloader)):
-            bs, ncrops, c, h, w = moires.size()
-            moires = moires.view(-1, c, h, w).to(opt.device)
-            clears = clears.view(-1, c, h, w).to(opt.device)
+            # bs, ncrops, c, h, w = moires.size()
+            moires = moires.to(opt.device)
+            clears = clears.to(opt.device)
 
             outputs = model(moires)
             outputs = (outputs + 1.0) / 2.0
@@ -145,7 +145,7 @@ def train(**kwargs):
                 optimizer.step()
                 optimizer.zero_grad()
 
-            loss_meter.add(loss.item())
+            loss_meter.add(loss.item()*accumulation_steps)
 
 
             psnr = colour.utilities.metric_psnr(outputs.detach().cpu().numpy(), clears.cpu().numpy())
@@ -220,7 +220,7 @@ def train(**kwargs):
 
 
 @torch.no_grad()
-def val(model, dataloader):
+def val(model, dataloader, vis):
     model.eval()
     criterion = nn.MSELoss()
 
@@ -237,6 +237,11 @@ def val(model, dataloader):
 
         loss_meter.add(val_loss.item())
         psnr_meter.add(val_psnr)
+
+        if opt.vis :  # 10个iter画图一次
+            vis.images(val_moires.detach().cpu().numpy(), win='val_moire_image')
+            vis.images(val_outputs.detach().cpu().numpy(), win='val_output_image')
+            vis.images(val_clears.cpu().numpy(), win='val_clear_image')
 
     model.train()
     return loss_meter.value()[0], psnr_meter.value()[0]
@@ -258,7 +263,7 @@ if __name__ == '__main__':
     # output = model(input_)
     # output.sum().backward()
 
-    train(model_path='checkpoints/HRnet_epoch1_1115_18_35_27.pth')
+    train(model_path='checkpoints/HRnet_epoch15_1116_10_38_05.pth')
 
 
 
