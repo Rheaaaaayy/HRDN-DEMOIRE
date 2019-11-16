@@ -222,7 +222,7 @@ def train(**kwargs):
 
 
 @torch.no_grad()
-def val(model, dataloader, vis):
+def val(model, dataloader, vis=None):
     model.eval()
     criterion = nn.MSELoss()
 
@@ -240,7 +240,7 @@ def val(model, dataloader, vis):
         loss_meter.add(val_loss.item())
         psnr_meter.add(val_psnr)
 
-        if opt.vis :  # 10个iter画图一次
+        if opt.vis and vis != None:  # 10个iter画图一次
             vis.images(val_moires.detach().cpu().numpy(), win='val_moire_image')
             vis.images(val_outputs.detach().cpu().numpy(), win='val_output_image')
             vis.images(val_clears.cpu().numpy(), win='val_clear_image')
