@@ -85,6 +85,8 @@ def train(**kwargs):
     ])
     data_transforms = transforms.Compose([
         transforms.RandomCrop(256),
+        transforms.RandomHorizontalFlip(),
+        transforms.RandomVerticalFlip(),
         transforms.ToTensor()
     ])
     train_data = MoireData(opt.train_path, data_transforms)
@@ -168,7 +170,7 @@ def train(**kwargs):
                 # if os.path.exists(opt.debug_file):
                 #     ipdb.set_trace()
 
-        val_loss, val_psnr = val(model, val_dataloader)
+        val_loss, val_psnr = val(model, val_dataloader, vis)
         if opt.vis:
             vis.plot('val_loss', val_loss)
             vis.log("epoch:{epoch}, val_loss:{val_loss}, val_psnr:{val_psnr}".format(epoch=epoch,
