@@ -84,9 +84,7 @@ def train(**kwargs):
         transforms.Lambda(lambda crops: torch.stack([transforms.ToTensor()(crop) for crop in crops]))
     ])
     data_transforms = transforms.Compose([
-        transforms.RandomCrop(256),
-        transforms.RandomHorizontalFlip(),
-        transforms.RandomVerticalFlip(),
+        # transforms.RandomCrop(256),
         transforms.ToTensor()
     ])
     train_data = MoireData(opt.train_path, data_transforms)
@@ -108,6 +106,7 @@ def train(**kwargs):
     map_location = lambda storage, loc: storage
     if opt.model_path:
         model.load_state_dict(torch.load(opt.model_path, map_location=map_location))
+        print("load model {} is done!\n".format(opt.model_path))
 
     model = model.to(opt.device)
 
