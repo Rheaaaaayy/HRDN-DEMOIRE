@@ -28,10 +28,16 @@ class MoireData(data.Dataset):
         moire = Image.open(moire_img_path).convert('RGB')
         clear = Image.open(clear_img_path).convert('RGB')
 
-        random_x =np.random.randint(0, moire.size[0]-256)
-        random_y = np.random.randint(0, moire.size[1]-256)
-        moire = moire.crop((random_x, random_y, random_x+256, random_y+256))
-        clear = clear.crop((random_x, random_y, random_x+256, random_y+256))
+        is_global = np.random.randint(0, 2)
+        resize = transforms.Resize(256)
+        if is_global==0:
+            moire = resize(moire)
+            clear = resize(clear)
+        else:
+            random_x =np.random.randint(0, moire.size[0]-256)
+            random_y = np.random.randint(0, moire.size[1]-256)
+            moire = moire.crop((random_x, random_y, random_x+256, random_y+256))
+            clear = clear.crop((random_x, random_y, random_x+256, random_y+256))
 
         moire = self.transforms(moire)
         clear = self.transforms(clear)

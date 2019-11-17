@@ -480,6 +480,7 @@ class PoseHighResolutionNet(nn.Module):
         return nn.Sequential(*modules), num_inchannels
 
     def forward(self, x):
+        input = x
         x = self.conv1(x)
         x = self.bn1(x)
         x = self.relu(x)
@@ -533,6 +534,7 @@ class PoseHighResolutionNet(nn.Module):
         x = y_list[0] + self.final_bn(upsample)
         x = self.relu(x)
         x = self.final_layer(x)
+        x = x + input
 
         return x
 
