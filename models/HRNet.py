@@ -558,6 +558,7 @@ class PoseHighResolutionNet(nn.Module):
 
         if os.path.isfile(pretrained):
             checkpoint = torch.load(pretrained, map_location=lambda storage, loc: storage)
+            print(checkpoint.keys())
             pretrained_state_dict = checkpoint["model"]
             logger.info('=> loading pretrained model {}'.format(pretrained))
 
@@ -574,7 +575,6 @@ class PoseHighResolutionNet(nn.Module):
 
 def get_pose_net(cfg, pretrained, **kwargs):
     model = PoseHighResolutionNet(cfg, **kwargs)
-    print(pretrained)
     model.init_weights(pretrained=pretrained)
 
     # if is_train and cfg.MODEL.INIT_WEIGHTS:
