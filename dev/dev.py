@@ -129,9 +129,10 @@ def train(**kwargs):
     print(val_loss, val_psnr)
 
     criterion = L1_Charbonnier_loss()
+    lr = opt.lr
     optimizer = torch.optim.Adam(
         model.parameters(),
-        lr=opt.lr,
+        lr=lr,
         weight_decay=0.0001
     )
     optimizer.load_state_dict(optimizer_state)
