@@ -132,10 +132,18 @@ def train(**kwargs):
     lr = opt.lr
     optimizer = torch.optim.Adam(
         model.parameters(),
-        lr=lr,
+        lr=0.00001,
         weight_decay=0.0001
     )
     # optimizer.load_state_dict(optimizer_state)
+    prefix = 'checkpoints/HRnet_trained_'
+    file_name = time.strftime(prefix + '%m%d_%H_%M_%S.pth')
+    checkpoint = {
+        'epoch': 118,
+        "optimizer": optimizer.state_dict(),
+        "model": model.state_dict()
+    }
+    torch.save(checkpoint, file_name)
 
     loss_meter = meter.AverageValueMeter()
     psnr_meter = meter.AverageValueMeter()
