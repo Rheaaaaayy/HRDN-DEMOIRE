@@ -574,8 +574,8 @@ class PoseHighResolutionNet(nn.Module):
 
 def get_pose_net(cfg, *pretrained, **kwargs):
     model = PoseHighResolutionNet(cfg, **kwargs)
-    model.init_weights(pretrained=pretrained)
     print(pretrained)
+    model.init_weights(pretrained=pretrained)
 
     # if is_train and cfg.MODEL.INIT_WEIGHTS:
     #     model.init_weights(cfg.MODEL.PRETRAINED)
