@@ -167,7 +167,7 @@ def train(**kwargs):
                 vis.images(clears.cpu().numpy(), win='clear_image')
 
                 vis.plot('train_loss', loss_meter.value()[0]) #meter.value() return 2 value of mean and std
-                vis.log("epoch:{epoch}, lr:{lr}, train_loss:{loss}, train_psnr:{train_psnr}".format(epoch=epoch,
+                vis.log("epoch:{epoch}, lr:{lr}, train_loss:{loss}, train_psnr:{train_psnr}".format(epoch=epoch+1,
                                                                                           loss=loss_meter.value()[0],
                                                                                           lr=lr,
                                                                                           train_psnr = psnr_meter.value()[0]))
