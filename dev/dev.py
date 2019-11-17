@@ -117,11 +117,11 @@ def train(**kwargs):
     model = get_pose_net(cfg, pretrained=opt.model_path) #initweight
     last_epoch = 0
     map_location = lambda storage, loc: storage
-    # if opt.model_path:
-    #     checkpoint = torch.load(opt.model_path, map_location=map_location)
-    #     last_epoch = checkpoint["epoch"]
-    #     optimizer_state = checkpoint["optimizer"]
-    #     print("load model {} is done!\n".format(opt.model_path))
+    if opt.model_path:
+        checkpoint = torch.load(opt.model_path, map_location=map_location)
+        last_epoch = checkpoint["epoch"]
+        optimizer_state = checkpoint["optimizer"]
+        print("load model {} is done!\n".format(opt.model_path))
 
     model = model.to(opt.device)
 
@@ -129,21 +129,12 @@ def train(**kwargs):
     print(val_loss, val_psnr)
 
     criterion = L1_Charbonnier_loss()
-    lr = opt.lr
     optimizer = torch.optim.Adam(
         model.parameters(),
-        lr=0.00001,
+        lr=opt.lr,
         weight_decay=0.0001
     )
-    # optimizer.load_state_dict(optimizer_state)
-    prefix = 'checkpoints/HRnet_trained_'
-    file_name = time.strftime(prefix + '%m%d_%H_%M_%S.pth')
-    checkpoint = {
-        'epoch': 118,
-        "optimizer": optimizer.state_dict(),
-        "model": model.state_dict()
-    }
-    torch.save(checkpoint, file_name)
+    optimizer.load_state_dict(optimizer_state)
 
     loss_meter = meter.AverageValueMeter()
     psnr_meter = meter.AverageValueMeter()
@@ -263,4 +254,4 @@ def val(model, dataloader, vis=None):
 
 
 if __name__ == '__main__':
-    train(model_path='checkpoints/HRnet_epoch118_1117_21_19_43.pth')
+    train(model_path='checkpoints/HRnet_trained_1117_21_50_27.pth')
