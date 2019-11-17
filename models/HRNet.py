@@ -558,8 +558,8 @@ class PoseHighResolutionNet(nn.Module):
 
         if os.path.isfile(pretrained):
             checkpoint = torch.load(pretrained, map_location=lambda storage, loc: storage)
-            print(checkpoint.keys())
-            pretrained_state_dict = checkpoint["model"]
+            # pretrained_state_dict = checkpoint["model"]
+            pretrained_state_dict = checkpoint
             logger.info('=> loading pretrained model {}'.format(pretrained))
 
             need_init_state_dict = {}

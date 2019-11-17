@@ -115,12 +115,13 @@ def train(**kwargs):
     #model_init
     cfg.merge_from_file("config/cfg.yaml")
     model = get_pose_net(cfg, pretrained=opt.model_path) #initweight
+    last_epoch = 0
     map_location = lambda storage, loc: storage
-    if opt.model_path:
-        checkpoint = torch.load(opt.model_path, map_location=map_location)
-        last_epoch = checkpoint["epoch"]
-        optimizer_state = checkpoint["optimizer"]
-        print("load model {} is done!\n".format(opt.model_path))
+    # if opt.model_path:
+    #     checkpoint = torch.load(opt.model_path, map_location=map_location)
+    #     last_epoch = checkpoint["epoch"]
+    #     optimizer_state = checkpoint["optimizer"]
+    #     print("load model {} is done!\n".format(opt.model_path))
 
     model = model.to(opt.device)
 
@@ -134,7 +135,7 @@ def train(**kwargs):
         lr=lr,
         weight_decay=0.0001
     )
-    optimizer.load_state_dict(optimizer_state)
+    # optimizer.load_state_dict(optimizer_state)
 
     loss_meter = meter.AverageValueMeter()
     psnr_meter = meter.AverageValueMeter()
