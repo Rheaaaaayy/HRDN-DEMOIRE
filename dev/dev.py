@@ -112,6 +112,7 @@ def train(**kwargs):
                             num_workers=opt.num_workers if opt.is_dev == False else 0,
                             drop_last=True)
 
+    print(opt.model_path)
     #model_init
     cfg.merge_from_file("config/cfg.yaml")
     model = get_pose_net(cfg, pretrained=opt.model_path) #initweight
