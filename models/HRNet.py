@@ -378,10 +378,8 @@ class PoseHighResolutionNet(nn.Module):
 
         self.final_TransConv1 = nn.ConvTranspose2d(32, 16, kernel_size=3, stride=2, padding=1, output_padding=1)
         self.final_bn = nn.BatchNorm2d(16, momentum=BN_MOMENTUM)
-        self.final_layer = nn.Sequential(
-            nn.Conv2d(16, 3, 3, 1, 1),
-            nn.Tanh()
-        )
+        self.final_layer = nn.Conv2d(16, 3, kernel_size=3, stride=1, padding=1, bias=False)
+        self.tanh = nn.Tanh()
 
 
         self.pretrained_layers = cfg['MODEL']['EXTRA']['PRETRAINED_LAYERS']
@@ -535,6 +533,8 @@ class PoseHighResolutionNet(nn.Module):
         x = self.relu(x)
         x = self.final_layer(x)
         x = x + input
+        x = self.tanh(x)
+
 
         return x
 
