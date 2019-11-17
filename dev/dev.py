@@ -254,4 +254,4 @@ def val(model, dataloader, vis=None):
 
 
 if __name__ == '__main__':
-    train(model_path='checkpoints/HRnet_trained_1117_21_50_27.pth')
+    train(model_path='checkpoints/backup/HRnet_trained_1117_21_50_27.pth')
