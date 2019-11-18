@@ -224,7 +224,7 @@ def train(**kwargs):
 @torch.no_grad()
 def val(model, dataloader, vis=None):
     model.eval()
-    criterion = nn.MSELoss()
+    criterion = L1_Charbonnier_loss()
 
     loss_meter = meter.AverageValueMeter()
     psnr_meter = meter.AverageValueMeter()
