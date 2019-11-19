@@ -169,7 +169,6 @@ def train(**kwargs):
 
             loss_meter.add(loss.item()*accumulation_steps)
 
-
             psnr = colour.utilities.metric_psnr(outputs.detach().cpu().numpy(), clears.cpu().numpy())
             psnr_meter.add(psnr)
 
