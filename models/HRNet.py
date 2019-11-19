@@ -119,7 +119,6 @@ class ResidualDenseBlock(nn.Module):
     def __init__(self, inplanes, planes, stride=1, downsample=None, nConvLayers=3):
         super(ResidualDenseBlock, self).__init__()
         G0 = inplanes
-        print(inplanes, planes)
         G = int(planes/2)
         C = nConvLayers
 
