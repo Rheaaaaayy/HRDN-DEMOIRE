@@ -98,36 +98,40 @@ class Bottleneck(nn.Module):
         return out
 
 
+class RDB_Conv(nn.Module):
+    def __init__(self, inChannels, growRate, kSize=3):
+        super(RDB_Conv, self).__init__()
+        Cin = inChannels
+        G = growRate
+        self.conv = nn.Sequential(*[
+            nn.Conv2d(Cin, G, kSize, padding=(kSize - 1) // 2, stride=1),
+            nn.ReLU()
+        ])
+
+    def forward(self, x):
+        out = self.conv(x)
+        return torch.cat((x, out), 1)
+
+
 class ResidualDenseBlock(nn.Module):
     expansion = 1
 
-    def __init__(self, inplanes, planes, stride=1, downsample=None):
+    def __init__(self, inplanes, planes, stride=1, downsample=None, nConvLayers=3):
         super(ResidualDenseBlock, self).__init__()
-        self.conv1 = conv3x3(inplanes, planes, stride)
-        self.bn1 = nn.BatchNorm2d(planes, momentum=BN_MOMENTUM)
-        self.relu = nn.ReLU(inplace=True)
-        self.conv2 = conv3x3(planes, planes)
-        self.bn2 = nn.BatchNorm2d(planes, momentum=BN_MOMENTUM)
-        self.downsample = downsample
-        self.stride = stride
+        G0 = inplanes
+        G = planes
+        C = nConvLayers
+
+        convs = []
+        for c in range(C):
+            convs.append(RDB_Conv(G0 + c * G, G))
+        self.convs = nn.Sequential(*convs)
+
+        # Local Feature Fusion
+        self.LFF = nn.Conv2d(G0 + C * G, G0, 1, padding=0, stride=1)
 
     def forward(self, x):
-        residual = x
-
-        out = self.conv1(x)
-        out = self.bn1(out)
-        out = self.relu(out)
-
-        out = self.conv2(out)
-        out = self.bn2(out)
-
-        if self.downsample is not None:
-            residual = self.downsample(x)
-
-        out += residual
-        out = self.relu(out)
-
-        return out
+        return self.LFF(self.convs(x)) + x
 
 
 class HighResolutionModule(nn.Module):
@@ -300,7 +304,8 @@ class HighResolutionModule(nn.Module):
 
 blocks_dict = {
     'BASIC': BasicBlock,
-    'BOTTLENECK': Bottleneck
+    'BOTTLENECK': Bottleneck,
+    'RDB': ResidualDenseBlock
 }
 
 

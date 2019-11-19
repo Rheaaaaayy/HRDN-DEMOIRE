@@ -99,8 +99,12 @@ def train(**kwargs):
         # transforms.RandomCrop(256),
         transforms.ToTensor()
     ])
+    val_transforms = transforms.Compose([
+        transforms.Resize(256),
+        transforms.ToTensor()
+    ])
     train_data = MoireData(opt.train_path, data_transforms)
-    val_data = MoireData(opt.valid_path, data_transforms)
+    val_data = MoireData(opt.valid_path, val_transforms)
     train_dataloader = DataLoader(train_data,
                             batch_size=opt.train_batch_size if opt.is_dev == False else 4,
                             shuffle=True,
