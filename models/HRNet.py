@@ -285,7 +285,8 @@ class HighResolutionModule(nn.Module):
             return [self.branches[0](x[0])]
 
         for i in range(self.num_branches):
-            x[i] = self.branches[i](x[i])
+            residual = x[i]
+            x[i] = self.branches[i](x[i]) + residual
 
         x_fuse = []
 

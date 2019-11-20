@@ -91,20 +91,19 @@ def train(**kwargs):
         vis = Visualizer(opt.env)
 
     #dataset
-    train_transforms = transforms.Compose([
+    FiveCrop_transforms = transforms.Compose([
         transforms.FiveCrop(256),
         transforms.Lambda(lambda crops: torch.stack([transforms.ToTensor()(crop) for crop in crops]))
     ])
     data_transforms = transforms.Compose([
         # transforms.RandomCrop(256),
-        transforms.ToTensor()
-    ])
-    val_transforms = transforms.Compose([
-        transforms.Resize(256),
+        transforms.Normalize(
+            mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]
+        ),
         transforms.ToTensor()
     ])
     train_data = MoireData(opt.train_path, data_transforms)
-    val_data = MoireData(opt.valid_path, val_transforms)
+    val_data = MoireData(opt.valid_path, is_val=True)
     train_dataloader = DataLoader(train_data,
                             batch_size=opt.train_batch_size if opt.is_dev == False else 4,
                             shuffle=True,
