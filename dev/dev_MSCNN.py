@@ -2,17 +2,8 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
-import argparse
 import time
-import logging
-import numpy as np
-import matplotlib.pyplot as plt
 import colour
-
-import fire
-import os
-import sys
-import ipdb
 from tqdm import tqdm
 import torch
 import torch.nn.functional as F
@@ -21,7 +12,6 @@ from torch.utils.data import DataLoader
 from torchnet import meter
 from torch.autograd import Variable
 from torchvision import transforms, datasets
-from torch.utils.checkpoint import checkpoint
 
 
 from utils.visualize import Visualizer
@@ -71,18 +61,6 @@ class Config(object):
 opt = Config()
 
 
-class L1_Charbonnier_loss(nn.Module):
-    """L1 Charbonnierloss."""
-    def __init__(self):
-        super(L1_Charbonnier_loss, self).__init__()
-        self.eps = 1e-6
-
-    def forward(self, X, Y):
-        diff = torch.add(X, -Y)
-        error = torch.sqrt(diff * diff + self.eps)
-        loss = torch.sum(error)
-        return loss
-
 def train(**kwargs):
     #init
     for k_, v_ in kwargs.items():
@@ -117,15 +95,16 @@ def train(**kwargs):
                             drop_last=True)
 
     last_epoch = 0
-    #model_init
-    cfg.merge_from_file("config/cfg.yaml")
-    model = get_pose_net(cfg, pretrained=opt.model_path) #initweight
+    #model_init initweight
+    # cfg.merge_from_file("config/cfg.yaml")
+    # model = get_pose_net(cfg, pretrained=opt.model_path)
+    model = MSCNN()
     model = model.to(opt.device)
 
     val_loss, val_psnr = val(model, val_dataloader, vis)
     print(val_loss, val_psnr)
 
-    criterion = L1_Charbonnier_loss()
+    criterion = nn.MSELoss()
     lr = opt.lr
     optimizer = torch.optim.Adam(
         model.parameters(),
@@ -190,6 +169,7 @@ def train(**kwargs):
                 loss_list.append(loss_meter.value()[0])
                 # if os.path.exists(opt.debug_file):
                 #     ipdb.set_trace()
+
         val_loss, val_psnr = val(model, val_dataloader, vis)
         if opt.vis:
             vis.plot('val_loss', val_loss)
@@ -198,7 +178,7 @@ def train(**kwargs):
                                                                                             val_psnr=val_psnr))
 
         if (epoch + 1) % opt.save_every == 0 or epoch == 0: # 10个epoch保存一次
-            prefix = 'checkpoints/HRnet_epoch{}_'.format(epoch+1)
+            prefix = 'checkpoints/MSCNN/HRnet_epoch{}_'.format(epoch+1)
             file_name = time.strftime(prefix + '%m%d_%H_%M_%S.pth')
             checkpoint = {
                 'epoch': epoch + 1,
@@ -214,7 +194,7 @@ def train(**kwargs):
         previous_loss = loss_meter.value()[0]
 
 
-    prefix = 'checkpoints/HRnet_final_'
+    prefix = 'checkpoints/MSCNN/HRnet_final_'
     file_name = time.strftime(prefix + '%m%d_%H_%M_%S.pth')
     checkpoint = {
         'epoch': epoch + 1,
@@ -222,15 +202,16 @@ def train(**kwargs):
         "model": model.state_dict()
     }
     torch.save(checkpoint, file_name)
-    #loss写入文件
-    with open("checkpoints/loss_list.txt", 'w') as f:
+    # loss写入文件
+    with open("checkpoints/MSCNN/loss_list.txt", 'w') as f:
         f.write('\n'.join(loss_list))
+
 
 
 @torch.no_grad()
 def val(model, dataloader, vis=None):
     model.eval()
-    criterion = L1_Charbonnier_loss()
+    criterion = nn.MSELoss()
 
     loss_meter = meter.AverageValueMeter()
     psnr_meter = meter.AverageValueMeter()
@@ -260,5 +241,4 @@ def val(model, dataloader, vis=None):
 
 
 if __name__ == '__main__':
-    # train(model_path='checkpoints/backup/HRnet_trained_1117_21_50_27.pth')
     train()
