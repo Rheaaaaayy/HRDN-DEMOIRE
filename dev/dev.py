@@ -170,17 +170,20 @@ def train(**kwargs):
 
             loss_meter.add(loss.item()*accumulation_steps)
 
-            psnr = colour.utilities.metric_psnr(outputs.detach().cpu().numpy(), clears.cpu().numpy())
+            moires = moires.detach().cpu().numpy()
+            outputs = outputs.detach().cpu().numpy()
+            clears = clears.cpu().numpy()
+
+            psnr = colour.utilities.metric_psnr(outputs[6:1018, 6:1018], clears[6:1018, 6:1018])
             psnr_meter.add(psnr)
 
-
             if opt.vis and (ii + 1) % opt.plot_every == 0: #20个batch画图一次
-                vis.images(moires.detach().cpu().numpy(), win='moire_image')
-                vis.images(outputs.detach().cpu().numpy(), win='output_image')
+                vis.images(moires, win='moire_image')
+                vis.images(outputs, win='output_image')
                 vis.text("current outputs_size:{outputs_size},<br/> outputs:{outputs}<br/>".format(
                                                                                     outputs_size=outputs.size(),
                                                                                     outputs=outputs), win="size")
-                vis.images(clears.cpu().numpy(), win='clear_image')
+                vis.images(clears, win='clear_image')
                 #record the train loss to txt
                 vis.plot('train_loss', loss_meter.value()[0]) #meter.value() return 2 value of mean and std
                 vis.log("epoch:{epoch}, lr:{lr}, train_loss:{loss}, train_psnr:{train_psnr}".format(epoch=epoch+1,
@@ -241,15 +244,19 @@ def val(model, dataloader, vis=None):
         val_outputs = (val_outputs + 1.0) / 2.0
 
         val_loss = criterion(val_outputs, val_clears)
-        val_psnr = colour.utilities.metric_psnr(val_outputs.detach().cpu().numpy(), val_clears.cpu().numpy())
-
         loss_meter.add(val_loss.item())
+
+        val_moires = val_moires.detach().cpu().numpy()
+        val_outputs = val_outputs.detach().cpu().numpy()
+        val_clears = val_clears.cpu().numpy()
+
+        val_psnr = colour.utilities.metric_psnr(val_outputs[6:1018, 6:1018], val_clears[6:1018, 6:1018])
         psnr_meter.add(val_psnr)
 
         if opt.vis and vis != None:  # 每个个iter画图一次
-            vis.images(val_moires.detach().cpu().numpy(), win='val_moire_image')
-            vis.images(val_outputs.detach().cpu().numpy(), win='val_output_image')
-            vis.images(val_clears.cpu().numpy(), win='val_clear_image')
+            vis.images(val_moires, win='val_moire_image')
+            vis.images(val_outputs, win='val_output_image')
+            vis.images(val_clears, win='val_clear_image')
 
             vis.log(">>>>>>>> val_loss:{val_loss}, val_psnr:{val_psnr}".format(val_loss=val_loss,
                                                                              val_psnr=val_psnr))

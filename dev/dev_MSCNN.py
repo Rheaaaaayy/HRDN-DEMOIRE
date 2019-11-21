@@ -72,7 +72,7 @@ def train(**kwargs):
 
     if opt.vis:
         vis = Visualizer(opt.env)
-        vis_val = Visualizer("demoire_val")
+        vis_val = Visualizer('valdemoire')
 
     #dataset
     FiveCrop_transforms = transforms.Compose([
@@ -168,7 +168,7 @@ def train(**kwargs):
                                                                                           loss=loss_meter.value()[0],
                                                                                           lr=lr,
                                                                                           train_psnr = psnr_meter.value()[0]))
-                loss_list.append(loss_meter.value()[0])
+                loss_list.append(str(loss_meter.value()[0]))
                 # if os.path.exists(opt.debug_file):
                 #     ipdb.set_trace()
 
