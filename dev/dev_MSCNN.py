@@ -80,10 +80,7 @@ def train(**kwargs):
     ])
     data_transforms = transforms.Compose([
         # transforms.RandomCrop(256),
-        transforms.ToTensor(),
-        transforms.Normalize(
-            mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]
-        )
+        transforms.ToTensor()
     ])
     train_data = MoireData(opt.train_path, data_transforms)
     val_data = MoireData(opt.valid_path, is_val=True)
