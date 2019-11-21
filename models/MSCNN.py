@@ -142,9 +142,7 @@ class MSCNN(nn.Module):
             x = down_x
 
         output = upsample_outputs[0]
-        print(output.size())
         for each_upsample in upsample_outputs[1:]:
-            print(each_upsample.size())
             output += each_upsample
 
         return self.tanh(output)

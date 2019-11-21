@@ -45,7 +45,7 @@ class Config(object):
         debug_file = '/home/publicuser/sayhi/demoire/HRnet-demoire/debug'  # 存在该文件则进入debug模式
     label_dict = {1: "moire",
                   0: "clear"}
-    num_workers = 6
+    num_workers = 8
     image_size = 64
     train_batch_size = 10 #train的维度为(10, 3, 256, 256) 一个batch10张照片，要1000次iter
     val_batch_size = 10
