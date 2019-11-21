@@ -160,12 +160,12 @@ def train(**kwargs):
 
 
             if opt.vis and (ii + 1) % opt.plot_every == 0: #20个batch画图一次
-                vis.images(show_moire_image(moires, 32), win='moire_image')
-                vis.images(show_moire_image(outputs, 32), win='output_image')
+                vis.images(show_moire_image(moires, 32, 64), win='moire_image')
+                vis.images(show_moire_image(outputs, 32, 64), win='output_image')
                 vis.text("current outputs_size:{outputs_size},<br/> outputs:{outputs}<br/>".format(
                                                                                     outputs_size=outputs.shape,
                                                                                     outputs=outputs), win="size")
-                vis.images(show_moire_image(clears, 32), win='clear_image')
+                vis.images(show_moire_image(clears, 32, 64), win='clear_image')
                 #record the train loss to txt
                 vis.plot('train_loss', loss_meter.value()[0]) #meter.value() return 2 value of mean and std
                 vis.log("epoch:{epoch}, lr:{lr}, train_loss:{loss}, train_psnr:{train_psnr}".format(epoch=epoch+1,
@@ -249,9 +249,9 @@ def val(model, dataloader, vis=None):
     return loss_meter.value()[0], psnr_meter.value()[0]
 
 
-def show_moire_image(image, size=64):
+def show_moire_image(image, size=64, batch_size=10):
     image = np.transpose(image, (2, 3, 1, 0))
-    image = np.resize(image, (size, size, 3, 10))
+    image = np.resize(image, (size, size, 3, batch_size))
     return image
 
 
