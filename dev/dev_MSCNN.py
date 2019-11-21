@@ -252,6 +252,7 @@ def val(model, dataloader, vis=None):
 def show_moire_image(image, size=64, batch_size=10):
     image = np.transpose(image, (2, 3, 1, 0))
     image = np.resize(image, (size, size, 3, batch_size))
+    image = np.transpose(image, (3, 2, 0, 1))
     return image
 
 
