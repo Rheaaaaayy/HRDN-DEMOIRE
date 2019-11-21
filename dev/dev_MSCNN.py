@@ -127,13 +127,13 @@ def train(**kwargs):
     psnr_meter = meter.AverageValueMeter()
     previous_loss = 1e100
     accumulation_steps = 8
-    loss_list = []
 
     for epoch in range(opt.max_epoch):
         if epoch < last_epoch:
             continue
         loss_meter.reset()
         psnr_meter.reset()
+        loss_list = []
 
         for ii, (moires, clears) in tqdm(enumerate(train_dataloader)):
             # bs, ncrops, c, h, w = moires.size()
@@ -181,6 +181,10 @@ def train(**kwargs):
                                                                                             val_loss=val_loss,
                                                                                             val_psnr=val_psnr))
 
+        with open("checkpoints/MSCNN/loss_list.txt", 'a') as f:
+            f.write("\nepoch_{}\n".format(epoch+1))
+            f.write('\n'.join(loss_list))
+
         if (epoch + 1) % opt.save_every == 0 or epoch == 0: # 10个epoch保存一次
             prefix = 'checkpoints/MSCNN/HRnet_epoch{}_'.format(epoch+1)
             file_name = time.strftime(prefix + '%m%d_%H_%M_%S.pth')
@@ -207,9 +211,6 @@ def train(**kwargs):
     }
     torch.save(checkpoint, file_name)
     # loss写入文件
-    with open("checkpoints/MSCNN/loss_list.txt", 'w') as f:
-        f.write('\n'.join(loss_list))
-
 
 
 @torch.no_grad()
