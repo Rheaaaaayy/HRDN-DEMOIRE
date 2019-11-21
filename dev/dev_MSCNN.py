@@ -163,7 +163,7 @@ def train(**kwargs):
                 vis.images(moires, win='moire_image')
                 vis.images(outputs, win='output_image')
                 vis.text("current outputs_size:{outputs_size},<br/> outputs:{outputs}<br/>".format(
-                                                                                    outputs_size=outputs.size(),
+                                                                                    outputs_size=outputs.shape,
                                                                                     outputs=outputs), win="size")
                 vis.images(clears, win='clear_image')
                 #record the train loss to txt
