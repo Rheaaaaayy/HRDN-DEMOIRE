@@ -43,9 +43,6 @@ class MoireData(data.Dataset):
                 random_y = np.random.randint(0, moire.size[1]-256)
                 moire = moire.crop((random_x, random_y, random_x+256, random_y+256))
                 clear = clear.crop((random_x, random_y, random_x+256, random_y+256))
-        else:
-            moire = moire.crop((6, 6, 1018, 1018))
-            clear = clear.crop((6, 6, 1018, 1018))
 
         moire = self.transforms(moire)
         clear = self.transforms(clear)
