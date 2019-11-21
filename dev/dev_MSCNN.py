@@ -160,12 +160,12 @@ def train(**kwargs):
 
 
             if opt.vis and (ii + 1) % opt.plot_every == 0: #20个batch画图一次
-                vis.images(np.resize(moires, (64, 3, 32, 32)), win='moire_image')
-                vis.images(np.resize(outputs, (64, 3, 32, 32)), win='output_image')
+                vis.images(show_moire_image(moires, 32), win='moire_image')
+                vis.images(show_moire_image(outputs, 32), win='output_image')
                 vis.text("current outputs_size:{outputs_size},<br/> outputs:{outputs}<br/>".format(
                                                                                     outputs_size=outputs.shape,
                                                                                     outputs=outputs), win="size")
-                vis.images(np.resize(clears, (64, 3, 32, 32)), win='clear_image')
+                vis.images(show_moire_image(clears, 32), win='clear_image')
                 #record the train loss to txt
                 vis.plot('train_loss', loss_meter.value()[0]) #meter.value() return 2 value of mean and std
                 vis.log("epoch:{epoch}, lr:{lr}, train_loss:{loss}, train_psnr:{train_psnr}".format(epoch=epoch+1,
@@ -235,18 +235,24 @@ def val(model, dataloader, vis=None):
         val_outputs = val_outputs.detach().cpu().numpy()
         val_clears = val_clears.cpu().numpy()
 
-        val_psnr = colour.utilities.metric_psnr(val_outputs[6:1018, 6:1018], val_clears[6:1018, 6:1018])
+        val_psnr = colour.utilities.metric_psnr(val_outputs[:, :, 6:1018, 6:1018], val_clears[:, :, 6:1018, 6:1018])
         psnr_meter.add(val_psnr)
 
         if opt.vis and vis != None:  # 每个个iter画图一次
-            vis.images(np.resize(val_moires, (10, 3, 64, 64)), win='val_moire_image')
-            vis.images(np.resize(val_outputs, (10, 3, 64, 64)), win='val_output_image')
-            vis.images(np.resize(val_clears, (10, 3, 64, 64)), win='val_clear_image')
+            vis.images(show_moire_image(val_moires), win='val_moire_image')
+            vis.images(show_moire_image(val_outputs), win='val_output_image')
+            vis.images(show_moire_image(val_clears), win='val_clear_image')
             vis.log(">>>>>>>> val_loss:{val_loss}, val_psnr:{val_psnr}".format(val_loss=val_loss,
                                                                              val_psnr=val_psnr))
 
     model.train()
     return loss_meter.value()[0], psnr_meter.value()[0]
+
+
+def show_moire_image(image, size=64):
+    image = np.transpose(image, (2, 3, 1, 0))
+    image = np.resize(image, (size, size, 3, 10))
+    return image
 
 
 if __name__ == '__main__':
