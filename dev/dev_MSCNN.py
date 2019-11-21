@@ -72,6 +72,7 @@ def train(**kwargs):
 
     if opt.vis:
         vis = Visualizer(opt.env)
+        vis_val = Visualizer("demoire_val")
 
     #dataset
     FiveCrop_transforms = transforms.Compose([
@@ -102,7 +103,7 @@ def train(**kwargs):
     model = MSCNN()
     model = model.to(opt.device)
 
-    val_loss, val_psnr = val(model, val_dataloader, vis)
+    val_loss, val_psnr = val(model, val_dataloader, vis_val)
     print(val_loss, val_psnr)
 
     criterion = nn.MSELoss()
@@ -171,7 +172,7 @@ def train(**kwargs):
                 # if os.path.exists(opt.debug_file):
                 #     ipdb.set_trace()
 
-        val_loss, val_psnr = val(model, val_dataloader, vis)
+        val_loss, val_psnr = val(model, val_dataloader, vis_val)
         if opt.vis:
             vis.plot('val_loss', val_loss)
             vis.log("epoch:{epoch}, average val_loss:{val_loss}, average val_psnr:{val_psnr}".format(epoch=epoch+1,
@@ -224,9 +225,9 @@ def val(model, dataloader, vis=None):
         val_outputs = (val_outputs + 1.0) / 2.0
 
         val_loss = criterion(val_outputs, val_clears)
-        val_psnr = colour.utilities.metric_psnr(val_outputs.detach().cpu().numpy(), val_clears.cpu().numpy())
-
         loss_meter.add(val_loss.item())
+
+        val_psnr = colour.utilities.metric_psnr(val_outputs.detach().cpu().numpy(), val_clears.cpu().numpy())
         psnr_meter.add(val_psnr)
 
         if opt.vis and vis != None:  # 每个个iter画图一次
@@ -239,7 +240,6 @@ def val(model, dataloader, vis=None):
 
     model.train()
     return loss_meter.value()[0], psnr_meter.value()[0]
-
 
 
 if __name__ == '__main__':
