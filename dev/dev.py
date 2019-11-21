@@ -174,7 +174,7 @@ def train(**kwargs):
             outputs = outputs.detach().cpu().numpy()
             clears = clears.cpu().numpy()
 
-            psnr = colour.utilities.metric_psnr(outputs[6:1018, 6:1018], clears[6:1018, 6:1018])
+            psnr = colour.utilities.metric_psnr(outputs, clears)
             psnr_meter.add(psnr)
 
             if opt.vis and (ii + 1) % opt.plot_every == 0: #20个batch画图一次
