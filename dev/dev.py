@@ -190,7 +190,7 @@ def train(**kwargs):
                                                                                           loss=loss_meter.value()[0],
                                                                                           lr=lr,
                                                                                           train_psnr = psnr_meter.value()[0]))
-                loss_list.append(loss_meter.value()[0])
+                loss_list.append(str(loss_meter.value()[0]))
                 # if os.path.exists(opt.debug_file):
                 #     ipdb.set_trace()
         val_loss, val_psnr = val(model, val_dataloader, vis)
@@ -199,6 +199,10 @@ def train(**kwargs):
             vis.log("epoch:{epoch}, average val_loss:{val_loss}, average val_psnr:{val_psnr}".format(epoch=epoch+1,
                                                                                             val_loss=val_loss,
                                                                                             val_psnr=val_psnr))
+        #每个epoch把loss写入文件
+        with open("checkpoints/MSCNN/loss_list.txt", 'a') as f:
+            f.write("\nepoch_{}\n".format(epoch+1))
+            f.write('\n'.join(loss_list))
 
         if (epoch + 1) % opt.save_every == 0 or epoch == 0: # 10个epoch保存一次
             prefix = 'checkpoints/HRnet_epoch{}_'.format(epoch+1)
@@ -225,9 +229,6 @@ def train(**kwargs):
         "model": model.state_dict()
     }
     torch.save(checkpoint, file_name)
-    #loss写入文件
-    with open("checkpoints/loss_list.txt", 'w') as f:
-        f.write('\n'.join(loss_list))
 
 
 @torch.no_grad()
@@ -254,9 +255,9 @@ def val(model, dataloader, vis=None):
         psnr_meter.add(val_psnr)
 
         if opt.vis and vis != None:  # 每个个iter画图一次
-            vis.images(val_moires, win='val_moire_image')
-            vis.images(val_outputs, win='val_output_image')
-            vis.images(val_clears, win='val_clear_image')
+            vis.images(np.resize(val_moires, (256, 256)), win='val_moire_image')
+            vis.images(np.resize(val_outputs, (256, 256)), win='val_output_image')
+            vis.images(np.resize(val_clears, (256, 256)), win='val_clear_image')
 
             vis.log(">>>>>>>> val_loss:{val_loss}, val_psnr:{val_psnr}".format(val_loss=val_loss,
                                                                              val_psnr=val_psnr))
