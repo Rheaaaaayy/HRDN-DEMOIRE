@@ -2,8 +2,17 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
+import argparse
 import time
+import logging
+import numpy as np
+import matplotlib.pyplot as plt
 import colour
+
+import fire
+import os
+import sys
+import ipdb
 from tqdm import tqdm
 import torch
 import torch.nn.functional as F
@@ -12,16 +21,11 @@ from torch.utils.data import DataLoader
 from torchnet import meter
 from torch.autograd import Variable
 from torchvision import transforms, datasets
+from torch.utils.checkpoint import checkpoint
 
 
 from utils.visualize import Visualizer
-
-
-import models
-from models.HRNet import get_pose_net
 from models.MSCNN import MSCNN
-from config import cfg, update_config
-# from myconfig import opt
 from data.dataset import MoireData
 
 class Config(object):
