@@ -255,9 +255,9 @@ def val(model, dataloader, vis=None):
         psnr_meter.add(val_psnr)
 
         if opt.vis and vis != None:  # 每个个iter画图一次
-            vis.images(np.resize(val_moires, (256, 256)), win='val_moire_image')
-            vis.images(np.resize(val_outputs, (256, 256)), win='val_output_image')
-            vis.images(np.resize(val_clears, (256, 256)), win='val_clear_image')
+            vis.images(np.resize(val_moires, (10, 3, 256, 256)), win='val_moire_image')
+            vis.images(np.resize(val_outputs, (10, 3, 256, 256)), win='val_output_image')
+            vis.images(np.resize(val_clears, (10, 3, 256, 256)), win='val_clear_image')
 
             vis.log(">>>>>>>> val_loss:{val_loss}, val_psnr:{val_psnr}".format(val_loss=val_loss,
                                                                              val_psnr=val_psnr))

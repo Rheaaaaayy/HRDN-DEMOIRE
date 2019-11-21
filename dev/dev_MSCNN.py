@@ -47,7 +47,7 @@ class Config(object):
                   0: "clear"}
     num_workers = 8
     image_size = 64
-    train_batch_size = 10 #train的维度为(10, 3, 256, 256) 一个batch10张照片，要1000次iter
+    train_batch_size = 64 #train的维度为(10, 3, 256, 256) 一个batch10张照片，要1000次iter
     val_batch_size = 10
     max_epoch = 200
     lr = 0.0001
@@ -160,12 +160,12 @@ def train(**kwargs):
 
 
             if opt.vis and (ii + 1) % opt.plot_every == 0: #20个batch画图一次
-                vis.images(moires, win='moire_image')
-                vis.images(outputs, win='output_image')
+                vis.images(np.resize(moires, (64, 3, 32, 32)), win='moire_image')
+                vis.images(np.resize(outputs, (64, 3, 32, 32)), win='output_image')
                 vis.text("current outputs_size:{outputs_size},<br/> outputs:{outputs}<br/>".format(
                                                                                     outputs_size=outputs.shape,
                                                                                     outputs=outputs), win="size")
-                vis.images(clears, win='clear_image')
+                vis.images(np.resize(clears, (64, 3, 32, 32)), win='clear_image')
                 #record the train loss to txt
                 vis.plot('train_loss', loss_meter.value()[0]) #meter.value() return 2 value of mean and std
                 vis.log("epoch:{epoch}, lr:{lr}, train_loss:{loss}, train_psnr:{train_psnr}".format(epoch=epoch+1,
@@ -239,9 +239,9 @@ def val(model, dataloader, vis=None):
         psnr_meter.add(val_psnr)
 
         if opt.vis and vis != None:  # 每个个iter画图一次
-            vis.images(np.resize(val_moires, (256, 256)), win='val_moire_image')
-            vis.images(np.resize(val_outputs, (256, 256)), win='val_output_image')
-            vis.images(np.resize(val_clears, (256, 256)), win='val_clear_image')
+            vis.images(np.resize(val_moires, (10, 3, 256, 256)), win='val_moire_image')
+            vis.images(np.resize(val_outputs, (10, 3, 256, 256)), win='val_output_image')
+            vis.images(np.resize(val_clears, (10, 3, 256, 256)), win='val_clear_image')
             vis.log(">>>>>>>> val_loss:{val_loss}, val_psnr:{val_psnr}".format(val_loss=val_loss,
                                                                              val_psnr=val_psnr))
 
