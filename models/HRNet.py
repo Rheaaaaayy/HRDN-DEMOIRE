@@ -13,6 +13,7 @@ import logging
 
 import torch
 import torch.nn as nn
+from utils.myutils import pixel_unshuffle
 
 
 BN_MOMENTUM = 0.05
@@ -325,7 +326,7 @@ class PoseHighResolutionNet(nn.Module):
         #                        bias=False)
         # self.bn2 = nn.BatchNorm2d(64, momentum=BN_MOMENTUM)
 
-        self.conv1 = nn.Conv2d(3, 64, kernel_size=3, stride=1, padding=1,
+        self.conv1 = nn.Conv2d(12, 64, kernel_size=3, stride=1, padding=1,
                                bias=False)
         self.bn1 = nn.BatchNorm2d(64, momentum=BN_MOMENTUM)
         self.conv2 = nn.Conv2d(64, 64, kernel_size=3, stride=1, padding=1,
@@ -416,9 +417,10 @@ class PoseHighResolutionNet(nn.Module):
 
         self.final_TransConv1 = nn.ConvTranspose2d(32, 16, kernel_size=3, stride=2, padding=1, output_padding=1)
         self.final_bn = nn.BatchNorm2d(16, momentum=BN_MOMENTUM)
-        self.final_layer = nn.Conv2d(16, 3, kernel_size=3, stride=1, padding=1, bias=False)
+        self.final_layer = nn.Conv2d(16, 12, kernel_size=3, stride=1, padding=1, bias=False)
+        self.ps1 = nn.PixelShuffle(2)
+        # self.ps2 = nn.PixelShuffle(2)
         self.tanh = nn.Tanh()
-
 
         self.pretrained_layers = cfg['MODEL']['EXTRA']['PRETRAINED_LAYERS']
 
@@ -517,6 +519,9 @@ class PoseHighResolutionNet(nn.Module):
 
     def forward(self, x):
         input = x
+        x = pixel_unshuffle(x)
+        print(x.shape)
+
         x = self.conv1(x)
         x = self.bn1(x)
         x = self.relu(x)
@@ -570,6 +575,7 @@ class PoseHighResolutionNet(nn.Module):
         x = y_list[0] + self.final_bn(upsample)
         x = self.relu(x)
         x = self.final_layer(x)
+        x = self.ps1(x)
         x = x + input
         x = self.tanh(x)
 
@@ -621,3 +627,13 @@ def get_pose_net(cfg, pretrained, **kwargs):
     #     model.init_weights(cfg.MODEL.PRETRAINED)
 
     return model
+
+# if __name__ == '__main__':
+#     from config import cfg
+#
+#     dump_input = torch.rand((2, 3, 256, 256))
+#     cfg.merge_from_file("../config/cfg.yaml")
+#     model = get_pose_net(cfg, pretrained=None)
+#
+#     output = model(dump_input)
+#     print(output.size())

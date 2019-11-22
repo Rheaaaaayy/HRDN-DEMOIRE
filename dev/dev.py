@@ -25,6 +25,7 @@ from torch.utils.checkpoint import checkpoint
 
 
 from utils.visualize import Visualizer
+from utils.myutils import tensor2im
 
 
 import models
@@ -32,7 +33,7 @@ from models.HRNet import get_pose_net
 from models.MSCNN import MSCNN
 from config import cfg, update_config
 # from myconfig import opt
-from data.dataset import MoireData
+from data.dataset_Sun import MoireData
 
 class Config(object):
     temp_winorserver = False
@@ -42,22 +43,24 @@ class Config(object):
     device = torch.device('cuda') if gpu else torch.device('cpu')
 
     if is_linux == False:
-        train_path = "T:\\dataset\\AIM2019 demoireing challenge\\Training\\Training"
-        valid_path = "T:\\dataset\\AIM2019 demoireing challenge\\Validation"
+        train_path = "T:\\dataset\\moire image benchmark\\train"
+        valid_path = "T:\\dataset\\moire image benchmark\\val"
+        test_path = "T:\\dataset\\moire image benchmark\\test"
         debug_file = 'F:\\workspaces\\demoire\\debug'  # 存在该文件则进入debug模式
     else:
-        train_path = "/home/publicuser/sayhi/dataset/demoire/Training"
-        valid_path = "/home/publicuser/sayhi/dataset/demoire/Validation"
+        train_path = "/home/publicuser/sayhi/dataset/moire image benchmark/train"
+        valid_path = "/home/publicuser/sayhi/dataset/moire image benchmark/val"
+        test_path = "/home/publicuser/sayhi/dataset/moire image benchmark/test"
         debug_file = '/home/publicuser/sayhi/demoire/HRnet-demoire/debug'  # 存在该文件则进入debug模式
     label_dict = {1: "moire",
                   0: "clear"}
     num_workers = 6
-    image_size = 64
+    image_size = 256
     train_batch_size = 10 #train的维度为(10, 3, 256, 256) 一个batch10张照片，要1000次iter
     val_batch_size = 10
     max_epoch = 200
     lr = 0.0001
-    lr_decay = 0.95
+    lr_decay = 0.90
     beta1 = 0.5  # Adam优化器的beta1参数
 
 
@@ -67,6 +70,7 @@ class Config(object):
 
     save_every = 5  # 每5个epoch保存一次模型
     model_path = None #'checkpoints/HRnet_211.pth'
+    save_prefix = "checkpoints/benchmark/"
 
 opt = Config()
 
@@ -90,6 +94,7 @@ def train(**kwargs):
 
     if opt.vis:
         vis = Visualizer(opt.env)
+        vis_val = Visualizer('valdemoire')
 
     #dataset
     FiveCrop_transforms = transforms.Compose([
@@ -98,12 +103,9 @@ def train(**kwargs):
     ])
     data_transforms = transforms.Compose([
         # transforms.RandomCrop(256),
-        transforms.ToTensor(),
-        transforms.Normalize(
-            mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]
-        )
+        transforms.ToTensor()
     ])
-    train_data = MoireData(opt.train_path, data_transforms)
+    train_data = MoireData(opt.train_path)
     val_data = MoireData(opt.valid_path, is_val=True)
     train_dataloader = DataLoader(train_data,
                             batch_size=opt.train_batch_size if opt.is_dev == False else 4,
@@ -122,7 +124,7 @@ def train(**kwargs):
     model = get_pose_net(cfg, pretrained=opt.model_path) #initweight
     model = model.to(opt.device)
 
-    val_loss, val_psnr = val(model, val_dataloader, vis)
+    val_loss, val_psnr = val(model, val_dataloader, vis_val)
     print(val_loss, val_psnr)
 
     criterion = L1_Charbonnier_loss()
@@ -144,13 +146,14 @@ def train(**kwargs):
     psnr_meter = meter.AverageValueMeter()
     previous_loss = 1e100
     accumulation_steps = 8
-    loss_list = []
+
 
     for epoch in range(opt.max_epoch):
         if epoch < last_epoch:
             continue
         loss_meter.reset()
         psnr_meter.reset()
+        loss_list = []
 
         for ii, (moires, clears) in tqdm(enumerate(train_dataloader)):
             # bs, ncrops, c, h, w = moires.size()
@@ -170,9 +173,9 @@ def train(**kwargs):
 
             loss_meter.add(loss.item()*accumulation_steps)
 
-            moires = moires.detach().cpu().numpy()
-            outputs = outputs.detach().cpu().numpy()
-            clears = clears.cpu().numpy()
+            moires = tensor2im(moires)
+            outputs = tensor2im(outputs)
+            clears = tensor2im(clears)
 
             psnr = colour.utilities.metric_psnr(outputs, clears)
             psnr_meter.add(psnr)
@@ -193,19 +196,19 @@ def train(**kwargs):
                 loss_list.append(str(loss_meter.value()[0]))
                 # if os.path.exists(opt.debug_file):
                 #     ipdb.set_trace()
-        val_loss, val_psnr = val(model, val_dataloader, vis)
+        val_loss, val_psnr = val(model, val_dataloader, vis_val)
         if opt.vis:
             vis.plot('val_loss', val_loss)
             vis.log("epoch:{epoch}, average val_loss:{val_loss}, average val_psnr:{val_psnr}".format(epoch=epoch+1,
                                                                                             val_loss=val_loss,
                                                                                             val_psnr=val_psnr))
         #每个epoch把loss写入文件
-        with open("checkpoints/MSCNN/loss_list.txt", 'a') as f:
+        with open(opt.save_prefix+"loss_list.txt", 'a') as f:
             f.write("\nepoch_{}\n".format(epoch+1))
             f.write('\n'.join(loss_list))
 
-        if (epoch + 1) % opt.save_every == 0 or epoch == 0: # 10个epoch保存一次
-            prefix = 'checkpoints/HRnet_epoch{}_'.format(epoch+1)
+        if (epoch + 1) % opt.save_every == 0 or epoch == 0: # 每5个epoch保存一次
+            prefix = opt.save_prefix+'HRnet_epoch{}_'.format(epoch+1)
             file_name = time.strftime(prefix + '%m%d_%H_%M_%S.pth')
             checkpoint = {
                 'epoch': epoch + 1,
@@ -221,7 +224,7 @@ def train(**kwargs):
         previous_loss = loss_meter.value()[0]
 
 
-    prefix = 'checkpoints/HRnet_final_'
+    prefix = opt.save_prefix+'HRnet_final_'
     file_name = time.strftime(prefix + '%m%d_%H_%M_%S.pth')
     checkpoint = {
         'epoch': epoch + 1,
@@ -247,17 +250,17 @@ def val(model, dataloader, vis=None):
         val_loss = criterion(val_outputs, val_clears)
         loss_meter.add(val_loss.item())
 
-        val_moires = val_moires.detach().cpu().numpy()
-        val_outputs = val_outputs.detach().cpu().numpy()
-        val_clears = val_clears.cpu().numpy()
+        moires = tensor2im(moires)
+        outputs = tensor2im(outputs)
+        clears = tensor2im(clears)
 
-        val_psnr = colour.utilities.metric_psnr(val_outputs[6:1018, 6:1018], val_clears[6:1018, 6:1018])
+        val_psnr = colour.utilities.metric_psnr(val_outputs, val_clears)
         psnr_meter.add(val_psnr)
 
         if opt.vis and vis != None:  # 每个个iter画图一次
-            vis.images(np.resize(val_moires, (10, 3, 256, 256)), win='val_moire_image')
-            vis.images(np.resize(val_outputs, (10, 3, 256, 256)), win='val_output_image')
-            vis.images(np.resize(val_clears, (10, 3, 256, 256)), win='val_clear_image')
+            vis.images(val_moires, win='val_moire_image')
+            vis.images(val_outputs, win='val_output_image')
+            vis.images(val_clears, win='val_clear_image')
 
             vis.log(">>>>>>>> val_loss:{val_loss}, val_psnr:{val_psnr}".format(val_loss=val_loss,
                                                                              val_psnr=val_psnr))

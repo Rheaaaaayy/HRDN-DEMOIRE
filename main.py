@@ -31,7 +31,7 @@ import models
 from models.HRNet import get_pose_net
 from config import cfg, update_config
 # from myconfig import opt
-from data.dataset import MoireData
+from data.dataset_AIM import MoireData
 
 class Config(object):
     temp_winorserver = False

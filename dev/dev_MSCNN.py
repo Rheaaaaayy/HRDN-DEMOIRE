@@ -25,8 +25,9 @@ from torch.utils.checkpoint import checkpoint
 
 
 from utils.visualize import Visualizer
+from utils.myutils import tensor2im
 from models.MSCNN import MSCNN
-from data.dataset import MoireData
+from data.dataset_Sun import MoireData
 
 class Config(object):
     temp_winorserver = False
@@ -248,12 +249,6 @@ def val(model, dataloader, vis=None):
     model.train()
     return loss_meter.value()[0], psnr_meter.value()[0]
 
-
-def show_moire_image(image, size=64, batch_size=10):
-    image = np.transpose(image, (2, 3, 1, 0))
-    image = np.resize(image, (size, size, 3, batch_size))
-    image = np.transpose(image, (3, 2, 0, 1))
-    return image
 
 
 if __name__ == '__main__':
