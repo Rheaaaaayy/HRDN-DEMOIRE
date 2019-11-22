@@ -19,7 +19,7 @@ def tensor2im(input_image, imtype=np.uint8):
 
 
 def pixel_unshuffle(batch_input, shuffle_scale = 2, device=torch.device('cpu')):
-    batch_input.to(device)
+    batch_input = batch_input.to(device)
     batch_size = batch_input.shape[0]
     num_channels = batch_input.shape[1]
     height = batch_input.shape[2]
