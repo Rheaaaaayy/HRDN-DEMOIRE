@@ -18,7 +18,7 @@ def tensor2im(input_image, imtype=np.uint8):
     return image_numpy
 
 
-def pixel_unshuffle(batch_input, shuffle_scale = 2):
+def pixel_unshuffle(batch_input, shuffle_scale = 2, device=torch.device('cuda')):
     batch_size = batch_input.shape[0]
     num_channels = batch_input.shape[1]
     height = batch_input.shape[2]
@@ -37,6 +37,13 @@ def pixel_unshuffle(batch_input, shuffle_scale = 2):
     conv4.weight.data = torch.from_numpy(np.array([[0, 0],
                                                     [0, 1]], dtype='float32').reshape((1, 1, 2, 2)))
     Unshuffle = torch.ones((batch_size, 4, height//2, width//2), requires_grad=False)
+    batch_input.to(device)
+    conv1.to(device)
+    conv2.to(device)
+    conv3.to(device)
+    conv4.to(device)
+    Unshuffle.to(device)
+
     for i in range(num_channels):
         each_channel = batch_input[:, i:i+1, :, :]
         first_channel = conv1(each_channel)
