@@ -30,6 +30,13 @@ def random_scale_for_pair(moire, clear, is_val=False):
             random_y = np.random.randint(0, moire.size[1] - 256)
             moire = moire.crop((random_x, random_y, random_x + 256, random_y + 256))
             clear = clear.crop((random_x, random_y, random_x + 256, random_y + 256))
+
+        is_flip = np.random.randint(0, 2)
+        if is_flip == 0:
+            moire = moire.transpose(Image.FLIP_LEFT_RIGHT)
+            clear = clear.transpose(Image.FLIP_LEFT_RIGHT)
+        else:
+            pass
     else:
         resize = transforms.Resize((256, 256))
         moire, clear = resize(moire), resize(clear)
@@ -52,7 +59,6 @@ class MoireData(data.Dataset):
             self.transforms = transform
         else:
             self.transforms = transforms.Compose([
-                transforms.RandomHorizontalFlip(),
                 transforms.ToTensor(),
                 transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
             ])
