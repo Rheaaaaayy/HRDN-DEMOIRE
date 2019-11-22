@@ -13,6 +13,7 @@ def default_loader(path):
   img = Image.open(path).convert('RGB')
   w, h = img.size
   region = img.crop((1+int(0.15*w), 1+int(0.15*h), int(0.85*w), int(0.85*h)))
+  print(region.size)
   return region
 
 
