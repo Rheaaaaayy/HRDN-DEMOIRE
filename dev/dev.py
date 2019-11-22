@@ -56,7 +56,7 @@ class Config(object):
                   0: "clear"}
     num_workers = 6
     image_size = 256
-    train_batch_size = 10 #train的维度为(10, 3, 256, 256) 一个batch10张照片，要1000次iter
+    train_batch_size = 64 #train的维度为(10, 3, 256, 256) 一个batch10张照片，要1000次iter
     val_batch_size = 10
     max_epoch = 200
     lr = 0.0001
