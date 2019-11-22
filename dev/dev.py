@@ -161,7 +161,7 @@ def train(**kwargs):
             clears = clears.to(opt.device)
 
             outputs = model(moires)
-            outputs = (outputs + 1.0) / 2.0
+            # outputs = (outputs + 1.0) / 2.0
             loss = criterion(outputs, clears)
             #saocaozuo gradient accumulation
             loss = loss/accumulation_steps

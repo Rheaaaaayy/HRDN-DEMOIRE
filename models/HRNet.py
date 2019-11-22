@@ -575,9 +575,8 @@ class PoseHighResolutionNet(nn.Module):
         x = self.relu(x)
         x = self.final_layer(x)
         x = self.ps1(x)
-        x = x + input
         x = self.tanh(x)
-
+        x = x + input
 
         return x
 
