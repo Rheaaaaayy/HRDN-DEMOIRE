@@ -250,9 +250,9 @@ def val(model, dataloader, vis=None):
         val_loss = criterion(val_outputs, val_clears)
         loss_meter.add(val_loss.item())
 
-        moires = tensor2im(moires)
-        outputs = tensor2im(outputs)
-        clears = tensor2im(clears)
+        val_moires = tensor2im(val_moires)
+        val_outputs = tensor2im(val_outputs)
+        val_clears = tensor2im(val_clears)
 
         val_psnr = colour.utilities.metric_psnr(val_outputs, val_clears)
         psnr_meter.add(val_psnr)

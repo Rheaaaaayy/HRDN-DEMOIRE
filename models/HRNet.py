@@ -520,7 +520,6 @@ class PoseHighResolutionNet(nn.Module):
     def forward(self, x):
         input = x
         x = pixel_unshuffle(x)
-        print(x.shape)
 
         x = self.conv1(x)
         x = self.bn1(x)
