@@ -31,7 +31,7 @@ def random_scale_for_pair(moire, clear, is_val=False):
             moire = moire.crop((random_x, random_y, random_x + 256, random_y + 256))
             clear = clear.crop((random_x, random_y, random_x + 256, random_y + 256))
     else:
-        resize = transforms.Resize(256)
+        resize = transforms.Resize((256, 256))
         moire, clear = resize(moire), resize(clear)
 
     return moire, clear
