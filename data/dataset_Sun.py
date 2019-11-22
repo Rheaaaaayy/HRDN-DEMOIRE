@@ -67,8 +67,8 @@ class MoireData(data.Dataset):
         moire = self.loader(moire_img_path)
         clear = self.loader(clear_img_path)
         print("hello")
-        print(moire.size())
-        print(clear.size())
+        print(moire.size)
+        print(clear.size)
 
         moire, clear = random_scale_for_pair(moire, clear, self.is_val)
 
