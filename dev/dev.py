@@ -118,11 +118,6 @@ def train(**kwargs):
                             num_workers=opt.num_workers if opt.is_dev == False else 0,
                             drop_last=True)
 
-    data_iter = iter(val_dataloader)
-    batch_data = next(data_iter)
-    print(batch_data.size())
-    return
-
     last_epoch = 0
     #model_init
     cfg.merge_from_file("config/cfg.yaml")

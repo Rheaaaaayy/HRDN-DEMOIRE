@@ -20,10 +20,10 @@ def random_scale_for_pair(moire, clear, is_val=False):
     if is_val == False:
         is_global = np.random.randint(0, 2)
         if is_global == 0:
-            resize = transforms.Resize(256)
+            resize = transforms.Resize((256, 256))
             moire, clear = resize(moire), resize(clear)
         else:
-            resize = transforms.Resize(286),
+            resize = transforms.Resize((286, 286)),
             moire, clear = resize(moire), resize(clear)
 
             random_x = np.random.randint(0, moire.size[0] - 256)
