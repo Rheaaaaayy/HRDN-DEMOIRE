@@ -63,17 +63,15 @@ class MoireData(data.Dataset):
     def __getitem__(self, index):
         moire_img_path = self.moire_images[index]
         clear_img_path = self.clear_images[index]
-
-        moire = self.loader(moire_img_path)
-        clear = self.loader(clear_img_path)
-
         try:
+            moire = self.loader(moire_img_path)
+            clear = self.loader(clear_img_path)
+
             moire, clear = random_scale_for_pair(moire, clear, self.is_val)
         except:
             print(moire.size)
             print(clear.size)
-            raise ValueError("size error")
-
+            raise RuntimeError("size error")
 
         moire = self.transforms(moire)
         clear = self.transforms(clear)
