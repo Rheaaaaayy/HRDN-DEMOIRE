@@ -51,6 +51,7 @@ def pixel_unshuffle(batch_input, shuffle_scale = 2, device=torch.device('cuda'))
         third_channel = conv3(each_channel)
         fourth_channel = conv4(each_channel)
         result = torch.cat((first_channel, second_channel, third_channel, fourth_channel), dim=1)
+        result.to(device)
         Unshuffle = torch.cat((Unshuffle, result), dim=1)
 
     Unshuffle = Unshuffle[:, 4:, :, :]
