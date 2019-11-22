@@ -23,7 +23,7 @@ def random_scale_for_pair(moire, clear, is_val=False):
             resize = transforms.Resize((256, 256))
             moire, clear = resize(moire), resize(clear)
         else:
-            resize = transforms.Resize((286, 286)),
+            resize = transforms.Resize((286, 286))
             moire, clear = resize(moire), resize(clear)
 
             random_x = np.random.randint(0, moire.size[0] - 256)
