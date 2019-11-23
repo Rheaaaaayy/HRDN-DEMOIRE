@@ -245,7 +245,7 @@ def val(model, dataloader, vis=None):
         val_moires = val_moires.to(opt.device)
         val_clears = val_clears.to(opt.device)
         val_outputs = model(val_moires)
-        val_outputs = (val_outputs + 1.0) / 2.0
+        # val_outputs = (val_outputs + 1.0) / 2.0
 
         val_loss = criterion(val_outputs, val_clears)
         loss_meter.add(val_loss.item())
@@ -272,4 +272,4 @@ def val(model, dataloader, vis=None):
 
 if __name__ == '__main__':
     # train(model_path='checkpoints/backup/HRnet_trained_1117_21_50_27.pth')
-    train()
+    train(model_path="/home/publicuser/sayhi/demoire/HRnet-demoire/checkpoints/benchmark/HRnet_epoch50_1123_09_32_11.pth")
