@@ -59,7 +59,7 @@ class Config(object):
     train_batch_size = 32 #train的维度为(10, 3, 256, 256) 一个batch10张照片，要1000次iter
     val_batch_size = 10
     max_epoch = 400
-    lr = 1e-5
+    lr = 1e-6
     lr_decay = 0.90
     beta1 = 0.5  # Adam优化器的beta1参数
 
