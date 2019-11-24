@@ -19,10 +19,13 @@ class L1_Charbonnier_loss(nn.Module):
         return loss
 
 class L1_Sobel_Loss(nn.Module):
-    def __init__(self):
+    def __init__(self, device=torch.device('cuda')):
         super(L1_Sobel_Loss, self).__init__()
         self.conv_op_x = nn.Conv2d(1, 1, 3, bias=False)
         self.conv_op_y = nn.Conv2d(1, 1, 3, bias=False)
+        self.conv_op_x.to(device)
+        self.conv_op_y.to(device)
+
         sobel_kernel_x = np.array([[1, 0, -1], [2, 0, -2], [1, 0, -1]], dtype='float32')
         sobel_kernel_y = np.array([[1, 2, 1], [0, 0, 0], [-1, -2, -1]], dtype='float32')
         sobel_kernel_x = sobel_kernel_x.reshape((1, 1, 3, 3))
@@ -68,7 +71,7 @@ class Weighted_Loss(nn.Module):
     def __init__(self):
         super(Weighted_Loss, self).__init__()
         self.Charbonnier_loss = L1_Charbonnier_loss()
-        self.Sobel_Loss = L1_Sobel_Loss()
+        self.Sobel_Loss = L1_Sobel_Loss(device=torch.device('cuda'))
 
     def forward(self, X, Y):
         c_loss = self.Charbonnier_loss(X, Y)
