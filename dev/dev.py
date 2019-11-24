@@ -131,6 +131,10 @@ def train(**kwargs):
         optimizer_state = checkpoint["optimizer"]
         optimizer.load_state_dict(optimizer_state)
 
+        lr = checkpoint["lr"]
+        for param_group in optimizer.param_groups:
+            param_group['lr'] = lr
+
     loss_meter = meter.AverageValueMeter()
     psnr_meter = meter.AverageValueMeter()
     previous_loss = 1e100
@@ -201,7 +205,8 @@ def train(**kwargs):
             checkpoint = {
                 'epoch': epoch + 1,
                 "optimizer": optimizer.state_dict(),
-                "model": model.state_dict()
+                "model": model.state_dict(),
+                "lr": lr
             }
             torch.save(checkpoint, file_name)
 
@@ -217,7 +222,8 @@ def train(**kwargs):
     checkpoint = {
         'epoch': epoch + 1,
         "optimizer": optimizer.state_dict(),
-        "model": model.state_dict()
+        "model": model.state_dict(),
+        "lr": lr
     }
     torch.save(checkpoint, file_name)
 
