@@ -43,6 +43,7 @@ class L1_Sobel_Loss(nn.Module):
         edge_detect_X = torch.ones((source.size(0), 1, source.size(2)-2, source.size(3)-2)).to(self.device)
         edge_detect_Y = torch.ones((source.size(0), 1, source.size(2) - 2, source.size(3) - 2)).to(self.device)
 
+        print(source.size())
         for c in range(3):
             X = source[:, c:c+1, :, :]
             Y = target[:, c:c+1, :, :]
