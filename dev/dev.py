@@ -158,7 +158,8 @@ def train(**kwargs):
             #saocaozuo gradient accumulation
             loss = loss/accumulation_steps
             loss.backward()
-            print(loss)
+            for x in optimizer.param_groups[0]['params']:
+                print(x.grad)
 
             if (ii+1)%accumulation_steps == 0:
                 optimizer.step()
