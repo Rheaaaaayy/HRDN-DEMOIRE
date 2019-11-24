@@ -70,7 +70,7 @@ class Config(object):
 
     save_every = 5  # 每5个epoch保存一次模型
     model_path = None #'checkpoints/HRnet_211.pth'
-    save_prefix = "checkpoints/benchmark/"
+    save_prefix = "checkpoints/benchmark_sobel_dividN/"
 
 opt = Config()
 
@@ -149,7 +149,6 @@ def train(**kwargs):
             clears = clears.to(opt.device)
 
             outputs = model(moires)
-            # outputs = (outputs + 1.0) / 2.0
             loss = criterion(outputs, clears)
             #saocaozuo gradient accumulation
             loss = loss/accumulation_steps

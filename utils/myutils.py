@@ -23,8 +23,8 @@ class L1_Sobel_Loss(nn.Module):
         super(L1_Sobel_Loss, self).__init__()
         self.conv_op_x = nn.Conv2d(1, 1, 3, bias=False)
         self.conv_op_y = nn.Conv2d(1, 1, 3, bias=False)
-        self.conv_op_x.to(device)
-        self.conv_op_y.to(device)
+        self.conv_op_x = self.conv_op_x.to(device)
+        self.conv_op_y = self.conv_op_y.to(device)
 
         sobel_kernel_x = np.array([[1, 0, -1], [2, 0, -2], [1, 0, -1]], dtype='float32')
         sobel_kernel_y = np.array([[1, 2, 1], [0, 0, 0], [-1, -2, -1]], dtype='float32')
