@@ -80,7 +80,7 @@ class Weighted_Loss(nn.Module):
         c_loss = self.Charbonnier_loss(X, Y)
         s_loss = self.Sobel_Loss(X, Y)
         loss = c_loss * 0.5 + s_loss * 0.5
-        return c_loss
+        return loss
 
 
 # Converts a Tensor into an image array (numpy)
