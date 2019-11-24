@@ -100,8 +100,10 @@ def pixel_unshuffle(batch_input, shuffle_scale = 2, device=torch.device('cuda'))
 
     conv1 = nn.Conv2d(1, 1, 2, 2, bias=False)
     conv1 = conv1.to(device)
+    print(type(conv1))
     conv1.weight.data = torch.from_numpy(np.array([[1, 0],
                                                     [0, 0]], dtype='float32').reshape((1, 1, 2, 2)))
+    print(type(conv1))
     conv2 = nn.Conv2d(1, 1, 2, 2, bias=False)
     conv2 = conv2.to(device)
     conv2.weight.data = torch.from_numpy(np.array([[0, 1],
