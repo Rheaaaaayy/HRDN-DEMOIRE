@@ -21,6 +21,7 @@ class L1_Charbonnier_loss(nn.Module):
 class L1_Sobel_Loss(nn.Module):
     def __init__(self, device=torch.device('cuda')):
         super(L1_Sobel_Loss, self).__init__()
+        self.device = device
         self.conv_op_x = nn.Conv2d(1, 1, 3, bias=False)
         self.conv_op_y = nn.Conv2d(1, 1, 3, bias=False)
         self.conv_op_x = self.conv_op_x.to(device)
@@ -39,8 +40,8 @@ class L1_Sobel_Loss(nn.Module):
 
     def forward(self, source, target):
 
-        edge_detect_X = torch.ones((source.size(0), 1, source.size(2)-2, source.size(3)-2))
-        edge_detect_Y = torch.ones((source.size(0), 1, source.size(2) - 2, source.size(3) - 2))
+        edge_detect_X = torch.ones((source.size(0), 1, source.size(2)-2, source.size(3)-2)).to(self.device)
+        edge_detect_Y = torch.ones((source.size(0), 1, source.size(2) - 2, source.size(3) - 2)).to(self.device)
 
         for c in range(3):
             X = source[:, c:c+1, :, :]
@@ -102,7 +103,7 @@ def pixel_unshuffle(batch_input, shuffle_scale = 2, device=torch.device('cuda'))
     conv1 = conv1.to(device)
     conv1.weight.data = torch.from_numpy(np.array([[1, 0],
                                                     [0, 0]], dtype='float32').reshape((1, 1, 2, 2))).to(device)
-    print(type(conv1.weight.data))
+
     conv2 = nn.Conv2d(1, 1, 2, 2, bias=False)
     conv2 = conv2.to(device)
     conv2.weight.data = torch.from_numpy(np.array([[0, 1],
