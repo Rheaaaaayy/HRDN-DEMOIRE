@@ -100,22 +100,21 @@ def pixel_unshuffle(batch_input, shuffle_scale = 2, device=torch.device('cuda'))
 
     conv1 = nn.Conv2d(1, 1, 2, 2, bias=False)
     conv1 = conv1.to(device)
-    print(type(conv1))
     conv1.weight.data = torch.from_numpy(np.array([[1, 0],
-                                                    [0, 0]], dtype='float32').reshape((1, 1, 2, 2)))
-    print(type(conv1))
+                                                    [0, 0]], dtype='float32').reshape((1, 1, 2, 2))).to(device)
+    print(type(conv1.weight))
     conv2 = nn.Conv2d(1, 1, 2, 2, bias=False)
     conv2 = conv2.to(device)
     conv2.weight.data = torch.from_numpy(np.array([[0, 1],
-                                                    [0, 0]], dtype='float32').reshape((1, 1, 2, 2)))
+                                                    [0, 0]], dtype='float32').reshape((1, 1, 2, 2))).to(device)
     conv3 = nn.Conv2d(1, 1, 2, 2, bias=False)
     conv3 = conv3.to(device)
     conv3.weight.data = torch.from_numpy(np.array([[0, 0],
-                                                    [1, 0]], dtype='float32').reshape((1, 1, 2, 2)))
+                                                    [1, 0]], dtype='float32').reshape((1, 1, 2, 2))).to(device)
     conv4 = nn.Conv2d(1, 1, 2, 2, bias=False)
     conv4 = conv4.to(device)
     conv4.weight.data = torch.from_numpy(np.array([[0, 0],
-                                                    [0, 1]], dtype='float32').reshape((1, 1, 2, 2)))
+                                                    [0, 1]], dtype='float32').reshape((1, 1, 2, 2))).to(device)
     Unshuffle = torch.ones((batch_size, 4, height//2, width//2), requires_grad=False).to(device)
 
     for i in range(num_channels):
