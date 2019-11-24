@@ -85,7 +85,7 @@ class L1_Charbonnier_loss(nn.Module):
         diff = torch.add(X, -Y)
         error = torch.sqrt(diff * diff - self.eps)
         loss = torch.sum(error)
-        loss /= X.size(0)
+        # loss /= X.size(0)
         return loss
 
 def train(**kwargs):
