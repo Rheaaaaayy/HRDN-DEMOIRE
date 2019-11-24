@@ -31,8 +31,8 @@ class L1_Sobel_Loss(nn.Module):
         sobel_kernel_x = sobel_kernel_x.reshape((1, 1, 3, 3))
         sobel_kernel_y = sobel_kernel_y.reshape((1, 1, 3, 3))
 
-        self.conv_op_x.weight.data = torch.from_numpy(sobel_kernel_x)
-        self.conv_op_y.weight.data = torch.from_numpy(sobel_kernel_y)
+        self.conv_op_x.weight.data = torch.from_numpy(sobel_kernel_x).to(device)
+        self.conv_op_y.weight.data = torch.from_numpy(sobel_kernel_y).to(device)
 
         for p in self.parameters():
             p.requires_grad = False
@@ -102,7 +102,7 @@ def pixel_unshuffle(batch_input, shuffle_scale = 2, device=torch.device('cuda'))
     conv1 = conv1.to(device)
     conv1.weight.data = torch.from_numpy(np.array([[1, 0],
                                                     [0, 0]], dtype='float32').reshape((1, 1, 2, 2))).to(device)
-    print(type(conv1.weight))
+    print(type(conv1.weight.data))
     conv2 = nn.Conv2d(1, 1, 2, 2, bias=False)
     conv2 = conv2.to(device)
     conv2.weight.data = torch.from_numpy(np.array([[0, 1],
