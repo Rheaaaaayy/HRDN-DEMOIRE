@@ -62,6 +62,7 @@ class Config(object):
     lr = 0.0001
     lr_decay = 0.90
     beta1 = 0.5  # Adam优化器的beta1参数
+    accumulation_steps = 1 #梯度累加的参数
 
 
     vis = False if temp_winorserver else True
@@ -133,7 +134,7 @@ def train(**kwargs):
     loss_meter = meter.AverageValueMeter()
     psnr_meter = meter.AverageValueMeter()
     previous_loss = 1e100
-    accumulation_steps = 1
+    accumulation_steps = opt.accumulation_steps
 
 
     for epoch in range(opt.max_epoch):
@@ -258,5 +259,5 @@ def val(model, dataloader, vis=None):
 
 
 if __name__ == '__main__':
-    # train(model_path='checkpoints/backup/HRnet_trained_1117_21_50_27.pth')
-    train()
+    train(model_path='checkpoints/backup/HRnet_epoch50_1123_09_32_11.pth')
+    # train()
