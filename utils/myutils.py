@@ -34,16 +34,14 @@ class L1_Sobel_Loss(nn.Module):
 
         self.conv_op_x.weight.data = torch.from_numpy(sobel_kernel_x).to(device)
         self.conv_op_y.weight.data = torch.from_numpy(sobel_kernel_y).to(device)
-
-        for p in self.parameters():
-            p.requires_grad = False
+        self.conv_op_x.weight.requires_grad = False
+        self.conv_op_y.weight.requires_grad = False
 
     def forward(self, source, target):
 
-        edge_detect_X = torch.ones((source.size(0), 1, source.size(2)-2, source.size(3)-2)).to(self.device)
-        edge_detect_Y = torch.ones((source.size(0), 1, source.size(2) - 2, source.size(3) - 2)).to(self.device)
-
-        print(source.size())
+        # edge_detect_X = torch.ones((source.size(0), 1, source.size(2)-2, source.size(3)-2)).to(self.device)
+        # edge_detect_Y = torch.ones((source.size(0), 1, source.size(2) - 2, source.size(3) - 2)).to(self.device)
+        loss = 0
         for c in range(3):
             X = source[:, c:c+1, :, :]
             Y = target[:, c:c+1, :, :]
@@ -56,16 +54,19 @@ class L1_Sobel_Loss(nn.Module):
 
             edge_X = torch.sqrt(edge_X_x * edge_X_x + edge_X_y * edge_X_y)
             edge_Y = torch.sqrt(edge_Y_x * edge_Y_x + edge_Y_y * edge_Y_y)
-
-            edge_detect_X = torch.cat((edge_detect_X, edge_X), dim=1)
-            edge_detect_Y = torch.cat((edge_detect_Y, edge_Y), dim=1)
-
-        edge_detect_X = edge_detect_X[:, 1:, :, :]
-        edge_detect_Y = edge_detect_Y[:, 1:, :, :]
-
-        diff = torch.add(edge_detect_X, -edge_detect_Y)
-        error = torch.sqrt(diff * diff)
-        loss = torch.sum(error) / source.size(0)
+            diff = torch.add(edge_X, -edge_Y)
+            error = torch.sqrt(diff * diff)
+            loss += torch.sum(error)
+        #
+        #     edge_detect_X = torch.cat((edge_detect_X, edge_X), dim=1)
+        #     edge_detect_Y = torch.cat((edge_detect_Y, edge_Y), dim=1)
+        #
+        # edge_detect_X = edge_detect_X[:, 1:, :, :]
+        # edge_detect_Y = edge_detect_Y[:, 1:, :, :]
+        #
+        # diff = torch.add(edge_detect_X, -edge_detect_Y)
+        # error = torch.sqrt(diff * diff)
+        loss /= source.size(0)
 
         return loss
 
