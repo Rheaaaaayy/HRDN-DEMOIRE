@@ -59,7 +59,7 @@ class Config(object):
     train_batch_size = 32 #train的维度为(10, 3, 256, 256) 一个batch10张照片，要1000次iter
     val_batch_size = 10
     max_epoch = 400
-    lr = 1e-6
+    lr = 0.01
     lr_decay = 0.90
     beta1 = 0.5  # Adam优化器的beta1参数
 
@@ -146,7 +146,7 @@ def train(**kwargs):
     loss_meter = meter.AverageValueMeter()
     psnr_meter = meter.AverageValueMeter()
     previous_loss = 1e100
-    accumulation_steps = 8
+    accumulation_steps = 1
 
 
     for epoch in range(opt.max_epoch):
