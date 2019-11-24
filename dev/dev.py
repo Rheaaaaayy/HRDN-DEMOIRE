@@ -25,7 +25,7 @@ from torch.utils.checkpoint import checkpoint
 
 
 from utils.visualize import Visualizer
-from utils.myutils import tensor2im
+from utils.myutils import tensor2im, Weighted_Loss
 
 
 import models
@@ -59,7 +59,7 @@ class Config(object):
     train_batch_size = 32 #train的维度为(10, 3, 256, 256) 一个batch10张照片，要1000次iter
     val_batch_size = 10
     max_epoch = 400
-    lr = 0.01
+    lr = 0.0001
     lr_decay = 0.90
     beta1 = 0.5  # Adam优化器的beta1参数
 
@@ -74,19 +74,6 @@ class Config(object):
 
 opt = Config()
 
-
-class L1_Charbonnier_loss(nn.Module):
-    """L1 Charbonnierloss."""
-    def __init__(self):
-        super(L1_Charbonnier_loss, self).__init__()
-        self.eps = 1e-6
-
-    def forward(self, X, Y):
-        diff = torch.add(X, -Y)
-        error = torch.sqrt(diff * diff + self.eps)
-        loss = torch.sum(error)
-        # loss /= X.size(0)
-        return loss
 
 def train(**kwargs):
     #init
@@ -128,10 +115,10 @@ def train(**kwargs):
     val_loss, val_psnr = val(model, val_dataloader, vis_val)
     print(val_loss, val_psnr)
 
-    criterion = L1_Charbonnier_loss()
+    criterion = Weighted_Loss()
     lr = opt.lr
     optimizer = torch.optim.Adam(
-        model.parameters(),
+        filter(lambda p: p.requires_grad, model.parameters()),
         lr=lr,
         weight_decay=0.0001
     )
@@ -238,7 +225,7 @@ def train(**kwargs):
 @torch.no_grad()
 def val(model, dataloader, vis=None):
     model.eval()
-    criterion = L1_Charbonnier_loss()
+    criterion = Weighted_Loss()
 
     loss_meter = meter.AverageValueMeter()
     psnr_meter = meter.AverageValueMeter()
@@ -273,4 +260,4 @@ def val(model, dataloader, vis=None):
 
 if __name__ == '__main__':
     # train(model_path='checkpoints/backup/HRnet_trained_1117_21_50_27.pth')
-    train(model_path="/home/publicuser/sayhi/demoire/HRnet-demoire/checkpoints/benchmark/HRnet_epoch195_1124_12_14_32.pth")
+    train()

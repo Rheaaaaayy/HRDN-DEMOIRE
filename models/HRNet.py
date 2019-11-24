@@ -16,7 +16,7 @@ import torch.nn as nn
 from utils.myutils import pixel_unshuffle
 
 
-BN_MOMENTUM = 0.05
+BN_MOMENTUM = 0.1 #如果用梯度累加要把BN_MOMENTUM调小
 logger = logging.getLogger(__name__)
 
 
