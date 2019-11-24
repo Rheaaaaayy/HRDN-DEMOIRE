@@ -46,12 +46,17 @@ MODEL:
     - 'stage2'
     - 'transition2'
     - 'stage3'
-#    - 'transition3'
-#    - 'stage4'
-#    - 'transition4'
-#    - 'stage5'
-#    - 'transition5'
-#    - 'stage6'
+    - 'transition3'
+    - 'stage4'
+    - 'transition4'
+    - 'stage5'
+    - 'transition5'
+    - 'stage6'
+    - 'final_TransConv1'
+    - 'final_bn'
+    - 'final_layer'
+#    - 'ps1'
+#    - 'tanh'
     FINAL_CONV_KERNEL: 1
     STAGE2:
       NUM_MODULES: 1
