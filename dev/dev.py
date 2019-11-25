@@ -25,7 +25,9 @@ from torch.utils.checkpoint import checkpoint
 
 
 from utils.visualize import Visualizer
-from utils.myutils import tensor2im, Weighted_Loss
+from utils.myutils import tensor2im
+
+from models.LossNet import L1_Charbonnier_loss, L1_Sobel_Loss, Weighted_Loss
 
 
 import models
