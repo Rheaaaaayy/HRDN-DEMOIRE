@@ -76,7 +76,7 @@ class Weighted_Loss(nn.Module):
         s_loss = self.Sobel_Loss(X, Y)
         loss += c_loss * (1-self.alpha)
         loss += s_loss * self.alpha
-        return loss
+        return s_loss
 
 
 class SimpleNet(nn.Module):
