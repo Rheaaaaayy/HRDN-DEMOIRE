@@ -72,7 +72,7 @@ class Weighted_Loss(nn.Module):
     def forward(self, X, Y):
         c_loss = self.Charbonnier_loss(X, Y)
         s_loss = self.Sobel_Loss(X, Y)
-        loss = c_loss * 0.5 + s_loss * 0.5
+        loss = c_loss * 0.9 + s_loss * 0.1
         return loss
 
 
