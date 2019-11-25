@@ -64,17 +64,16 @@ class L1_Sobel_Loss(nn.Module):
 
 
 class Weighted_Loss(nn.Module):
-    def __init__(self):
+    def __init__(self, epoch=0):
         super(Weighted_Loss, self).__init__()
         self.Charbonnier_loss = L1_Charbonnier_loss()
         self.Sobel_Loss = L1_Sobel_Loss(device=torch.device('cuda'))
-        self.alpha = 0
+        self.alpha = 1e-6
 
     def forward(self, X, Y):
         c_loss = self.Charbonnier_loss(X, Y)
         s_loss = self.Sobel_Loss(X, Y)
         loss = (c_loss * (1-self.alpha)) + (s_loss * self.alpha)
-        print(loss == c_loss)
         return loss
 
 
