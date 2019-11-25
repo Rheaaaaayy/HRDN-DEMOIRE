@@ -74,6 +74,7 @@ class Weighted_Loss(nn.Module):
         c_loss = self.Charbonnier_loss(X, Y)
         s_loss = self.Sobel_Loss(X, Y)
         loss = (c_loss * (1-self.alpha)) + (s_loss * self.alpha)
+        print(loss == c_loss)
         return loss
 
 
