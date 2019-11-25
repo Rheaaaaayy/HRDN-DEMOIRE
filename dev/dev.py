@@ -66,7 +66,7 @@ class Config(object):
     lr_decay = 0.90
     beta1 = 0.5  # Adam优化器的beta1参数
     accumulation_steps = 1 #梯度累加的参数
-
+    loss_alpha = 0.5 #两个loss的权值
 
     vis = False if temp_winorserver else True
     env = 'demoire'
@@ -158,18 +158,12 @@ def train(**kwargs):
             clears = clears.to(opt.device)
 
             outputs, edge_outputs = model(moires)
-            outputs.retain_grad()
             c_loss = criterion_c(outputs, clears)
             s_loss = criterion_s(edge_outputs, clears)
-            loss = c_loss * 0.5 + s_loss * 0.5
-
+            loss = c_loss * opt.loss_alpha + s_loss * (1 - opt.loss_alpha)
             #saocaozuo gradient accumulation
             loss = loss/accumulation_steps
             loss.backward()
-            print(outputs.grad)
-            # for x in optimizer.param_groups[0]['params']:
-            #     # print(x)
-            #     print(x.grad)
 
             if (ii+1)%accumulation_steps == 0:
                 optimizer.step()
@@ -243,17 +237,21 @@ def train(**kwargs):
 @torch.no_grad()
 def val(model, dataloader, vis=None):
     model.eval()
-    # criterion = Weighted_Loss()
+
+    criterion_c = L1_Charbonnier_loss()
+    criterion_s = L1_Sobel_Loss()
 
     loss_meter = meter.AverageValueMeter()
     psnr_meter = meter.AverageValueMeter()
     for ii, (val_moires, val_clears) in tqdm(enumerate(dataloader)):
         val_moires = val_moires.to(opt.device)
         val_clears = val_clears.to(opt.device)
-        val_outputs = model(val_moires)
-        # val_outputs = (val_outputs + 1.0) / 2.0
+        val_outputs, val_edge_outputs = model(val_moires)
 
-        val_loss = criterion(val_outputs, val_clears)
+        c_loss = criterion_c(val_outputs, val_clears)
+        s_loss = criterion_s(val_edge_outputs, val_clears)
+        val_loss = c_loss * opt.loss_alpha + s_loss * (1 - opt.loss_alpha)
+
         loss_meter.add(val_loss.item())
 
         val_moires = tensor2im(val_moires)
