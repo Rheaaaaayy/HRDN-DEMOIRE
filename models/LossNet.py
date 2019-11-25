@@ -46,19 +46,14 @@ class L1_Sobel_Loss(nn.Module):
         self.conv_op_x.weight.requires_grad = False
         self.conv_op_y.weight.requires_grad = False
 
-    def forward(self, source, target):
-
-        edge_X_x = self.conv_op_x(source)
-        edge_X_y = self.conv_op_y(source)
-        edge_Y_x = self.conv_op_x(target)
-        edge_Y_y = self.conv_op_y(target)
-        edge_X = torch.abs(edge_X_x) + torch.abs(edge_X_y)
+    def forward(self, edge_outputs, image_target):
+        edge_Y_x = self.conv_op_x(image_target)
+        edge_Y_y = self.conv_op_y(image_target)
         edge_Y = torch.abs(edge_Y_x) + torch.abs(edge_Y_y)
 
-        diff = torch.add(edge_X, -edge_Y)
+        diff = torch.add(edge_outputs, -edge_Y)
         error = torch.sqrt(diff * diff)
-        loss = torch.sum(error)
-        loss /= source.size(0)
+        loss = torch.sum(error) / edge_outputs.size(0)
 
         return loss
 

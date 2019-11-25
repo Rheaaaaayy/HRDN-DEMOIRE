@@ -13,6 +13,7 @@ import logging
 
 import torch
 import torch.nn as nn
+import numpy as np
 from utils.myutils import pixel_unshuffle
 
 
@@ -336,6 +337,23 @@ class PoseHighResolutionNet(nn.Module):
         self.relu = nn.ReLU(inplace=True)
         self.layer1 = self._make_layer(Bottleneck, 64, 4)
 
+        #L1_sobel_loss
+        self.conv_op_x = nn.Conv2d(3, 1, 3, bias=False)
+        self.conv_op_y = nn.Conv2d(3, 1, 3, bias=False)
+
+        sobel_kernel_x = np.array([[[1, 0, -1], [2, 0, -2], [1, 0, -1]],
+                                   [[1, 0, -1], [2, 0, -2], [1, 0, -1]],
+                                   [[1, 0, -1], [2, 0, -2], [1, 0, -1]]], dtype='float32')
+        sobel_kernel_y = np.array([[[1, 2, 1], [0, 0, 0], [-1, -2, -1]],
+                                   [[1, 2, 1], [0, 0, 0], [-1, -2, -1]],
+                                   [[1, 2, 1], [0, 0, 0], [-1, -2, -1]]], dtype='float32')
+        sobel_kernel_x = sobel_kernel_x.reshape((1, 3, 3, 3))
+        sobel_kernel_y = sobel_kernel_y.reshape((1, 3, 3, 3))
+
+        self.conv_op_x.weight.data = torch.from_numpy(sobel_kernel_x)
+        self.conv_op_y.weight.data = torch.from_numpy(sobel_kernel_y)
+        self.conv_op_x.weight.requires_grad = False
+        self.conv_op_y.weight.requires_grad = False
 
 # =============================================================================
         self.stage2_cfg = cfg['MODEL']['EXTRA']['STAGE2']
@@ -576,9 +594,13 @@ class PoseHighResolutionNet(nn.Module):
         x = self.final_layer(x)
         x = self.ps1(x)
         x = x + input
-        x = self.tanh(x)
+        output = self.tanh(x)
 
-        return x
+        edge_X_x = self.conv_op_x(output)
+        edge_X_y = self.conv_op_y(output)
+        edge_X = torch.abs(edge_X_x) + torch.abs(edge_X_y)
+
+        return output, edge_X
 
     def init_weights(self, pretrained=''):
         logger.info('=> init weights from normal distribution')
