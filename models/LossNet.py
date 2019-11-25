@@ -52,8 +52,8 @@ class L1_Sobel_Loss(nn.Module):
         edge_X_y = self.conv_op_y(source)
         edge_Y_x = self.conv_op_x(target)
         edge_Y_y = self.conv_op_y(target)
-        edge_X = torch.sqrt(edge_X_x * edge_X_x + edge_X_y * edge_X_y)
-        edge_Y = torch.sqrt(edge_Y_x * edge_Y_x + edge_Y_y * edge_Y_y)
+        edge_X = torch.abs(edge_X_x) + torch.abs(edge_X_y)
+        edge_Y = torch.abs(edge_Y_x) + torch.abs(edge_Y_y)
 
         diff = torch.add(edge_X, -edge_Y)
         error = torch.sqrt(diff * diff)
@@ -72,8 +72,8 @@ class Weighted_Loss(nn.Module):
     def forward(self, X, Y):
         c_loss = self.Charbonnier_loss(X, Y)
         s_loss = self.Sobel_Loss(X, Y)
-        loss = c_loss * 0.9 + s_loss * 0.1
-        return c_loss
+        loss = c_loss * 0.95 + s_loss * 0.05
+        return loss
 
 
 class SimpleNet(nn.Module):
