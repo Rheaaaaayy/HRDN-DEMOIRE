@@ -56,32 +56,3 @@ class L1_Sobel_Loss(nn.Module):
         loss = torch.sum(error) / edge_outputs.size(0)
 
         return loss
-
-
-class Weighted_Loss(nn.Module):
-    def __init__(self, epoch=0):
-        super(Weighted_Loss, self).__init__()
-        self.Charbonnier_loss = L1_Charbonnier_loss()
-        self.Sobel_Loss = L1_Sobel_Loss(device=torch.device('cuda'))
-        self.alpha = 1e-10
-
-    def forward(self, X, Y):
-        loss = 0
-        c_loss = self.Charbonnier_loss(X, Y)
-        s_loss = self.Sobel_Loss(X, Y)
-        loss += c_loss * (1-self.alpha)
-        loss += s_loss * self.alpha
-        return s_loss
-
-
-class SimpleNet(nn.Module):
-    def __init__(self):
-        super(SimpleNet, self).__init__()
-        self.conv1 = nn.Conv2d(3, 3, 3, bias=False)
-        self.relu = nn.ReLU(inplace=True)
-
-    def forward(self, x):
-        x = self.conv1(x)
-        x = self.relu(x)
-        return x
-
