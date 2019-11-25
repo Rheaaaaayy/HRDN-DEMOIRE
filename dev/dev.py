@@ -161,7 +161,8 @@ def train(**kwargs):
             loss = loss/accumulation_steps
             loss.backward()
             for x in optimizer.param_groups[0]['params']:
-                print(x.grad)
+                print(x)
+                # print(x.grad)
 
             if (ii+1)%accumulation_steps == 0:
                 optimizer.step()
