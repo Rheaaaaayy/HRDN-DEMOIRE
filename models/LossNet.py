@@ -8,7 +8,9 @@ import logging
 import torch
 import torch.nn as nn
 import numpy as np
-
+from PIL import Image
+from torchvision import transforms
+import matplotlib.pyplot as plt
 
 class L1_Charbonnier_loss(nn.Module):
     """L1 Charbonnierloss."""
@@ -27,8 +29,8 @@ class L1_Sobel_Loss(nn.Module):
     def __init__(self, device=torch.device('cuda')):
         super(L1_Sobel_Loss, self).__init__()
         self.device = device
-        self.conv_op_x = nn.Conv2d(1, 1, 3, bias=False)
-        self.conv_op_y = nn.Conv2d(1, 1, 3, bias=False)
+        self.conv_op_x = nn.Conv2d(3, 1, 3, bias=False)
+        self.conv_op_y = nn.Conv2d(3, 1, 3, bias=False)
 
         sobel_kernel_x = np.array([[[1, 0, -1], [2, 0, -2], [1, 0, -1]],
                                    [[1, 0, -1], [2, 0, -2], [1, 0, -1]],
@@ -46,7 +48,6 @@ class L1_Sobel_Loss(nn.Module):
 
     def forward(self, source, target):
 
-        loss = 0
         edge_X_x = self.conv_op_x(source)
         edge_X_y = self.conv_op_y(source)
         edge_Y_x = self.conv_op_x(target)
@@ -72,5 +73,17 @@ class Weighted_Loss(nn.Module):
         c_loss = self.Charbonnier_loss(X, Y)
         s_loss = self.Sobel_Loss(X, Y)
         loss = c_loss * 0.5 + s_loss * 0.5
-        return s_loss
+        return loss
+
+
+class SimpleNet(nn.Module):
+    def __init__(self):
+        super(SimpleNet, self).__init__()
+        self.conv1 = nn.Conv2d(3, 3, 3, bias=False)
+        self.relu = nn.ReLU(inplace=True)
+
+    def forward(self, x):
+        x = self.conv1(x)
+        x = self.relu(x)
+        return x
 

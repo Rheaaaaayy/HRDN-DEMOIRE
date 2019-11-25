@@ -30,56 +30,39 @@ class L1_Charbonnier_loss(nn.Module):
 
 
 class L1_Sobel_Loss(nn.Module):
-    def __init__(self):
+    def __init__(self, device=torch.device('cuda')):
         super(L1_Sobel_Loss, self).__init__()
+        self.device = device
+        self.conv_op_x = nn.Conv2d(3, 1, 3, bias=False)
+        self.conv_op_y = nn.Conv2d(3, 1, 3, bias=False)
 
-        self.eps = 1e-6
-        self.conv_op_x = nn.Conv2d(1, 1, 3, bias=False)
-        self.conv_op_y = nn.Conv2d(1, 1, 3, bias=False)
-        sobel_kernel_x = np.array([[1, 0, -1], [2, 0, -2], [1, 0, -1]], dtype='float32')
-        sobel_kernel_y = np.array([[1, 2, 1], [0, 0, 0], [-1, -2, -1]], dtype='float32')
-        sobel_kernel_x = sobel_kernel_x.reshape((1, 1, 3, 3))
-        sobel_kernel_y = sobel_kernel_y.reshape((1, 1, 3, 3))
+        sobel_kernel_x = np.array([[[1, 0, -1], [2, 0, -2], [1, 0, -1]],
+                                   [[1, 0, -1], [2, 0, -2], [1, 0, -1]],
+                                   [[1, 0, -1], [2, 0, -2], [1, 0, -1]]], dtype='float32')
+        sobel_kernel_y = np.array([[[1, 2, 1], [0, 0, 0], [-1, -2, -1]],
+                                   [[1, 2, 1], [0, 0, 0], [-1, -2, -1]],
+                                   [[1, 2, 1], [0, 0, 0], [-1, -2, -1]]], dtype='float32')
+        sobel_kernel_x = sobel_kernel_x.reshape((1, 3, 3, 3))
+        sobel_kernel_y = sobel_kernel_y.reshape((1, 3, 3, 3))
 
-        self.conv_op_x.weight.data = torch.from_numpy(sobel_kernel_x)
-        self.conv_op_y.weight.data = torch.from_numpy(sobel_kernel_y)
-
-        for p in self.parameters():
-            p.requires_grad = False
+        self.conv_op_x.weight.data = torch.from_numpy(sobel_kernel_x).to(device)
+        self.conv_op_y.weight.data = torch.from_numpy(sobel_kernel_y).to(device)
+        self.conv_op_x.weight.requires_grad = False
+        self.conv_op_y.weight.requires_grad = False
 
     def forward(self, source, target):
 
-        edge_detect_X = torch.ones((source.size(0), 1, source.size(2)-2, source.size(3)-2))
-        edge_detect_Y = torch.ones((source.size(0), 1, source.size(2) - 2, source.size(3) - 2))
+        edge_X_x = self.conv_op_x(source)
+        edge_X_y = self.conv_op_y(source)
+        edge_Y_x = self.conv_op_x(target)
+        edge_Y_y = self.conv_op_y(target)
+        edge_X = torch.sqrt(edge_X_x * edge_X_x + edge_X_y * edge_X_y)
+        edge_Y = torch.sqrt(edge_Y_x * edge_Y_x + edge_Y_y * edge_Y_y)
 
-        for c in range(3):
-            X = source[:, c:c+1, :, :]
-            Y = target[:, c:c+1, :, :]
-            # print("X_{}_size:{}".format(c, X.size()))
-            edge_X_x = self.conv_op_x(X)
-            edge_X_y = self.conv_op_y(X)
-
-            edge_Y_x = self.conv_op_x(Y)
-            edge_Y_y = self.conv_op_y(Y)
-
-            edge_X = torch.sqrt(edge_X_x * edge_X_x + edge_X_y * edge_X_y)
-            edge_Y = torch.sqrt(edge_Y_x * edge_Y_x + edge_Y_y * edge_Y_y)
-
-            edge_detect_X = torch.cat((edge_detect_X, edge_X), dim=1)
-            edge_detect_Y = torch.cat((edge_detect_Y, edge_Y), dim=1)
-
-        edge_detect_X = edge_detect_X[:, 1:, :, :]
-        edge_detect_Y = edge_detect_Y[:, 1:, :, :]
-
-        diff = torch.add(edge_detect_X, -edge_detect_Y)
-        error = torch.sqrt(diff * diff + self.eps)
-        loss = torch.sum(error) / source.size(0)
-
-        # plt.subplot(121)
-        # plt.imshow(edge_detect_X.squeeze().permute(1, 2, 0))
-        # plt.subplot(122)
-        # plt.imshow(edge_detect_Y.squeeze().permute(1, 2, 0))
-        # plt.show()
+        diff = torch.add(edge_X, -edge_Y)
+        error = torch.sqrt(diff * diff)
+        loss = torch.sum(error)
+        loss /= source.size(0)
 
         return loss
 
@@ -88,7 +71,7 @@ class Weighted_Loss(nn.Module):
     def __init__(self):
         super(Weighted_Loss, self).__init__()
         self.Charbonnier_loss = L1_Charbonnier_loss()
-        self.Sobel_Loss = L1_Sobel_Loss()
+        self.Sobel_Loss = L1_Sobel_Loss(device=torch.device('cuda'))
 
     def forward(self, X, Y):
         c_loss = self.Charbonnier_loss(X, Y)
@@ -97,31 +80,69 @@ class Weighted_Loss(nn.Module):
         return loss
 
 
+class SimpleNet(nn.Module):
+    def __init__(self):
+        super(SimpleNet, self).__init__()
+        self.conv1 = nn.Conv2d(3, 3, 3, bias=False)
+        self.relu = nn.ReLU(inplace=True)
+
+    def forward(self, x):
+        x = self.conv1(x)
+        x = self.relu(x)
+        return x
+
+'''
 if __name__ == '__main__':
     T = transforms.Compose([
         transforms.Resize((256, 256)),
         transforms.ToTensor()
     ])
 
-    image_moire = Image.open("image_moire.png").convert('RGB')
+    image_moire = Image.open("../image_moire.png").convert('RGB')
     w, h = image_moire.size
-    image_moire = image_moire.crop((1+int(0.15*w), 1+int(0.15*h), int(0.85*w), int(0.85*h)))
+    image_moire = image_moire.crop((1 + int(0.15 * w), 1 + int(0.15 * h), int(0.85 * w), int(0.85 * h)))
     image_moire = T(image_moire)
-    image_moire = image_moire.unsqueeze(0)
+    image_moire = image_moire.unsqueeze(0).cuda()
 
-    image_clear = Image.open("image_clear.png").convert('RGB')
+    image_clear = Image.open("../image_clear.png").convert('RGB')
     w, h = image_clear.size
     image_clear = image_clear.crop((1 + int(0.15 * w), 1 + int(0.15 * h), int(0.85 * w), int(0.85 * h)))
     image_clear = T(image_clear)
-    image_clear = image_clear.unsqueeze(0)
+    image_clear = image_clear.unsqueeze(0).cuda()
 
-
+    model = SimpleNet()
+    model.cuda()
     criterion = Weighted_Loss()
-    loss = criterion(image_moire, image_clear)
-    print(loss)
+    optimizer = torch.optim.SGD(
+        model.parameters(),
+        lr=0.00001,
+        weight_decay=0.0001
+    )
 
-    for name, i in criterion.named_parameters():
-        print(name, i)
+
+    for i in range(10):
+        output_moire = model(image_moire)
+        output_clear = model(image_clear)
+        output_moire.retain_grad()
+
+        output_moire.register_hook(lambda x: print(x))
+
+        loss = criterion(output_moire, output_clear)
+        print(loss)
+        print("==========start backprops==========")
+        loss.backward()
+        print("==========end backprops==========")
+
+        for name, i in model.named_parameters():
+            print(name)
+            print(i)
+            print("grad is")
+            print(i.grad)
+
+
+        optimizer.step()
+        optimizer.zero_grad()
+'''
 
 
 
