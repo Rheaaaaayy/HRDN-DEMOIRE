@@ -54,6 +54,8 @@ class L1_Sobel_Loss(nn.Module):
         edge_Y_y = self.conv_op_y(target)
         edge_X = torch.abs(edge_X_x) + torch.abs(edge_X_y)
         edge_Y = torch.abs(edge_Y_x) + torch.abs(edge_Y_y)
+        edge_X /= (edge_X.max() - edge_X.min())
+        edge_Y /= (edge_Y.max() - edge_Y.min())
 
         diff = torch.add(edge_X, -edge_Y)
         error = torch.sqrt(diff * diff)
