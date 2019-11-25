@@ -70,7 +70,7 @@ class Config(object):
 
     vis = False if temp_winorserver else True
     env = 'demoire'
-    plot_every = 1 #每隔20个batch, visdom画图一次
+    plot_every = 20 #每隔20个batch, visdom画图一次
 
     save_every = 5  # 每5个epoch保存一次模型
     model_path = None #'checkpoints/HRnet_211.pth'
@@ -116,8 +116,8 @@ def train(**kwargs):
     model = get_pose_net(cfg, pretrained=opt.model_path) #initweight
     model = model.to(opt.device)
 
-    # val_loss, val_psnr = val(model, val_dataloader, vis_val)
-    # print(val_loss, val_psnr)
+    val_loss, val_psnr = val(model, val_dataloader, vis_val)
+    print(val_loss, val_psnr)
 
     criterion_c = L1_Charbonnier_loss()
     criterion_s = L1_Sobel_Loss()
@@ -261,7 +261,7 @@ def val(model, dataloader, vis=None):
         val_psnr = colour.utilities.metric_psnr(val_outputs, val_clears)
         psnr_meter.add(val_psnr)
 
-        if opt.vis and vis != None:  # 每个个iter画图一次
+        if opt.vis and vis != None and (ii + 1) % 5 == 0:  # 每个个iter画图一次
             vis.images(val_moires, win='val_moire_image')
             vis.images(val_outputs, win='val_output_image')
             vis.images(val_clears, win='val_clear_image')
