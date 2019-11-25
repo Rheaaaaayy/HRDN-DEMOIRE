@@ -119,8 +119,8 @@ def train(**kwargs):
     # val_loss, val_psnr = val(model, val_dataloader, vis_val)
     # print(val_loss, val_psnr)
 
-    criterion1 = L1_Charbonnier_loss()
-    criterion2 = L1_Sobel_Loss()
+    criterion_c = L1_Charbonnier_loss()
+    criterion_s = L1_Sobel_Loss()
     lr = opt.lr
     optimizer = torch.optim.Adam(
         filter(lambda p: p.requires_grad, model.parameters()),
@@ -159,9 +159,9 @@ def train(**kwargs):
 
             outputs, edge_outputs = model(moires)
             outputs.retain_grad()
-            c_loss = criterion1(outputs, clears)
-            s_loss = criterion2(edge_outputs, clears)
-            loss = c_loss * 0.9 + s_loss * 0.1
+            c_loss = criterion_c(outputs, clears)
+            s_loss = criterion_s(edge_outputs, clears)
+            loss = c_loss * 0.5 + s_loss * 0.5
 
             #saocaozuo gradient accumulation
             loss = loss/accumulation_steps
