@@ -73,8 +73,8 @@ class Weighted_Loss(nn.Module):
     def forward(self, X, Y):
         c_loss = self.Charbonnier_loss(X, Y)
         s_loss = self.Sobel_Loss(X, Y)
-        loss = c_loss * (1-self.alpha) + s_loss * self.alpha
-        return c_loss * (1.0-self.alpha)
+        loss = (c_loss * (1-self.alpha)) + (s_loss * self.alpha)
+        return loss
 
 
 class SimpleNet(nn.Module):
