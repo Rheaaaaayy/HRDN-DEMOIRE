@@ -66,7 +66,7 @@ class Config(object):
     lr_decay = 0.90
     beta1 = 0.5  # Adam优化器的beta1参数
     accumulation_steps = 1 #梯度累加的参数
-    loss_alpha = 0.5 #两个loss的权值
+    loss_alpha = 0.7 #两个loss的权值
 
     vis = False if temp_winorserver else True
     env = 'demoire'
