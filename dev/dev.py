@@ -148,10 +148,8 @@ def train(**kwargs):
     for epoch in range(opt.max_epoch):
         if epoch < last_epoch:
             continue
-        if epoch == 30:
+        if epoch >= 30:
             opt.loss_alpha = 0.6
-        if epoch == 60:
-            opt.loss_alpha = 0.5
         loss_meter.reset()
         psnr_meter.reset()
         loss_list = []
