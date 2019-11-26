@@ -52,11 +52,6 @@ MODEL:
     - 'stage5'
     - 'transition5'
     - 'stage6'
-    - 'final_TransConv1'
-    - 'final_bn'
-    - 'final_layer'
-#    - 'ps1'
-#    - 'tanh'
     FINAL_CONV_KERNEL: 1
     STAGE2:
       NUM_MODULES: 1
@@ -124,6 +119,13 @@ MODEL:
         - 16
         - 32
       FUSE_METHOD: SUM
+    FINAL:
+      NUM_BRANCHES: 4
+      NUM_CHANNELS:
+        - 16
+        - 32
+        - 64
+        - 128
 LOSS:
   USE_TARGET_WEIGHT: true
 TRAIN:

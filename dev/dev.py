@@ -32,7 +32,7 @@ from models.LossNet import L1_Charbonnier_loss, L1_Sobel_Loss
 
 
 import models
-from models.HRNet import get_pose_net
+from models.HRNet_dev import get_pose_net
 from models.MSCNN import MSCNN
 from config import cfg, update_config
 # from myconfig import opt
@@ -160,9 +160,16 @@ def train(**kwargs):
             clears = clears.to(opt.device)
 
             outputs, edge_outputs = model(moires)
-            c_loss = criterion_c(outputs, clears)
-            s_loss = criterion_s(edge_outputs, clears)
-            loss = c_loss * opt.loss_alpha + s_loss * (1 - opt.loss_alpha)
+            print(len(outputs), len(edge_outputs))
+            loss = 0
+            for ii, (output, edge_output) in enumerate(zip(outputs, edge_outputs)):
+                c_loss = criterion_c(output, clears)
+                s_loss = criterion_s(edge_output, clears)
+                if ii == 0:
+                    loss += 1.25 * (c_loss * opt.loss_alpha + s_loss * (1 - opt.loss_alpha))
+                else:
+                    loss += 0.25 * (c_loss * 0.75 + s_loss * 0.25)
+
             #saocaozuo gradient accumulation
             loss = loss/accumulation_steps
             loss.backward()
