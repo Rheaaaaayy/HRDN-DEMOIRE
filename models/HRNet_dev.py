@@ -658,13 +658,13 @@ def get_pose_net(cfg, pretrained, **kwargs):
 
     return model
 
-if __name__ == '__main__':
-    from config import cfg
-
-    dump_input = torch.rand((2, 3, 256, 256))
-    cfg.merge_from_file("../config/cfg.yaml")
-    model = get_pose_net(cfg, pretrained=None)
-    model = model.cuda()
-    dump_input = dump_input.cuda()
-
-    output = model(dump_input)
+# if __name__ == '__main__':
+#     from config import cfg
+#
+#     dump_input = torch.rand((2, 3, 256, 256))
+#     cfg.merge_from_file("../config/cfg.yaml")
+#     model = get_pose_net(cfg, pretrained=None)
+#     model = model.cuda()
+#     dump_input = dump_input.cuda()
+#
+#     output = model(dump_input)

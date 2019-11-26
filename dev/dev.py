@@ -51,9 +51,9 @@ class Config(object):
         test_path = "T:\\dataset\\moire image benchmark\\test"
         debug_file = 'F:\\workspaces\\demoire\\debug'  # 存在该文件则进入debug模式
     else:
-        train_path = "/home/publicuser/sayhi/dataset/moire image benchmark/train"
-        valid_path = "/home/publicuser/sayhi/dataset/moire image benchmark/val"
-        test_path = "/home/publicuser/sayhi/dataset/moire image benchmark/test"
+        train_path = "/seconddisk/sayhi/dataset/TIPbenchmark/train/trainData"
+        # valid_path = "/home/publicuser/sayhi/dataset/moire image benchmark/val"
+        test_path = "/seconddisk/sayhi/dataset/TIPbenchmark/test/testData"
         debug_file = '/home/publicuser/sayhi/demoire/HRnet-demoire/debug'  # 存在该文件则进入debug模式
     label_dict = {1: "moire",
                   0: "clear"}
@@ -98,13 +98,13 @@ def train(**kwargs):
         transforms.ToTensor()
     ])
     train_data = MoireData(opt.train_path)
-    val_data = MoireData(opt.valid_path, is_val=True)
+    test_data = MoireData(opt.valid_path, is_val=True)
     train_dataloader = DataLoader(train_data,
                             batch_size=opt.train_batch_size if opt.is_dev == False else 4,
                             shuffle=True,
                             num_workers=opt.num_workers if opt.is_dev == False else 0,
                             drop_last=True)
-    val_dataloader = DataLoader(val_data,
+    test_dataloader = DataLoader(test_data,
                             batch_size=opt.val_batch_size if opt.is_dev == False else 4,
                             shuffle=True,
                             num_workers=opt.num_workers if opt.is_dev == False else 0,
@@ -116,7 +116,7 @@ def train(**kwargs):
     model = get_pose_net(cfg, pretrained=opt.model_path) #initweight
     model = model.to(opt.device)
 
-    val_loss, val_psnr = val(model, val_dataloader, vis_val)
+    val_loss, val_psnr = val(model, test_dataloader, vis_val)
     print(val_loss, val_psnr)
 
     criterion_c = L1_Charbonnier_loss()
@@ -154,21 +154,26 @@ def train(**kwargs):
         psnr_meter.reset()
         loss_list = []
 
-        for ii, (moires, clears) in tqdm(enumerate(train_dataloader)):
+        for ii, (moires, clear_list) in tqdm(enumerate(train_dataloader)):
             # bs, ncrops, c, h, w = moires.size()
             moires = moires.to(opt.device)
-            clears = clears.to(opt.device)
+            clears = clear_list[0].to(opt.device)
+            clear_list = [x.to(opt.device) for x in clear_list]
 
-            outputs, edge_outputs = model(moires)
-            print(len(outputs), len(edge_outputs))
+            output_list, edge_output_list = model(moires)
+            outputs = output_list[0]
+            print(len(output_list), len(edge_output_list), outputs.size())
+
             loss = 0
-            for ii, (output, edge_output) in enumerate(zip(outputs, edge_outputs)):
-                c_loss = criterion_c(output, clears)
-                s_loss = criterion_s(edge_output, clears)
+            for ii, (output, edge_output) in enumerate(zip(output_list, edge_output_list)):
+                c_loss = criterion_c(output, clear_list[ii])
+                s_loss = criterion_s(edge_output, clear_list[ii])
                 if ii == 0:
                     loss += 1.25 * (c_loss * opt.loss_alpha + s_loss * (1 - opt.loss_alpha))
-                else:
+                elif ii <= 2:
                     loss += 0.25 * (c_loss * 0.75 + s_loss * 0.25)
+                elif ii > 2:
+                    loss += 0.25 * (c_loss * 0.9 + s_loss * 0.1)
 
             #saocaozuo gradient accumulation
             loss = loss/accumulation_steps
@@ -203,7 +208,7 @@ def train(**kwargs):
                 loss_list.append(str(loss_meter.value()[0]))
                 # if os.path.exists(opt.debug_file):
                 #     ipdb.set_trace()
-        val_loss, val_psnr = val(model, val_dataloader, vis_val)
+        val_loss, val_psnr = val(model, test_dataloader, vis_val)
         if opt.vis:
             vis.plot('val_loss', val_loss)
             vis.log("epoch:{epoch}, average val_loss:{val_loss}, average val_psnr:{val_psnr}".format(epoch=epoch+1,
