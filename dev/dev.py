@@ -152,7 +152,6 @@ def train(**kwargs):
         loss_meter.reset()
         psnr_meter.reset()
         torch.cuda.empty_cache()
-        print(epoch)
         loss_list = []
 
         for ii, (moires, clear_list) in tqdm(enumerate(train_dataloader)):
@@ -215,8 +214,7 @@ def train(**kwargs):
                 loss_list.append(str(loss_meter.value()[0]))
                 # if os.path.exists(opt.debug_file):
                 #     ipdb.set_trace()
-            if ii > 5:
-                break
+
         torch.cuda.empty_cache()
         val_loss, val_psnr = val(model, test_dataloader, vis_val)
         if opt.vis:
@@ -293,8 +291,7 @@ def val(model, dataloader, vis=None):
 
             vis.log(">>>>>>>> val_loss:{val_loss}, val_psnr:{val_psnr}".format(val_loss=val_loss,
                                                                              val_psnr=val_psnr))
-        if ii > 5:
-            break
+
     model.train()
     return loss_meter.value()[0], psnr_meter.value()[0]
 
