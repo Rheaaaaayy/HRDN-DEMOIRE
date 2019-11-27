@@ -62,7 +62,7 @@ class Config(object):
     train_batch_size = 32 #train的维度为(10, 3, 256, 256) 一个batch10张照片，要1000次iter
     val_batch_size = 32
     max_epoch = 400
-    lr = 1e-5
+    lr = 1e-4
     lr_decay = 0.90
     beta1 = 0.5  # Adam优化器的beta1参数
     accumulation_steps = 1 #梯度累加的参数
@@ -70,7 +70,7 @@ class Config(object):
 
     vis = False if temp_winorserver else True
     env = 'demoire'
-    plot_every = 100 #每隔20个batch, visdom画图一次
+    plot_every = 20 #每隔20个batch, visdom画图一次
 
     save_every = 5  # 每5个epoch保存一次模型
     model_path = None #'checkpoints/HRnet_211.pth'
