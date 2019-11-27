@@ -152,6 +152,7 @@ def train(**kwargs):
         loss_meter.reset()
         psnr_meter.reset()
         torch.cuda.empty_cache()
+        print(epoch)
         loss_list = []
 
         for ii, (moires, clear_list) in tqdm(enumerate(train_dataloader)):
