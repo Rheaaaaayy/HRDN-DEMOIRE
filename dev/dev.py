@@ -133,8 +133,8 @@ def train(**kwargs):
         map_location = lambda storage, loc: storage
         checkpoint = torch.load(opt.model_path, map_location=map_location)
         last_epoch = checkpoint["epoch"]
-        # optimizer_state = checkpoint["optimizer"]
-        # optimizer.load_state_dict(optimizer_state)
+        optimizer_state = checkpoint["optimizer"]
+        optimizer.load_state_dict(optimizer_state)
 
         lr = checkpoint["lr"]
         for param_group in optimizer.param_groups:
