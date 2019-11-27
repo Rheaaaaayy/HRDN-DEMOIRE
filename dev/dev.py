@@ -281,7 +281,7 @@ def val(model, dataloader, vis=None):
         val_psnr = colour.utilities.metric_psnr(val_outputs, val_clears)
         psnr_meter.add(val_psnr)
 
-        if opt.vis and vis != None and (ii + 1) % opt.plot_every == 0:  # 每个个iter画图一次
+        if opt.vis and vis != None and (ii + 1) % 100 == 0:  # 每个个iter画图一次
             vis.images(val_moires, win='val_moire_image')
             vis.images(val_outputs, win='val_output_image')
             vis.images(val_clears, win='val_clear_image')
