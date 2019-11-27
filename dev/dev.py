@@ -62,7 +62,7 @@ class Config(object):
     train_batch_size = 32 #train的维度为(10, 3, 256, 256) 一个batch10张照片，要1000次iter
     val_batch_size = 32
     max_epoch = 400
-    lr = 1e-5
+    lr = 1e-6
     lr_decay = 0.90
     beta1 = 0.5  # Adam优化器的beta1参数
     accumulation_steps = 1 #梯度累加的参数
@@ -198,7 +198,7 @@ def train(**kwargs):
             psnr = colour.utilities.metric_psnr(outputs, clears)
             psnr_meter.add(psnr)
 
-            if opt.vis and (ii + 1) % 1 == 0: #20个batch画图一次
+            if opt.vis and (ii + 1) % opt.plot_every == 0: #20个batch画图一次
                 vis.images(moires, win='moire_image')
                 vis.images(outputs, win='output_image')
                 vis.text("current outputs_size:{outputs_size},<br/> outputs:{outputs}<br/>".format(
