@@ -62,7 +62,7 @@ class Config(object):
     train_batch_size = 32 #train的维度为(10, 3, 256, 256) 一个batch10张照片，要1000次iter
     val_batch_size = 32
     max_epoch = 400
-    lr = 0.0001
+    lr = 1e-5
     lr_decay = 0.90
     beta1 = 0.5  # Adam优化器的beta1参数
     accumulation_steps = 1 #梯度累加的参数
@@ -128,6 +128,7 @@ def train(**kwargs):
         weight_decay=0.0001
     )
 
+    '''
     if opt.model_path:
         map_location = lambda storage, loc: storage
         checkpoint = torch.load(opt.model_path, map_location=map_location)
@@ -138,6 +139,7 @@ def train(**kwargs):
         lr = checkpoint["lr"]
         for param_group in optimizer.param_groups:
             param_group['lr'] = lr
+    '''
 
     loss_meter = meter.AverageValueMeter()
     psnr_meter = meter.AverageValueMeter()
@@ -162,7 +164,7 @@ def train(**kwargs):
             outputs, edge_X = output_list[0], edge_output_list[0]
 
             loss = 0
-            if epoch < 210:
+            if epoch < 50:
                 if ii > 1562:
                     break
                 for jj, (output, edge_output) in enumerate(zip(output_list, edge_output_list)):
