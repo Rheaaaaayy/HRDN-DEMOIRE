@@ -128,7 +128,6 @@ def train(**kwargs):
         weight_decay=0.0001
     )
 
-    '''
     if opt.model_path:
         map_location = lambda storage, loc: storage
         checkpoint = torch.load(opt.model_path, map_location=map_location)
@@ -139,7 +138,6 @@ def train(**kwargs):
         lr = checkpoint["lr"]
         for param_group in optimizer.param_groups:
             param_group['lr'] = lr
-    '''
 
     loss_meter = meter.AverageValueMeter()
     psnr_meter = meter.AverageValueMeter()
@@ -295,5 +293,5 @@ def val(model, dataloader, vis=None):
 
 
 if __name__ == '__main__':
-    train(model_path='checkpoints/benchmark_sobel_dividN/HRnet_epoch165_1127_10_41_02.pth')
+    train(model_path='checkpoints/benchmark_sobel_dividN/HRnet_epoch1_1127_12_47_17.pth')
     # train()
