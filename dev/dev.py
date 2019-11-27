@@ -265,7 +265,8 @@ def val(model, dataloader, vis=None):
     for ii, (val_moires, val_clears) in tqdm(enumerate(dataloader)):
         val_moires = val_moires.to(opt.device)
         val_clears = val_clears.to(opt.device)
-        val_outputs, val_edge_outputs = model(val_moires)
+        val_output_list, val_edge_outputs = model(val_moires)
+        val_outputs = val_output_list[0]
 
         c_loss = criterion_c(val_outputs, val_clears)
         s_loss = criterion_s(val_edge_outputs, val_clears)
