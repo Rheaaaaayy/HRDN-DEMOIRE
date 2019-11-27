@@ -151,10 +151,11 @@ def train(**kwargs):
             continue
         loss_meter.reset()
         psnr_meter.reset()
-        torch.cuda.empty_cache()
         loss_list = []
+        print(epoch)
 
         for ii, (moires, clear_list) in tqdm(enumerate(train_dataloader)):
+            torch.cuda.empty_cache()
             # bs, ncrops, c, h, w = moires.size()
             moires = moires.to(opt.device)
             clears = clear_list[0].to(opt.device)
