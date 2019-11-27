@@ -61,7 +61,7 @@ class Config(object):
     image_size = 256
     train_batch_size = 32 #train的维度为(10, 3, 256, 256) 一个batch10张照片，要1000次iter
     val_batch_size = 32
-    max_epoch = 400
+    max_epoch = 200
     lr = 0.0001
     lr_decay = 0.90
     beta1 = 0.5  # Adam优化器的beta1参数
@@ -74,7 +74,7 @@ class Config(object):
 
     save_every = 5  # 每5个epoch保存一次模型
     model_path = None #'checkpoints/HRnet_211.pth'
-    save_prefix = "checkpoints/benchmark_sobel_dividN/"
+    save_prefix = "checkpoints/benchmark_multi_loss/"
 
 opt = Config()
 
@@ -292,7 +292,6 @@ def val(model, dataloader, vis=None):
     return loss_meter.value()[0], psnr_meter.value()[0]
 
 
-
 if __name__ == '__main__':
-    train(model_path='checkpoints/benchmark_sobel_dividN/HRnet_epoch50_1126_01_24_47.pth')
-    # train()
+    # train(model_path='checkpoints/benchmark_sobel_dividN/HRnet_epoch50_1126_01_24_47.pth')
+    train()

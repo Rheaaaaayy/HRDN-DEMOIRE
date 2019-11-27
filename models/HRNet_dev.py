@@ -597,6 +597,8 @@ class PoseHighResolutionNet(nn.Module):
         edges = []
         for ii in range(self.final_cfg["NUM_BRANCHES"]):
             output = self.final_layers[3-ii](final_inputs[ii])
+            if ii == 3:
+                output = input + output
             output = self.tanh(output)
             edge_X_x = self.conv_op_x(output)
             edge_X_y = self.conv_op_y(output)
