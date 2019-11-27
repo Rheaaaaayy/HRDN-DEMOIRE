@@ -214,6 +214,7 @@ def train(**kwargs):
                 loss_list.append(str(loss_meter.value()[0]))
                 # if os.path.exists(opt.debug_file):
                 #     ipdb.set_trace()
+            break
         val_loss, val_psnr = val(model, test_dataloader, vis_val)
         if opt.vis:
             vis.plot('val_loss', val_loss)
