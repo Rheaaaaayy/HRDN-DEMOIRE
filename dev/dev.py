@@ -61,7 +61,7 @@ class Config(object):
     image_size = 256
     train_batch_size = 32 #train的维度为(10, 3, 256, 256) 一个batch10张照片，要1000次iter
     val_batch_size = 32
-    max_epoch = 400
+    max_epoch = 200
     lr = 1e-4
     lr_decay = 0.90
     beta1 = 0.5  # Adam优化器的beta1参数
@@ -151,13 +151,12 @@ def train(**kwargs):
             continue
         loss_meter.reset()
         psnr_meter.reset()
+        torch.cuda.empty_cache()
         loss_list = []
-        print(epoch)
 
         for ii, (moires, clear_list) in tqdm(enumerate(train_dataloader)):
             if epoch < 50 and ii > 1562:
                 break
-            torch.cuda.empty_cache()
             # bs, ncrops, c, h, w = moires.size()
             moires = moires.to(opt.device)
             clears = clear_list[0].to(opt.device)
@@ -215,9 +214,8 @@ def train(**kwargs):
                 loss_list.append(str(loss_meter.value()[0]))
                 # if os.path.exists(opt.debug_file):
                 #     ipdb.set_trace()
-            if ii > 100:
-                break
-        torch.cuda.empty_cache()
+            torch.cuda.empty_cache()
+
         val_loss, val_psnr = val(model, test_dataloader, vis_val)
         if opt.vis:
             vis.plot('val_loss', val_loss)
@@ -261,6 +259,7 @@ def train(**kwargs):
 @torch.no_grad()
 def val(model, dataloader, vis=None):
     model.eval()
+    torch.cuda.empty_cache()
 
     criterion_c = L1_Charbonnier_loss()
     criterion_s = L1_Sobel_Loss()
@@ -293,8 +292,7 @@ def val(model, dataloader, vis=None):
 
             vis.log(">>>>>>>> val_loss:{val_loss}, val_psnr:{val_psnr}".format(val_loss=val_loss,
                                                                              val_psnr=val_psnr))
-        if ii > 100:
-            break
+
 
     model.train()
     return loss_meter.value()[0], psnr_meter.value()[0]
