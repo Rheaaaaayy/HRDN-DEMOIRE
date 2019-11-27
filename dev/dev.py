@@ -98,7 +98,7 @@ def train(**kwargs):
         transforms.ToTensor()
     ])
     train_data = MoireData(opt.train_path)
-    test_data = MoireData(opt.valid_path, is_val=True)
+    test_data = MoireData(opt.test_path, is_val=True)
     train_dataloader = DataLoader(train_data,
                             batch_size=opt.train_batch_size if opt.is_dev == False else 4,
                             shuffle=True,

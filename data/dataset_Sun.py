@@ -91,10 +91,14 @@ class MoireData(data.Dataset):
 
         moire = self.transforms(moire)
 
-        clear_list = self.downsample(clear)
-        clear_list = [self.transforms(x) for x in clear_list]
+        if self.is_val == False:
+            clear_list = self.downsample(clear)
+            clear_list = [self.transforms(x) for x in clear_list]
+            return moire, clear_list
+        else:
+            clear = self.transforms(clear)
+            return moire, clear
 
-        return moire, clear_list
 
     def __len__(self):
         return len(self.moire_images)
