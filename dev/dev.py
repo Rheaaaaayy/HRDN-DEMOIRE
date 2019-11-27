@@ -60,13 +60,13 @@ class Config(object):
     num_workers = 6
     image_size = 256
     train_batch_size = 32 #train的维度为(10, 3, 256, 256) 一个batch10张照片，要1000次iter
-    val_batch_size = 10
+    val_batch_size = 32
     max_epoch = 400
     lr = 0.0001
     lr_decay = 0.90
     beta1 = 0.5  # Adam优化器的beta1参数
     accumulation_steps = 1 #梯度累加的参数
-    loss_alpha = 0.7 #两个loss的权值
+    loss_alpha = 0.6 #两个loss的权值
 
     vis = False if temp_winorserver else True
     env = 'demoire'
@@ -148,8 +148,6 @@ def train(**kwargs):
     for epoch in range(opt.max_epoch):
         if epoch < last_epoch:
             continue
-        if epoch >= 30:
-            opt.loss_alpha = 0.6
         loss_meter.reset()
         psnr_meter.reset()
         loss_list = []
@@ -161,21 +159,28 @@ def train(**kwargs):
             clear_list = [x.to(opt.device) for x in clear_list]
 
             output_list, edge_output_list = model(moires)
-            outputs = output_list[0]
+            outputs, edge_X = output_list[0], edge_output_list[0]
             print(len(output_list), len(edge_output_list), outputs.size())
 
             loss = 0
-            for ii, (output, edge_output) in enumerate(zip(output_list, edge_output_list)):
-                c_loss = criterion_c(output, clear_list[ii])
-                s_loss = criterion_s(edge_output, clear_list[ii])
-                if ii == 0:
-                    loss += 1.25 * (c_loss * opt.loss_alpha + s_loss * (1 - opt.loss_alpha))
-                elif ii <= 2:
-                    loss += 0.25 * (c_loss * 0.75 + s_loss * 0.25)
-                elif ii > 2:
-                    loss += 0.25 * (c_loss * 0.9 + s_loss * 0.1)
+            if epoch < 50:
+                if ii > 1562:
+                    break
+                for jj, (output, edge_output) in enumerate(zip(output_list, edge_output_list)):
+                    c_loss = criterion_c(output, clear_list[jj])
+                    s_loss = criterion_s(edge_output, clear_list[jj])
+                    if jj == 0:
+                        loss += 0.25 * (c_loss * 0.7 + s_loss * 0.3)
+                    elif jj <= 2:
+                        loss += 0.25 * (c_loss * 0.75 + s_loss * 0.25)
+                    elif jj > 2:
+                        loss += 0.25 * (c_loss * 0.9 + s_loss * 0.1)
+            else:
+                c_loss = criterion_c(outputs, clears)
+                s_loss = criterion_s(edge_X, clears)
+                loss = (c_loss * opt.loss_alpha + s_loss * opt.loss_alpha)
 
-            #saocaozuo gradient accumulation
+            # saocaozuo gradient accumulation
             loss = loss/accumulation_steps
             loss.backward()
 
@@ -275,7 +280,7 @@ def val(model, dataloader, vis=None):
         val_psnr = colour.utilities.metric_psnr(val_outputs, val_clears)
         psnr_meter.add(val_psnr)
 
-        if opt.vis and vis != None and (ii + 1) % 5 == 0:  # 每个个iter画图一次
+        if opt.vis and vis != None and (ii + 1) % opt.plot_every == 0:  # 每个个iter画图一次
             vis.images(val_moires, win='val_moire_image')
             vis.images(val_outputs, win='val_output_image')
             vis.images(val_clears, win='val_clear_image')
