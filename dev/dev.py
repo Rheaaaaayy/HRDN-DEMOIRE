@@ -198,7 +198,7 @@ def train(**kwargs):
             psnr = colour.utilities.metric_psnr(outputs, clears)
             psnr_meter.add(psnr)
 
-            if opt.vis and (ii + 1) % opt.plot_every == 0: #20个batch画图一次
+            if opt.vis and (ii + 1) % 1 == 0: #20个batch画图一次
                 vis.images(moires, win='moire_image')
                 vis.images(outputs, win='output_image')
                 vis.text("current outputs_size:{outputs_size},<br/> outputs:{outputs}<br/>".format(
