@@ -61,7 +61,7 @@ class Config(object):
     image_size = 256
     train_batch_size = 32 #train的维度为(10, 3, 256, 256) 一个batch10张照片，要1000次iter
     val_batch_size = 32
-    max_epoch = 200
+    max_epoch = 400
     lr = 0.0001
     lr_decay = 0.90
     beta1 = 0.5  # Adam优化器的beta1参数
@@ -160,10 +160,9 @@ def train(**kwargs):
 
             output_list, edge_output_list = model(moires)
             outputs, edge_X = output_list[0], edge_output_list[0]
-            print(len(output_list), len(edge_output_list), outputs.size())
 
             loss = 0
-            if epoch < 50:
+            if epoch < 210:
                 if ii > 1562:
                     break
                 for jj, (output, edge_output) in enumerate(zip(output_list, edge_output_list)):
@@ -294,5 +293,5 @@ def val(model, dataloader, vis=None):
 
 
 if __name__ == '__main__':
-    # train(model_path='checkpoints/benchmark_sobel_dividN/HRnet_epoch50_1126_01_24_47.pth')
-    train()
+    train(model_path='checkpoints/benchmark_sobel_dividN/HRnet_epoch165_1127_10_41_02.pth')
+    # train()
