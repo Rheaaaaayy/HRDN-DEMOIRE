@@ -123,7 +123,8 @@ def train(**kwargs):
     criterion_s = L1_Sobel_Loss()
     lr = opt.lr
     optimizer = torch.optim.Adam(
-        filter(lambda p: p.requires_grad, model.parameters()),
+        params=model.parameters(),
+        # filter(lambda p: p.requires_grad, model.parameters()),
         lr=lr,
         weight_decay=0.0001
     )
