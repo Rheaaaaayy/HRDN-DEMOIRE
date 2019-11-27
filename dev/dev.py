@@ -155,6 +155,8 @@ def train(**kwargs):
         print(epoch)
 
         for ii, (moires, clear_list) in tqdm(enumerate(train_dataloader)):
+            if epoch < 50 and ii > 1562:
+                break
             torch.cuda.empty_cache()
             # bs, ncrops, c, h, w = moires.size()
             moires = moires.to(opt.device)
@@ -166,8 +168,6 @@ def train(**kwargs):
 
             loss = 0
             if epoch < 50:
-                if ii > 1562:
-                    break
                 for jj, (output, edge_output) in enumerate(zip(output_list, edge_output_list)):
                     c_loss = criterion_c(output, clear_list[jj])
                     s_loss = criterion_s(edge_output, clear_list[jj])
@@ -215,7 +215,8 @@ def train(**kwargs):
                 loss_list.append(str(loss_meter.value()[0]))
                 # if os.path.exists(opt.debug_file):
                 #     ipdb.set_trace()
-
+            if ii > 100:
+                break
         torch.cuda.empty_cache()
         val_loss, val_psnr = val(model, test_dataloader, vis_val)
         if opt.vis:
@@ -292,6 +293,8 @@ def val(model, dataloader, vis=None):
 
             vis.log(">>>>>>>> val_loss:{val_loss}, val_psnr:{val_psnr}".format(val_loss=val_loss,
                                                                              val_psnr=val_psnr))
+        if ii > 100:
+            break
 
     model.train()
     return loss_meter.value()[0], psnr_meter.value()[0]
