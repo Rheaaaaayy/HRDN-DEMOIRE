@@ -290,7 +290,7 @@ def val(model, dataloader, vis=None):
 
             vis.log(">>>>>>>> val_loss:{val_loss}, val_psnr:{val_psnr}".format(val_loss=val_loss,
                                                                              val_psnr=val_psnr))
-
+        break
     model.train()
     return loss_meter.value()[0], psnr_meter.value()[0]
 
