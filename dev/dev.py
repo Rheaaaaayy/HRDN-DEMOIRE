@@ -74,7 +74,7 @@ class Config(object):
 
     save_every = 5  # 每5个epoch保存一次模型
     model_path = None #'checkpoints/HRnet_211.pth'
-    save_prefix = "checkpoints/benchmark_multi_loss/"
+    save_prefix = "checkpoints/benchmark_without_s_loss/"
 
 opt = Config()
 
@@ -296,5 +296,5 @@ def val(model, dataloader, vis=None):
 
 
 if __name__ == '__main__':
-    train(model_path='checkpoints/benchmark_multi_loss/HRnet_epoch35_1129_16_15_01.pth')
-    # train()
+    # train(model_path='checkpoints/benchmark_multi_loss/HRnet_epoch35_1129_16_15_01.pth')
+    train()
