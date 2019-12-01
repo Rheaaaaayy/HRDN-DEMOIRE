@@ -116,8 +116,8 @@ def train(**kwargs):
     model = get_pose_net(cfg, pretrained=opt.model_path) #initweight
     model = model.to(opt.device)
 
-    # val_loss, val_psnr = val(model, test_dataloader, vis_val)
-    # print(val_loss, val_psnr)
+    val_loss, val_psnr = val(model, test_dataloader, vis_val)
+    print(val_loss, val_psnr)
 
     criterion_c = L1_Charbonnier_loss()
     criterion_s = L1_Sobel_Loss()
