@@ -155,7 +155,7 @@ def train(**kwargs):
         loss_list = []
 
         for ii, (moires, clear_list) in tqdm(enumerate(train_dataloader)):
-            if epoch < 40 and ii > 1562:
+            if epoch < 40 and ii > 2000:
                 break
             # bs, ncrops, c, h, w = moires.size()
             moires = moires.to(opt.device)
