@@ -66,7 +66,7 @@ class Config(object):
     lr_decay = 0.90
     beta1 = 0.5  # Adam优化器的beta1参数
     accumulation_steps = 1 #梯度累加的参数
-    loss_alpha = 0.8 #两个loss的权值
+    loss_alpha = 0.85 #两个loss的权值
 
     vis = False if temp_winorserver else True
     env = 'demoire'
@@ -170,10 +170,10 @@ def train(**kwargs):
                     c_loss = criterion_c(output, clear_list[jj])
                     s_loss = criterion_s(edge_output, clear_list[jj])
                     loss += 0.25 * c_loss
-            # elif epoch > 25 and epoch < 50:
-            #     c_loss = criterion_c(outputs, clears)
-            #     s_loss = criterion_s(edge_X, clears)
-            #     loss = opt.loss_alpha * c_loss + (1-opt.loss_alpha) * s_loss
+            elif epoch > 25 and epoch < 50:
+                c_loss = criterion_c(outputs, clears)
+                s_loss = criterion_s(edge_X, clears)
+                loss = opt.loss_alpha * c_loss + (1-opt.loss_alpha) * s_loss
             else:
                 loss = criterion_c(outputs, clears)
 
