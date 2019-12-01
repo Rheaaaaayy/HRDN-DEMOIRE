@@ -155,7 +155,7 @@ def train(**kwargs):
         loss_list = []
 
         for ii, (moires, clear_list) in tqdm(enumerate(train_dataloader)):
-            if epoch < 50 and ii > 1562:
+            if epoch < 40 and ii > 1562:
                 break
             # bs, ncrops, c, h, w = moires.size()
             moires = moires.to(opt.device)
@@ -166,14 +166,14 @@ def train(**kwargs):
             outputs, edge_X = output_list[0], edge_output_list[0]
 
             loss = 0
-            if epoch < 50:
+            if epoch < 40:
                 for jj, (output, edge_output) in enumerate(zip(output_list, edge_output_list)):
                     c_loss = criterion_c(output, clear_list[jj])
                     s_loss = criterion_s(edge_output, clear_list[jj])
                     if jj == 0:
                         loss += 0.25 * (c_loss * 0.7 + s_loss * 0.3)
                     elif jj <= 2:
-                        loss += 0.25 * (c_loss * 0.75 + s_loss * 0.25)
+                        loss += 0.25 * (c_loss * 0.8 + s_loss * 0.2)
                     elif jj > 2:
                         loss += 0.25 * (c_loss * 0.9 + s_loss * 0.1)
             else:
