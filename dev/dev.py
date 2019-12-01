@@ -66,7 +66,7 @@ class Config(object):
     lr_decay = 0.90
     beta1 = 0.5  # Adam优化器的beta1参数
     accumulation_steps = 1 #梯度累加的参数
-    loss_alpha = 0.9 #两个loss的权值
+    loss_alpha = 0.8 #两个loss的权值
 
     vis = False if temp_winorserver else True
     env = 'demoire'
@@ -155,7 +155,7 @@ def train(**kwargs):
         loss_list = []
 
         for ii, (moires, clear_list) in tqdm(enumerate(train_dataloader)):
-            if epoch < 40 and ii > 2000:
+            if epoch < 50 and ii > 1500:
                 break
             # bs, ncrops, c, h, w = moires.size()
             moires = moires.to(opt.device)
@@ -166,20 +166,17 @@ def train(**kwargs):
             outputs, edge_X = output_list[0], edge_output_list[0]
 
             loss = 0
-            if epoch < 40:
+            if epoch < 50:
                 for jj, (output, edge_output) in enumerate(zip(output_list, edge_output_list)):
                     c_loss = criterion_c(output, clear_list[jj])
                     s_loss = criterion_s(edge_output, clear_list[jj])
-                    if jj == 0:
-                        loss += 0.25 * (c_loss * 0.7 + s_loss * 0.3)
-                    elif jj <= 2:
-                        loss += 0.25 * (c_loss * 0.8 + s_loss * 0.2)
-                    elif jj > 2:
-                        loss += 0.25 * (c_loss * 0.9 + s_loss * 0.1)
+                    loss += 0.25 * c_loss
+            # elif epoch > 25 and epoch < 50:
+            #     c_loss = criterion_c(outputs, clears)
+            #     s_loss = criterion_s(edge_X, clears)
+            #     loss = opt.loss_alpha * c_loss + (1-opt.loss_alpha) * s_loss
             else:
-                c_loss = criterion_c(outputs, clears)
-                s_loss = criterion_s(edge_X, clears)
-                loss = c_loss
+                loss = criterion_c(outputs, clears)
 
             # saocaozuo gradient accumulation
             loss = loss/accumulation_steps
@@ -286,14 +283,13 @@ def val(model, dataloader, vis=None):
         val_psnr = colour.utilities.metric_psnr(val_outputs, val_clears)
         psnr_meter.add(val_psnr)
 
-        if opt.vis and vis != None and (ii + 1) % 10 == 0:  # 每个个iter画图一次
+        if opt.vis and vis != None and (ii + 1) % 50 == 0:  # 每个个iter画图一次
             vis.images(val_moires, win='val_moire_image')
             vis.images(val_outputs, win='val_output_image')
             vis.images(val_clears, win='val_clear_image')
 
             vis.log(">>>>>>>> val_loss:{val_loss}, val_psnr:{val_psnr}".format(val_loss=val_loss,
                                                                              val_psnr=val_psnr))
-            time.sleep(5)
 
 
     model.train()
