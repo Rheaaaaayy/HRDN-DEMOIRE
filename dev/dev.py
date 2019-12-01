@@ -126,7 +126,7 @@ def train(**kwargs):
         params=model.parameters(),
         # filter(lambda p: p.requires_grad, model.parameters()),
         lr=lr,
-        weight_decay=0.0001
+        weight_decay=0.0002
     )
 
     if opt.model_path:
