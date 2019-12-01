@@ -271,7 +271,7 @@ def val(model, dataloader, vis=None):
 
         c_loss = criterion_c(val_outputs, val_clears)
         s_loss = criterion_s(val_edge_outputs, val_clears)
-        val_loss = c_loss * opt.loss_alpha + s_loss * (1 - opt.loss_alpha)
+        val_loss = c_loss
 
         loss_meter.add(val_loss.item())
 
