@@ -72,7 +72,7 @@ class Config(object):
     env = 'demoire'
     plot_every = 100 #每隔20个batch, visdom画图一次
 
-    save_every = 5  # 每5个epoch保存一次模型
+    save_every = 2  # 每5个epoch保存一次模型
     model_path = None #'checkpoints/HRnet_211.pth'
     save_prefix = "checkpoints/benchmark_without_s_loss/"
 
@@ -167,9 +167,10 @@ def train(**kwargs):
             loss = 0
             if epoch < 25:
                 for jj, (output, edge_output) in enumerate(zip(output_list, edge_output_list)):
-                    c_loss = criterion_c(output, clear_list[jj])
-                    s_loss = criterion_s(edge_output, clear_list[jj])
-                    loss += 0.25 * c_loss
+                    if jj < 3:
+                        c_loss = criterion_c(output, clear_list[jj])
+                        s_loss = criterion_s(edge_output, clear_list[jj])
+                        loss += (c_loss / 3.0)
             elif epoch > 25 and epoch < 50:
                 c_loss = criterion_c(outputs, clears)
                 s_loss = criterion_s(edge_X, clears)
