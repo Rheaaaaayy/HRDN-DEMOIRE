@@ -66,7 +66,7 @@ class Config(object):
     lr_decay = 0.90
     beta1 = 0.5  # Adam优化器的beta1参数
     accumulation_steps = 1 #梯度累加的参数
-    loss_alpha = 0.85 #两个loss的权值
+    loss_alpha = 0.8 #两个loss的权值
 
     vis = False if temp_winorserver else True
     env = 'demoire'
@@ -167,10 +167,12 @@ def train(**kwargs):
             loss = 0
             if epoch < 25:
                 for jj, (output, edge_output) in enumerate(zip(output_list, edge_output_list)):
-                    if jj < 3:
-                        c_loss = criterion_c(output, clear_list[jj])
-                        s_loss = criterion_s(edge_output, clear_list[jj])
-                        loss += (c_loss / 3.0)
+                    c_loss = criterion_c(output, clear_list[jj])
+                    s_loss = criterion_s(edge_output, clear_list[jj])
+                    if jj == 0:
+                        loss += c_loss * 0.7
+                    if jj == 1:
+                        loss += c_loss * 0.3
             elif epoch > 25 and epoch < 50:
                 c_loss = criterion_c(outputs, clears)
                 s_loss = criterion_s(edge_X, clears)
@@ -297,5 +299,5 @@ def val(model, dataloader, vis=None):
 
 
 if __name__ == '__main__':
-    # train(model_path='checkpoints/benchmark_multi_loss/HRnet_epoch35_1129_16_15_01.pth')
-    train()
+    train(model_path='checkpoints/benchmark_without_s_loss/HRnet_epoch5_1202_03_56_46.pth')
+    # train()

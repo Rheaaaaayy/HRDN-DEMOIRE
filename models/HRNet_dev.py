@@ -526,12 +526,39 @@ class PoseHighResolutionNet(nn.Module):
 
         final_layers = []
         for ii in range(num_branches):
-            in_channel = num_channels[ii] + 3 if ii < num_branches-1 else num_channels[ii]
-            final_layers.append(
-                nn.Sequential(
-                    nn.Conv2d(in_channel, 12, kernel_size=3, stride=1, padding=1, bias=False),
-                    nn.PixelShuffle(2)
-                ))
+            # in_channel = num_channels[ii] + 3 if ii < num_branches-1 else num_channels[ii]
+            in_channel = num_channels[ii]
+            if ii == 0:
+                final_layers.append(
+                    nn.Sequential(
+                        nn.Conv2d(in_channel, 12, kernel_size=3, stride=1, padding=1, bias=False),
+                        nn.PixelShuffle(2)
+                    ))
+            if ii == 1:
+                final_layers.append(
+                    nn.Sequential(
+                        nn.Conv2d(in_channel, 16, kernel_size=3, stride=1, padding=1, bias=False),
+                        nn.Conv2d(16, 12, kernel_size=3, stride=1, padding=1, bias=False),
+                        nn.PixelShuffle(2)
+                    ))
+            if ii == 2:
+                final_layers.append(
+                    nn.Sequential(
+                        nn.Conv2d(in_channel, 32, kernel_size=3, stride=1, padding=1, bias=False),
+                        nn.Conv2d(32, 16, kernel_size=3, stride=1, padding=1, bias=False),
+                        nn.Conv2d(16, 12, kernel_size=3, stride=1, padding=1, bias=False),
+                        nn.PixelShuffle(2)
+                    ))
+            if ii == 3:
+                final_layers.append(
+                    nn.Sequential(
+                        nn.Conv2d(in_channel, 64, kernel_size=3, stride=1, padding=1, bias=False),
+                        nn.Conv2d(64, 32, kernel_size=3, stride=1, padding=1, bias=False),
+                        nn.Conv2d(32, 16, kernel_size=3, stride=1, padding=1, bias=False),
+                        nn.Conv2d(16, 12, kernel_size=3, stride=1, padding=1, bias=False),
+                        nn.PixelShuffle(2)
+                    ))
+
 
         return nn.ModuleList(final_layers)
 
