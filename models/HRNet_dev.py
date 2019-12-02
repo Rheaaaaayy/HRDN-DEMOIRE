@@ -634,8 +634,8 @@ class PoseHighResolutionNet(nn.Module):
             outputs.append(output)
             edges.append(edge_X)
 
-            if ii < self.final_cfg["NUM_BRANCHES"] - 1:
-                final_inputs[ii+1] = torch.cat((output, final_inputs[ii+1]), dim=1)
+            # if ii < self.final_cfg["NUM_BRANCHES"] - 1:
+            #     final_inputs[ii+1] = torch.cat((output, final_inputs[ii+1]), dim=1)
         outputs.reverse()
         edges.reverse()
 
