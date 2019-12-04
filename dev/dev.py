@@ -62,8 +62,8 @@ class Config(object):
     train_batch_size = 32 #train的维度为(10, 3, 256, 256) 一个batch10张照片，要1000次iter
     val_batch_size = 32
     max_epoch = 200
-    lr = 1e-4
-    lr_decay = 0.90
+    lr = 1e-5
+    lr_decay = 0.1
     beta1 = 0.5  # Adam优化器的beta1参数
     accumulation_steps = 1 #梯度累加的参数
     loss_alpha = 0.8 #两个loss的权值
@@ -238,7 +238,7 @@ def train(**kwargs):
             }
             torch.save(checkpoint, file_name)
 
-        if loss_meter.value()[0] > previous_loss:
+        if (loss_meter.value()[0] > previous_loss) or (epoch % 10) == 0:
             lr = lr * opt.lr_decay
             for param_group in optimizer.param_groups:
                 param_group['lr'] = lr
@@ -300,5 +300,5 @@ def val(model, dataloader, vis=None):
 
 
 if __name__ == '__main__':
-    train(model_path='checkpoints/benchmark_without_s_loss/HRnet_epoch5_1202_03_56_46.pth')
+    train(model_path='checkpoints/benchmark_without_s_loss/HRnet_epoch36_1204_14_22_10.pth')
     # train()

@@ -13,6 +13,7 @@ import logging
 
 import torch
 import torch.nn as nn
+import torch.nn.functional as F
 import numpy as np
 from utils.myutils import pixel_unshuffle
 
@@ -134,6 +135,23 @@ class ResidualDenseBlock(nn.Module):
 
     def forward(self, x):
         return self.LFF(self.convs(x)) + x
+
+
+class SEBlock(nn.Module):
+    def __init__(self, channles):
+        super(SEBlock, self).__init__()
+        #SE layer
+        self.fc1 = nn.Conv2d(channles, channles//4, kernel_size=1)
+        self.fc2 = nn.Conv2d(channles//4, channles, kernel_size=1)
+
+    def forward(self, x):
+        w = F.avg_pool2d(x, x.size(2))
+        w = F.relu(self.fc1(w))
+        w = F.sigmoid((self.fc2(w)))
+
+        out = x * w
+        out = F.relu(out, inplace=True)
+        return out
 
 
 class HighResolutionModule(nn.Module):
@@ -527,38 +545,47 @@ class PoseHighResolutionNet(nn.Module):
         final_layers = []
         for ii in range(num_branches):
             # in_channel = num_channels[ii] + 3 if ii < num_branches-1 else num_channels[ii]
-            in_channel = num_channels[ii]
+            in_channel = num_channels[ii] + 3 if ii == 0 else num_channels[ii]
             if ii == 0:
                 final_layers.append(
                     nn.Sequential(
+                        SEBlock(in_channel),
                         nn.Conv2d(in_channel, 12, kernel_size=3, stride=1, padding=1, bias=False),
                         nn.PixelShuffle(2)
                     ))
             if ii == 1:
                 final_layers.append(
                     nn.Sequential(
+                        SEBlock(in_channel),
                         nn.Conv2d(in_channel, 16, kernel_size=3, stride=1, padding=1, bias=False),
+                        nn.ReLU(inplace=True),
                         nn.Conv2d(16, 12, kernel_size=3, stride=1, padding=1, bias=False),
                         nn.PixelShuffle(2)
                     ))
             if ii == 2:
                 final_layers.append(
                     nn.Sequential(
+                        SEBlock(in_channel),
                         nn.Conv2d(in_channel, 32, kernel_size=3, stride=1, padding=1, bias=False),
+                        nn.ReLU(inplace=True),
                         nn.Conv2d(32, 16, kernel_size=3, stride=1, padding=1, bias=False),
+                        nn.ReLU(inplace=True),
                         nn.Conv2d(16, 12, kernel_size=3, stride=1, padding=1, bias=False),
                         nn.PixelShuffle(2)
                     ))
             if ii == 3:
                 final_layers.append(
                     nn.Sequential(
+                        SEBlock(in_channel),
                         nn.Conv2d(in_channel, 64, kernel_size=3, stride=1, padding=1, bias=False),
+                        nn.ReLU(inplace=True),
                         nn.Conv2d(64, 32, kernel_size=3, stride=1, padding=1, bias=False),
+                        nn.ReLU(inplace=True),
                         nn.Conv2d(32, 16, kernel_size=3, stride=1, padding=1, bias=False),
+                        nn.ReLU(inplace=True),
                         nn.Conv2d(16, 12, kernel_size=3, stride=1, padding=1, bias=False),
                         nn.PixelShuffle(2)
                     ))
-
 
         return nn.ModuleList(final_layers)
 
@@ -636,6 +663,8 @@ class PoseHighResolutionNet(nn.Module):
 
             # if ii < self.final_cfg["NUM_BRANCHES"] - 1:
             #     final_inputs[ii+1] = torch.cat((output, final_inputs[ii+1]), dim=1)
+            if ii == 2:
+                final_inputs[ii + 1] = torch.cat((output, final_inputs[ii + 1]), dim=1)
         outputs.reverse()
         edges.reverse()
 

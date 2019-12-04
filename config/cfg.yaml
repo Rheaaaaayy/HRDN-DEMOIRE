@@ -48,10 +48,11 @@ MODEL:
     - 'stage3'
     - 'transition3'
     - 'stage4'
-#    - 'transition4'
-#    - 'stage5'
-#    - 'transition5'
-#    - 'stage6'
+    - 'transition4'
+    - 'stage5'
+    - 'transition5'
+    - 'stage6'
+    - 'final_layers'
     FINAL_CONV_KERNEL: 1
     STAGE2:
       NUM_MODULES: 1

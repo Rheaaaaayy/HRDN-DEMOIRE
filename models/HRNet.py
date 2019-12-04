@@ -17,7 +17,7 @@ import numpy as np
 from utils.myutils import pixel_unshuffle
 
 
-BN_MOMENTUM = 0.1 #如果用梯度累加要把BN_MOMENTUM调小
+BN_MOMENTUM = 0.1 #濡傛灉鐢ㄦ搴︾疮鍔犺鎶夿N_MOMENTUM璋冨皬
 logger = logging.getLogger(__name__)
 
 
@@ -319,14 +319,6 @@ class PoseHighResolutionNet(nn.Module):
         extra = cfg.MODEL.EXTRA
         super(PoseHighResolutionNet, self).__init__()
 
-        # stem net
-        # self.conv1 = nn.Conv2d(3, 64, kernel_size=3, stride=2, padding=1,
-        #                        bias=False)
-        # self.bn1 = nn.BatchNorm2d(64, momentum=BN_MOMENTUM)
-        # self.conv2 = nn.Conv2d(64, 64, kernel_size=3, stride=2, padding=1,
-        #                        bias=False)
-        # self.bn2 = nn.BatchNorm2d(64, momentum=BN_MOMENTUM)
-
         self.conv1 = nn.Conv2d(12, 64, kernel_size=3, stride=1, padding=1,
                                bias=False)
         self.bn1 = nn.BatchNorm2d(64, momentum=BN_MOMENTUM)
@@ -338,22 +330,7 @@ class PoseHighResolutionNet(nn.Module):
         self.layer1 = self._make_layer(Bottleneck, 64, 4)
 
         #L1_sobel_loss
-        self.conv_op_x = nn.Conv2d(3, 1, 3, bias=False)
-        self.conv_op_y = nn.Conv2d(3, 1, 3, bias=False)
-
-        sobel_kernel_x = np.array([[[1, 0, -1], [2, 0, -2], [1, 0, -1]],
-                                   [[1, 0, -1], [2, 0, -2], [1, 0, -1]],
-                                   [[1, 0, -1], [2, 0, -2], [1, 0, -1]]], dtype='float32')
-        sobel_kernel_y = np.array([[[1, 2, 1], [0, 0, 0], [-1, -2, -1]],
-                                   [[1, 2, 1], [0, 0, 0], [-1, -2, -1]],
-                                   [[1, 2, 1], [0, 0, 0], [-1, -2, -1]]], dtype='float32')
-        sobel_kernel_x = sobel_kernel_x.reshape((1, 3, 3, 3))
-        sobel_kernel_y = sobel_kernel_y.reshape((1, 3, 3, 3))
-
-        self.conv_op_x.weight.data = torch.from_numpy(sobel_kernel_x)
-        self.conv_op_y.weight.data = torch.from_numpy(sobel_kernel_y)
-        self.conv_op_x.weight.requires_grad = False
-        self.conv_op_y.weight.requires_grad = False
+        self.conv_op_x, self.conv_op_y = self._make_sobel_layer()
 
 # =============================================================================
         self.stage2_cfg = cfg['MODEL']['EXTRA']['STAGE2']
@@ -424,20 +401,8 @@ class PoseHighResolutionNet(nn.Module):
 
 # ==============================================================================
 
-
-        # self.final_layer = nn.Conv2d(
-        #     in_channels=pre_stage_channels[0],
-        #     out_channels=cfg.MODEL.NUM_JOINTS,
-        #     kernel_size=extra.FINAL_CONV_KERNEL,
-        #     stride=1,
-        #     padding=1 if extra.FINAL_CONV_KERNEL == 3 else 0
-        # )
-
-        self.final_TransConv1 = nn.ConvTranspose2d(32, 16, kernel_size=3, stride=2, padding=1, output_padding=1)
-        self.final_bn = nn.BatchNorm2d(16, momentum=BN_MOMENTUM)
-        self.final_layer = nn.Conv2d(16, 12, kernel_size=3, stride=1, padding=1, bias=False)
-        self.ps1 = nn.PixelShuffle(2)
-        # self.ps2 = nn.PixelShuffle(2)
+        self.final_cfg = cfg['MODEL']['EXTRA']['FINAL']
+        self.final_layers = self._make_final_layer(self.final_cfg)
         self.tanh = nn.Tanh()
 
         self.pretrained_layers = cfg['MODEL']['EXTRA']['PRETRAINED_LAYERS']
@@ -535,6 +500,69 @@ class PoseHighResolutionNet(nn.Module):
 
         return nn.Sequential(*modules), num_inchannels
 
+    def _make_sobel_layer(self):
+        conv_op_x = nn.Conv2d(3, 1, 3, bias=False)
+        conv_op_y = nn.Conv2d(3, 1, 3, bias=False)
+
+        sobel_kernel_x = np.array([[[1, 0, -1], [2, 0, -2], [1, 0, -1]],
+                                   [[1, 0, -1], [2, 0, -2], [1, 0, -1]],
+                                   [[1, 0, -1], [2, 0, -2], [1, 0, -1]]], dtype='float32')
+        sobel_kernel_y = np.array([[[1, 2, 1], [0, 0, 0], [-1, -2, -1]],
+                                   [[1, 2, 1], [0, 0, 0], [-1, -2, -1]],
+                                   [[1, 2, 1], [0, 0, 0], [-1, -2, -1]]], dtype='float32')
+        sobel_kernel_x = sobel_kernel_x.reshape((1, 3, 3, 3))
+        sobel_kernel_y = sobel_kernel_y.reshape((1, 3, 3, 3))
+
+        conv_op_x.weight.data = torch.from_numpy(sobel_kernel_x)
+        conv_op_y.weight.data = torch.from_numpy(sobel_kernel_y)
+        conv_op_x.weight.requires_grad = False
+        conv_op_y.weight.requires_grad = False
+
+        return conv_op_x, conv_op_y
+
+    def _make_final_layer(self, layer_config):
+        num_branches = layer_config['NUM_BRANCHES']
+        num_channels = layer_config['NUM_CHANNELS']
+
+        final_layers = []
+        for ii in range(num_branches):
+            # in_channel = num_channels[ii] + 3 if ii < num_branches-1 else num_channels[ii]
+            in_channel = num_channels[ii]
+            if ii == 0:
+                final_layers.append(
+                    nn.Sequential(
+                        nn.Conv2d(in_channel, 12, kernel_size=3, stride=1, padding=1, bias=False),
+                        nn.PixelShuffle(2)
+                    ))
+            if ii == 1:
+                final_layers.append(
+                    nn.Sequential(
+                        nn.Conv2d(in_channel, 16, kernel_size=3, stride=1, padding=1, bias=False),
+                        nn.Conv2d(16, 12, kernel_size=3, stride=1, padding=1, bias=False),
+                        nn.PixelShuffle(2)
+                    ))
+            if ii == 2:
+                final_layers.append(
+                    nn.Sequential(
+                        nn.Conv2d(in_channel, 32, kernel_size=3, stride=1, padding=1, bias=False),
+                        nn.Conv2d(32, 16, kernel_size=3, stride=1, padding=1, bias=False),
+                        nn.Conv2d(16, 12, kernel_size=3, stride=1, padding=1, bias=False),
+                        nn.PixelShuffle(2)
+                    ))
+            if ii == 3:
+                final_layers.append(
+                    nn.Sequential(
+                        nn.Conv2d(in_channel, 64, kernel_size=3, stride=1, padding=1, bias=False),
+                        nn.Conv2d(64, 32, kernel_size=3, stride=1, padding=1, bias=False),
+                        nn.Conv2d(32, 16, kernel_size=3, stride=1, padding=1, bias=False),
+                        nn.Conv2d(16, 12, kernel_size=3, stride=1, padding=1, bias=False),
+                        nn.PixelShuffle(2)
+                    ))
+
+
+        return nn.ModuleList(final_layers)
+
+
     def forward(self, x):
         input = x
         x = pixel_unshuffle(x)
@@ -547,6 +575,7 @@ class PoseHighResolutionNet(nn.Module):
         x = self.relu(x)
         x = self.layer1(x)
 
+        final_inputs = []
         x_list = []
         for i in range(self.stage2_cfg['NUM_BRANCHES']):
             if self.transition1[i] is not None:
@@ -570,6 +599,7 @@ class PoseHighResolutionNet(nn.Module):
             else:
                 x_list.append(y_list[i])
         y_list = self.stage4(x_list)
+        final_inputs.append(y_list[-1])
 
         x_list = []
         for i in range(self.stage5_cfg['NUM_BRANCHES']):
@@ -578,6 +608,7 @@ class PoseHighResolutionNet(nn.Module):
             else:
                 x_list.append(y_list[i])
         y_list = self.stage5(x_list)
+        final_inputs.append(y_list[-1])
 
         x_list = []
         for i in range(self.stage6_cfg['NUM_BRANCHES']):
@@ -586,21 +617,29 @@ class PoseHighResolutionNet(nn.Module):
             else:
                 x_list.append(y_list[i])
         y_list = self.stage6(x_list)
+        final_inputs.append(y_list[-1])
+        final_inputs.append(y_list[0])
 
+        outputs = []
+        edges = []
+        for ii in range(self.final_cfg["NUM_BRANCHES"]):
+            output = self.final_layers[3-ii](final_inputs[ii])
+            if ii == 3:
+                output = input + output
+            output = self.tanh(output)
+            edge_X_x = self.conv_op_x(output)
+            edge_X_y = self.conv_op_y(output)
+            edge_X = torch.abs(edge_X_x) + torch.abs(edge_X_y)
 
-        upsample = self.final_TransConv1(y_list[1])
-        x = y_list[0] + self.final_bn(upsample)
-        x = self.relu(x)
-        x = self.final_layer(x)
-        x = self.ps1(x)
-        x = x + input
-        output = self.tanh(x)
+            outputs.append(output)
+            edges.append(edge_X)
 
-        edge_X_x = self.conv_op_x(output)
-        edge_X_y = self.conv_op_y(output)
-        edge_X = torch.abs(edge_X_x) + torch.abs(edge_X_y)
+            # if ii < self.final_cfg["NUM_BRANCHES"] - 1:
+            #     final_inputs[ii+1] = torch.cat((output, final_inputs[ii+1]), dim=1)
+        outputs.reverse()
+        edges.reverse()
 
-        return output, edge_X
+        return outputs, edges
 
     def init_weights(self, pretrained=''):
         logger.info('=> init weights from normal distribution')
@@ -648,12 +687,14 @@ def get_pose_net(cfg, pretrained, **kwargs):
 
     return model
 
-# if __name__ == '__main__':
-#     from config import cfg
-#
-#     dump_input = torch.rand((2, 3, 256, 256))
-#     cfg.merge_from_file("../config/cfg.yaml")
-#     model = get_pose_net(cfg, pretrained=None)
-#
-#     output = model(dump_input)
-#     print(output.size())
+if __name__ == '__main__':
+    from config import cfg
+
+    dump_input = torch.rand((2, 3, 256, 256))
+    cfg.merge_from_file("../config/cfg.yaml")
+    model = get_pose_net(cfg, pretrained=None)
+    model = model.cuda()
+    print(model)
+    # dump_input = dump_input.cuda()
+    #
+    # output = model(dump_input)
