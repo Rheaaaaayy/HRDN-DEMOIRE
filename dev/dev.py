@@ -32,7 +32,7 @@ from models.LossNet import L1_Charbonnier_loss, L1_Sobel_Loss
 
 
 import models
-from models.HRNet_dev import get_pose_net
+from models.HRNet import get_pose_net
 from models.MSCNN import MSCNN
 from config import cfg, update_config
 # from myconfig import opt
@@ -115,10 +115,9 @@ def train(**kwargs):
     cfg.merge_from_file("config/cfg.yaml")
     model = get_pose_net(cfg, pretrained=opt.model_path) #initweight
     model = model.to(opt.device)
-    '''
+
     val_loss, val_psnr = val(model, test_dataloader, vis_val)
     print(val_loss, val_psnr)
-    '''
 
     criterion_c = L1_Charbonnier_loss()
     criterion_s = L1_Sobel_Loss()
@@ -134,8 +133,8 @@ def train(**kwargs):
         map_location = lambda storage, loc: storage
         checkpoint = torch.load(opt.model_path, map_location=map_location)
         last_epoch = checkpoint["epoch"]
-        # optimizer_state = checkpoint["optimizer"]
-        # optimizer.load_state_dict(optimizer_state)
+        optimizer_state = checkpoint["optimizer"]
+        optimizer.load_state_dict(optimizer_state)
 
         lr = checkpoint["lr"]
         for param_group in optimizer.param_groups:
