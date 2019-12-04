@@ -136,7 +136,7 @@ def train(**kwargs):
         optimizer_state = checkpoint["optimizer"]
         optimizer.load_state_dict(optimizer_state)
 
-        lr = checkpoint["lr"]
+        # lr = checkpoint["lr"]
         for param_group in optimizer.param_groups:
             param_group['lr'] = lr
 
