@@ -62,8 +62,8 @@ class Config(object):
     train_batch_size = 32 #train的维度为(10, 3, 256, 256) 一个batch10张照片，要1000次iter
     val_batch_size = 32
     max_epoch = 200
-    lr = 1e-5
-    lr_decay = 0.1
+    lr = 1e-10
+    lr_decay = 0.3
     beta1 = 0.5  # Adam优化器的beta1参数
     accumulation_steps = 1 #梯度累加的参数
     loss_alpha = 0.8 #两个loss的权值
@@ -299,5 +299,5 @@ def val(model, dataloader, vis=None):
 
 
 if __name__ == '__main__':
-    train(model_path='checkpoints/benchmark_without_s_loss/HRnet_epoch36_1204_14_22_10.pth')
+    train(model_path='checkpoints/benchmark_without_s_loss/HRnet_epoch56_1205_22_12_27.pth')
     # train()
