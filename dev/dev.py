@@ -136,7 +136,7 @@ def train(**kwargs):
         optimizer_state = checkpoint["optimizer"]
         optimizer.load_state_dict(optimizer_state)
 
-        lr = checkpoint["lr"]
+        # lr = checkpoint["lr"]
         for param_group in optimizer.param_groups:
             param_group['lr'] = lr
 
@@ -299,5 +299,5 @@ def val(model, dataloader, vis=None):
 
 
 if __name__ == '__main__':
-    train(model_path='checkpoints/benchmark_without_s_loss/HRnet_epoch56_1205_22_12_27.pth')
+    train(model_path='checkpoints/benchmark_without_s_loss/HRnet_epoch62_1206_08_14_14.pth')
     # train()
