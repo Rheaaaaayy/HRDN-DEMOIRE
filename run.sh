@@ -1,1 +1,1 @@
-nohup python -u dev/dev.py >dev.out 2>&1 &
+nohup python -u main.py >main.out 2>&1 &
