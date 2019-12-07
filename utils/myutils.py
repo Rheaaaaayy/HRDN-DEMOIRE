@@ -2,7 +2,10 @@ import os
 import numpy as np
 import torch
 import torch.nn as nn
+import colour
 from PIL import Image
+from tqdm import tqdm
+import matplotlib.pyplot as plt
 from torch.autograd import Variable
 
 
@@ -54,3 +57,36 @@ def pixel_unshuffle(batch_input, shuffle_scale = 2, device=torch.device('cuda'))
 
     Unshuffle = Unshuffle[:, 4:, :, :]
     return Unshuffle.detach()
+
+
+def default_loader(path):
+    img = Image.open(path).convert('RGB')
+    w, h = img.size
+    region = img.crop((1+int(0.15*w), 1+int(0.15*h), int(0.85*w), int(0.85*h)))
+    return region
+
+
+def calculate_pasnr(src_path, dst_path):
+    src_image_name = os.listdir(src_path)
+    dst_image_name = os.listdir(dst_path)
+    image_label = ['_'.join(i.split("_")[:-1]) for i in src_image_name]
+    num_image = len(src_image_name)
+    psnr = 0
+    for ii, label in tqdm(enumerate(image_label)):
+        src = os.path.join(src_path, "{}_source.png".format(label))
+        dst = os.path.join(dst_path, "{}_target.png".format(label))
+        src_image = default_loader(src)
+        dst_image = default_loader(dst)
+
+        single_psnr = colour.utilities.metric_psnr(src_image, dst_image, 255)
+        psnr += single_psnr
+
+    psnr /= num_image
+    return psnr
+
+
+if __name__ == '__main__':
+    src_path = "T:\\dataset\\moire image benchmark\\test\\thin_source"
+    dst_path = "T:\\dataset\\moire image benchmark\\test\\thin_target"
+    psnr = calculate_pasnr(src_path, dst_path)
+    print(psnr)

@@ -686,15 +686,3 @@ def get_pose_net(cfg, pretrained, **kwargs):
     #     model.init_weights(cfg.MODEL.PRETRAINED)
 
     return model
-
-# if __name__ == '__main__':
-#     from config import cfg
-#
-#     dump_input = torch.rand((2, 3, 256, 256))
-#     cfg.merge_from_file("../config/cfg.yaml")
-#     model = get_pose_net(cfg, pretrained=None)
-#     model = model.cuda()
-#     print(model)
-    # dump_input = dump_input.cuda()
-    #
-    # output = model(dump_input)

@@ -62,8 +62,8 @@ class Config(object):
     train_batch_size = 32 #train的维度为(10, 3, 256, 256) 一个batch10张照片，要1000次iter
     val_batch_size = 32
     max_epoch = 200
-    lr = 1e-10
-    lr_decay = 0.3
+    lr = 1e-4
+    lr_decay = 0.5
     beta1 = 0.5  # Adam优化器的beta1参数
     accumulation_steps = 1 #梯度累加的参数
     loss_alpha = 0.8 #两个loss的权值
@@ -74,7 +74,7 @@ class Config(object):
 
     save_every = 2  # 每5个epoch保存一次模型
     model_path = None #'checkpoints/HRnet_211.pth'
-    save_prefix = "checkpoints/benchmark_without_s_loss/"
+    save_prefix = "checkpoints/TIP_only_l1c/"
 
 opt = Config()
 
@@ -136,7 +136,7 @@ def train(**kwargs):
         optimizer_state = checkpoint["optimizer"]
         optimizer.load_state_dict(optimizer_state)
 
-        # lr = checkpoint["lr"]
+        lr = checkpoint["lr"]
         for param_group in optimizer.param_groups:
             param_group['lr'] = lr
 
@@ -164,6 +164,7 @@ def train(**kwargs):
             output_list, edge_output_list = model(moires)
             outputs, edge_X = output_list[0], edge_output_list[0]
 
+            '''
             loss = 0
             if epoch < 25:
                 for jj, (output, edge_output) in enumerate(zip(output_list, edge_output_list)):
@@ -179,6 +180,9 @@ def train(**kwargs):
                 loss = opt.loss_alpha * c_loss + (1-opt.loss_alpha) * s_loss
             else:
                 loss = criterion_c(outputs, clears)
+            '''
+
+            loss = criterion_c(outputs, clears)
 
             # saocaozuo gradient accumulation
             loss = loss/accumulation_steps
@@ -211,8 +215,7 @@ def train(**kwargs):
                                                                                           lr=lr,
                                                                                           train_psnr = psnr_meter.value()[0]))
                 loss_list.append(str(loss_meter.value()[0]))
-                # if os.path.exists(opt.debug_file):
-                #     ipdb.set_trace()
+
             torch.cuda.empty_cache()
 
         val_loss, val_psnr = val(model, test_dataloader, vis_val)
@@ -299,5 +302,5 @@ def val(model, dataloader, vis=None):
 
 
 if __name__ == '__main__':
-    train(model_path='checkpoints/benchmark_without_s_loss/HRnet_epoch62_1206_08_14_14.pth')
-    # train()
+    # train(model_path='checkpoints/benchmark_without_s_loss/HRnet_epoch62_1206_08_14_14.pth')
+    train()
