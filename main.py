@@ -219,7 +219,7 @@ def train(**kwargs):
             }
             torch.save(checkpoint, file_name)
 
-        if (loss_meter.value()[0] > previous_loss) or (epoch % 10) == 0:
+        if (loss_meter.value()[0] > previous_loss) or ((epoch + 1) % 10) == 0:
             lr = lr * opt.lr_decay
             for param_group in optimizer.param_groups:
                 param_group['lr'] = lr
