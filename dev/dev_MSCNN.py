@@ -78,7 +78,7 @@ def train(**kwargs):
         vis_val = Visualizer('valdemoire')
 
     train_data = MoireData(opt.train_path)
-    val_data = MoireData(opt.valid_path, is_val=True)
+    val_data = MoireData(opt.test_path, is_val=True)
     train_dataloader = DataLoader(train_data,
                             batch_size=opt.train_batch_size if opt.is_dev == False else 4,
                             shuffle=True,
