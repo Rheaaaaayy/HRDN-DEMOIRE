@@ -94,8 +94,8 @@ def train(**kwargs):
     model = MSCNN()
     model = model.to(opt.device)
 
-    val_loss, val_psnr = val(model, val_dataloader, vis_val)
-    print(val_loss, val_psnr)
+    # val_loss, val_psnr = val(model, val_dataloader, vis_val)
+    # print(val_loss, val_psnr)
 
     criterion = nn.MSELoss()
     lr = opt.lr
