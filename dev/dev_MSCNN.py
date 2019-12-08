@@ -132,7 +132,6 @@ def train(**kwargs):
             clears = clears.to(opt.device)
 
             outputs = model(moires)
-            outputs = (outputs + 1.0) / 2.0
             loss = criterion(outputs, clears)
 
             loss.backward()
@@ -216,8 +215,7 @@ def val(model, dataloader, vis=None):
     for ii, (val_moires, val_clears) in tqdm(enumerate(dataloader)):
         val_moires = val_moires.to(opt.device)
         val_clears = val_clears.to(opt.device)
-        val_output_list, val_edge_output_list = model(val_moires)
-        val_outputs, val_edge_outputs = val_output_list[0], val_edge_output_list[0]
+        val_outputs = model(val_moires)
 
         val_loss = criterion(val_outputs, val_clears)
         loss_meter.add(val_loss.item())
