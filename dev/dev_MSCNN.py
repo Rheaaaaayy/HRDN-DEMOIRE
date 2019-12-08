@@ -47,8 +47,8 @@ class Config(object):
                   0: "clear"}
     num_workers = 8
     image_size = 256
-    train_batch_size = 64 #train的维度为(64, 3, 256, 256) 一个batch10张照片，要1000次iter
-    val_batch_size = 64
+    train_batch_size = 128 #train的维度为(64, 3, 256, 256) 一个batch10张照片，要1000次iter
+    val_batch_size = 256
     max_epoch = 200
     lr = 1e-4
     lr_decay = 0.1
@@ -127,9 +127,9 @@ def train(**kwargs):
         psnr_meter.reset()
         loss_list = []
 
-        for ii, (moires, clears) in tqdm(enumerate(train_dataloader)):
+        for ii, (moires, clear_list) in tqdm(enumerate(train_dataloader)):
             moires = moires.to(opt.device)
-            clears = clears.to(opt.device)
+            clears = clear_list[0].to(opt.device)
 
             outputs = model(moires)
             loss = criterion(outputs, clears)
