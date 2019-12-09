@@ -302,5 +302,5 @@ def val(model, dataloader, vis=None):
 
 
 if __name__ == '__main__':
-    # train(model_path='checkpoints/benchmark_without_s_loss/HRnet_epoch62_1206_08_14_14.pth')
-    train()
+    train(model_path='checkpoints/TIP_only_l1c/HRnet_epoch22_1209_08_45_22.pth')
+    # train()
