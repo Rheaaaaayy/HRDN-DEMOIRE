@@ -74,7 +74,7 @@ class Config(object):
 
     save_every = 2  # 每5个epoch保存一次模型
     model_path = None #'checkpoints/HRnet_211.pth'
-    save_prefix = "checkpoints/TIP_only_l1c/"
+    save_prefix = "checkpoints/TIP_origin_HR/"
 
 opt = Config()
 
@@ -124,9 +124,8 @@ def train(**kwargs):
     lr = opt.lr
     optimizer = torch.optim.Adam(
         params=model.parameters(),
-        # filter(lambda p: p.requires_grad, model.parameters()),
         lr=lr,
-        weight_decay=0.0002
+        weight_decay=0.001
     )
 
     if opt.model_path:
@@ -161,7 +160,12 @@ def train(**kwargs):
             output_list, edge_output_list = model(moires)
             outputs, edge_X = output_list[0], edge_output_list[0]
 
-            loss = criterion_c(outputs, clears)
+            if epoch < 20:
+                c_loss = criterion_c(outputs, clears)
+                s_loss = criterion_s(edge_X, clears)
+                loss = opt.loss_alpha * c_loss + (1 - opt.loss_alpha) * s_loss
+            else:
+                loss = criterion_c(outputs, clears)
 
             # saocaozuo gradient accumulation
             loss = loss/accumulation_steps

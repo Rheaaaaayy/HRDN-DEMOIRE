@@ -514,8 +514,8 @@ class PoseHighResolutionNet(nn.Module):
 
         final_layers = []
         for ii in range(num_branches):
-            # in_channel = num_channels[ii] + 3 if ii < num_branches-1 else num_channels[ii]
-            in_channel = num_channels[ii]
+            in_channel = num_channels[ii] + 3 if ii < num_branches-1 else num_channels[ii]
+            # in_channel = num_channels[ii]
             if ii == 0:
                 final_layers.append(
                     nn.Sequential(
@@ -594,14 +594,14 @@ class PoseHighResolutionNet(nn.Module):
                 x_list.append(self.transition3[i](y_list[-1]))
             else:
                 x_list.append(y_list[i])
-        y_list = self.stage4(x_list)
+        final_inputs = self.stage4(x_list)
 
-        final_inputs = y_list
+        final_inputs.reverse()
 
         outputs = []
         edges = []
         for ii in range(self.final_cfg["NUM_BRANCHES"]):
-            output = self.final_layers[3-ii](final_inputs[3-ii])
+            output = self.final_layers[3-ii](final_inputs[ii])
             if ii == 3:
                 output = input + output
             output = self.tanh(output)
@@ -612,8 +612,8 @@ class PoseHighResolutionNet(nn.Module):
             outputs.append(output)
             edges.append(edge_X)
 
-            # if ii < self.final_cfg["NUM_BRANCHES"] - 1:
-            #     final_inputs[ii+1] = torch.cat((output, final_inputs[ii+1]), dim=1)
+            if ii < self.final_cfg["NUM_BRANCHES"] - 1:
+                final_inputs[ii+1] = torch.cat((output, final_inputs[ii+1]), dim=1)
         outputs.reverse()
         edges.reverse()
 
@@ -665,16 +665,16 @@ def get_pose_net(cfg, pretrained, **kwargs):
 
     return model
 
-if __name__ == '__main__':
-    from config import cfg
-
-    dump_input = torch.rand((1, 3, 256, 256))
-    cfg.merge_from_file("../config/cfg.yaml")
-    model = get_pose_net(cfg, pretrained=None)
-    model = model.cuda()
-    dump_input = dump_input.cuda()
-
-    outputs, edges = model(dump_input)
-    for output, edge in zip(outputs, edges):
-        print(output.size())
-        print(edge.size())
+# if __name__ == '__main__':
+#     from config import cfg
+#
+#     dump_input = torch.rand((1, 3, 256, 256))
+#     cfg.merge_from_file("../config/cfg.yaml")
+#     model = get_pose_net(cfg, pretrained=None)
+#     model = model.cuda()
+#     dump_input = dump_input.cuda()
+#
+#     outputs, edges = model(dump_input)
+#     for output, edge in zip(outputs, edges):
+#         print(output.size())
+#         print(edge.size())
