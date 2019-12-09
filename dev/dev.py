@@ -74,7 +74,7 @@ class Config(object):
 
     save_every = 2  # 每5个epoch保存一次模型
     model_path = None #'checkpoints/HRnet_211.pth'
-    save_prefix = "checkpoints/TIP_only_l1c/"
+    save_prefix = "checkpoints/TIP_origin_HR/"
 
 opt = Config()
 
