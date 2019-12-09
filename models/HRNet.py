@@ -13,11 +13,12 @@ import logging
 
 import torch
 import torch.nn as nn
+import torch.nn.functional as F
 import numpy as np
 from utils.myutils import pixel_unshuffle
 
 
-BN_MOMENTUM = 0.1 #濡傛灉鐢ㄦ搴︾疮鍔犺鎶夿N_MOMENTUM璋冨皬
+BN_MOMENTUM = 0.1 #如果用梯度累加要把BN_MOMENTUM调小
 logger = logging.getLogger(__name__)
 
 
@@ -134,6 +135,23 @@ class ResidualDenseBlock(nn.Module):
 
     def forward(self, x):
         return self.LFF(self.convs(x)) + x
+
+
+class SEBlock(nn.Module):
+    def __init__(self, channles):
+        super(SEBlock, self).__init__()
+        #SE layer
+        self.fc1 = nn.Conv2d(channles, channles//4, kernel_size=1)
+        self.fc2 = nn.Conv2d(channles//4, channles, kernel_size=1)
+
+    def forward(self, x):
+        w = F.avg_pool2d(x, x.size(2))
+        w = F.relu(self.fc1(w))
+        w = F.sigmoid((self.fc2(w)))
+
+        out = x * w
+        out = F.relu(out, inplace=True)
+        return out
 
 
 class HighResolutionModule(nn.Module):
@@ -371,36 +389,6 @@ class PoseHighResolutionNet(nn.Module):
 
 # ==============================================================================
 
-# ==============================================================================
-
-        self.stage5_cfg = cfg['MODEL']['EXTRA']['STAGE5']
-        num_channels = self.stage5_cfg['NUM_CHANNELS']
-        block = blocks_dict[self.stage5_cfg['BLOCK']]
-        num_channels = [
-            num_channels[i] * block.expansion for i in range(len(num_channels))
-        ]
-        self.transition4 = self._make_transition_layer(
-            pre_stage_channels, num_channels)
-        self.stage5, pre_stage_channels = self._make_stage(
-            self.stage5_cfg, num_channels, multi_scale_output=True)
-
-# ==============================================================================
-
-# ==============================================================================
-
-        self.stage6_cfg = cfg['MODEL']['EXTRA']['STAGE6']
-        num_channels = self.stage6_cfg['NUM_CHANNELS']
-        block = blocks_dict[self.stage6_cfg['BLOCK']]
-        num_channels = [
-            num_channels[i] * block.expansion for i in range(len(num_channels))
-        ]
-        self.transition5 = self._make_transition_layer(
-            pre_stage_channels, num_channels)
-        self.stage6, pre_stage_channels = self._make_stage(
-            self.stage6_cfg, num_channels, multi_scale_output=True)
-
-# ==============================================================================
-
         self.final_cfg = cfg['MODEL']['EXTRA']['FINAL']
         self.final_layers = self._make_final_layer(self.final_cfg)
         self.tanh = nn.Tanh()
@@ -526,39 +514,48 @@ class PoseHighResolutionNet(nn.Module):
 
         final_layers = []
         for ii in range(num_branches):
-            # in_channel = num_channels[ii] + 3 if ii < num_branches-1 else num_channels[ii]
-            in_channel = num_channels[ii]
+            in_channel = num_channels[ii] + 3 if ii < num_branches-1 else num_channels[ii]
+            # in_channel = num_channels[ii]
             if ii == 0:
                 final_layers.append(
                     nn.Sequential(
+                        SEBlock(in_channel),
                         nn.Conv2d(in_channel, 12, kernel_size=3, stride=1, padding=1, bias=False),
                         nn.PixelShuffle(2)
                     ))
             if ii == 1:
                 final_layers.append(
                     nn.Sequential(
+                        SEBlock(in_channel),
                         nn.Conv2d(in_channel, 16, kernel_size=3, stride=1, padding=1, bias=False),
+                        nn.ReLU(inplace=True),
                         nn.Conv2d(16, 12, kernel_size=3, stride=1, padding=1, bias=False),
                         nn.PixelShuffle(2)
                     ))
             if ii == 2:
                 final_layers.append(
                     nn.Sequential(
+                        SEBlock(in_channel),
                         nn.Conv2d(in_channel, 32, kernel_size=3, stride=1, padding=1, bias=False),
+                        nn.ReLU(inplace=True),
                         nn.Conv2d(32, 16, kernel_size=3, stride=1, padding=1, bias=False),
+                        nn.ReLU(inplace=True),
                         nn.Conv2d(16, 12, kernel_size=3, stride=1, padding=1, bias=False),
                         nn.PixelShuffle(2)
                     ))
             if ii == 3:
                 final_layers.append(
                     nn.Sequential(
+                        SEBlock(in_channel),
                         nn.Conv2d(in_channel, 64, kernel_size=3, stride=1, padding=1, bias=False),
+                        nn.ReLU(inplace=True),
                         nn.Conv2d(64, 32, kernel_size=3, stride=1, padding=1, bias=False),
+                        nn.ReLU(inplace=True),
                         nn.Conv2d(32, 16, kernel_size=3, stride=1, padding=1, bias=False),
+                        nn.ReLU(inplace=True),
                         nn.Conv2d(16, 12, kernel_size=3, stride=1, padding=1, bias=False),
                         nn.PixelShuffle(2)
                     ))
-
 
         return nn.ModuleList(final_layers)
 
@@ -575,7 +572,6 @@ class PoseHighResolutionNet(nn.Module):
         x = self.relu(x)
         x = self.layer1(x)
 
-        final_inputs = []
         x_list = []
         for i in range(self.stage2_cfg['NUM_BRANCHES']):
             if self.transition1[i] is not None:
@@ -598,27 +594,9 @@ class PoseHighResolutionNet(nn.Module):
                 x_list.append(self.transition3[i](y_list[-1]))
             else:
                 x_list.append(y_list[i])
-        y_list = self.stage4(x_list)
-        final_inputs.append(y_list[-1])
+        final_inputs = self.stage4(x_list)
 
-        x_list = []
-        for i in range(self.stage5_cfg['NUM_BRANCHES']):
-            if self.transition4[i] is not None:
-                x_list.append(self.transition4[i](y_list[-1]))
-            else:
-                x_list.append(y_list[i])
-        y_list = self.stage5(x_list)
-        final_inputs.append(y_list[-1])
-
-        x_list = []
-        for i in range(self.stage6_cfg['NUM_BRANCHES']):
-            if self.transition5[i] is not None:
-                x_list.append(self.transition5[i](y_list[-1]))
-            else:
-                x_list.append(y_list[i])
-        y_list = self.stage6(x_list)
-        final_inputs.append(y_list[-1])
-        final_inputs.append(y_list[0])
+        final_inputs.reverse()
 
         outputs = []
         edges = []
@@ -634,8 +612,8 @@ class PoseHighResolutionNet(nn.Module):
             outputs.append(output)
             edges.append(edge_X)
 
-            # if ii < self.final_cfg["NUM_BRANCHES"] - 1:
-            #     final_inputs[ii+1] = torch.cat((output, final_inputs[ii+1]), dim=1)
+            if ii < self.final_cfg["NUM_BRANCHES"] - 1:
+                final_inputs[ii+1] = torch.cat((output, final_inputs[ii+1]), dim=1)
         outputs.reverse()
         edges.reverse()
 

@@ -74,7 +74,7 @@ class Config(object):
 
     save_every = 2  # 每5个epoch保存一次模型
     model_path = None #'checkpoints/HRnet_211.pth'
-    save_prefix = "checkpoints/TIP_only_l1c/"
+    save_prefix = "checkpoints/TIP_origin_HR/"
 
 opt = Config()
 
@@ -126,7 +126,7 @@ def train(**kwargs):
         params=model.parameters(),
         # filter(lambda p: p.requires_grad, model.parameters()),
         lr=lr,
-        weight_decay=0.0002
+        weight_decay=0.001
     )
 
     if opt.model_path:
@@ -182,7 +182,12 @@ def train(**kwargs):
                 loss = criterion_c(outputs, clears)
             '''
 
-            loss = criterion_c(outputs, clears)
+            if epoch < 20:
+                c_loss = criterion_c(outputs, clears)
+                s_loss = criterion_s(edge_X, clears)
+                loss = opt.loss_alpha * c_loss + (1 - opt.loss_alpha) * s_loss
+            else:
+                loss = criterion_c(outputs, clears)
 
             # saocaozuo gradient accumulation
             loss = loss/accumulation_steps
@@ -302,5 +307,5 @@ def val(model, dataloader, vis=None):
 
 
 if __name__ == '__main__':
-    # train(model_path='checkpoints/benchmark_without_s_loss/HRnet_epoch62_1206_08_14_14.pth')
+    # train(model_path='checkpoints/TIP_only_l1c/HRnet_epoch22_1209_08_45_22.pth')
     train()

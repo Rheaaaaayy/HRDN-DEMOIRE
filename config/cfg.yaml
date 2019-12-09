@@ -48,11 +48,11 @@ MODEL:
     - 'stage3'
     - 'transition3'
     - 'stage4'
-    - 'transition4'
-    - 'stage5'
-    - 'transition5'
-    - 'stage6'
-    - 'final_layers'
+#    - 'transition4'
+#    - 'stage5'
+#    - 'transition5'
+#    - 'stage6'
+#    - 'final_layers'
     FINAL_CONV_KERNEL: 1
     STAGE2:
       NUM_MODULES: 1
@@ -67,13 +67,13 @@ MODEL:
       FUSE_METHOD: SUM
     STAGE3:
 #      NUM_MODULES: 4
-      NUM_MODULES: 2
+      NUM_MODULES: 4
       NUM_BRANCHES: 3
       BLOCK: BASIC
       NUM_BLOCKS:
-      - 3
-      - 3
-      - 3
+      - 4
+      - 4
+      - 4
       NUM_CHANNELS:
       - 16
       - 32
@@ -85,9 +85,9 @@ MODEL:
       NUM_BRANCHES: 4
       BLOCK: BASIC
       NUM_BLOCKS:
-      - 2
-      - 2
-      - 2
+      - 4
+      - 4
+      - 4
       - 4
       NUM_CHANNELS:
       - 16
@@ -95,31 +95,31 @@ MODEL:
       - 64
       - 128
       FUSE_METHOD: SUM
-    STAGE5:
-#      NUM_MODULES: 4
-      NUM_MODULES: 2
-      NUM_BRANCHES: 3
-      BLOCK: BASIC
-      NUM_BLOCKS:
-        - 3
-        - 3
-        - 3
-      NUM_CHANNELS:
-        - 16
-        - 32
-        - 64
-      FUSE_METHOD: SUM
-    STAGE6:
-      NUM_MODULES: 1
-      NUM_BRANCHES: 2
-      BLOCK: BASIC
-      NUM_BLOCKS:
-        - 4
-        - 4
-      NUM_CHANNELS:
-        - 16
-        - 32
-      FUSE_METHOD: SUM
+#    STAGE5:
+##      NUM_MODULES: 4
+#      NUM_MODULES: 2
+#      NUM_BRANCHES: 3
+#      BLOCK: BASIC
+#      NUM_BLOCKS:
+#        - 3
+#        - 3
+#        - 3
+#      NUM_CHANNELS:
+#        - 16
+#        - 32
+#        - 64
+#      FUSE_METHOD: SUM
+#    STAGE6:
+#      NUM_MODULES: 1
+#      NUM_BRANCHES: 2
+#      BLOCK: BASIC
+#      NUM_BLOCKS:
+#        - 4
+#        - 4
+#      NUM_CHANNELS:
+#        - 16
+#        - 32
+#      FUSE_METHOD: SUM
     FINAL:
       NUM_BRANCHES: 4
       NUM_CHANNELS:
@@ -140,7 +140,7 @@ TRAIN:
   LR_STEP:
   - 170
   - 200
-  WD: 0.0001
+  WD: 0.001
   GAMMA1: 0.99
   GAMMA2: 0.0
   MOMENTUM: 0.9

@@ -389,36 +389,6 @@ class PoseHighResolutionNet(nn.Module):
 
 # ==============================================================================
 
-# ==============================================================================
-
-        self.stage5_cfg = cfg['MODEL']['EXTRA']['STAGE5']
-        num_channels = self.stage5_cfg['NUM_CHANNELS']
-        block = blocks_dict[self.stage5_cfg['BLOCK']]
-        num_channels = [
-            num_channels[i] * block.expansion for i in range(len(num_channels))
-        ]
-        self.transition4 = self._make_transition_layer(
-            pre_stage_channels, num_channels)
-        self.stage5, pre_stage_channels = self._make_stage(
-            self.stage5_cfg, num_channels, multi_scale_output=True)
-
-# ==============================================================================
-
-# ==============================================================================
-
-        self.stage6_cfg = cfg['MODEL']['EXTRA']['STAGE6']
-        num_channels = self.stage6_cfg['NUM_CHANNELS']
-        block = blocks_dict[self.stage6_cfg['BLOCK']]
-        num_channels = [
-            num_channels[i] * block.expansion for i in range(len(num_channels))
-        ]
-        self.transition5 = self._make_transition_layer(
-            pre_stage_channels, num_channels)
-        self.stage6, pre_stage_channels = self._make_stage(
-            self.stage6_cfg, num_channels, multi_scale_output=True)
-
-# ==============================================================================
-
         self.final_cfg = cfg['MODEL']['EXTRA']['FINAL']
         self.final_layers = self._make_final_layer(self.final_cfg)
         self.tanh = nn.Tanh()
@@ -544,8 +514,8 @@ class PoseHighResolutionNet(nn.Module):
 
         final_layers = []
         for ii in range(num_branches):
-            # in_channel = num_channels[ii] + 3 if ii < num_branches-1 else num_channels[ii]
-            in_channel = num_channels[ii] + 3 if ii == 0 else num_channels[ii]
+            in_channel = num_channels[ii] + 3 if ii < num_branches-1 else num_channels[ii]
+            # in_channel = num_channels[ii]
             if ii == 0:
                 final_layers.append(
                     nn.Sequential(
@@ -602,7 +572,6 @@ class PoseHighResolutionNet(nn.Module):
         x = self.relu(x)
         x = self.layer1(x)
 
-        final_inputs = []
         x_list = []
         for i in range(self.stage2_cfg['NUM_BRANCHES']):
             if self.transition1[i] is not None:
@@ -625,27 +594,9 @@ class PoseHighResolutionNet(nn.Module):
                 x_list.append(self.transition3[i](y_list[-1]))
             else:
                 x_list.append(y_list[i])
-        y_list = self.stage4(x_list)
-        final_inputs.append(y_list[-1])
+        final_inputs = self.stage4(x_list)
 
-        x_list = []
-        for i in range(self.stage5_cfg['NUM_BRANCHES']):
-            if self.transition4[i] is not None:
-                x_list.append(self.transition4[i](y_list[-1]))
-            else:
-                x_list.append(y_list[i])
-        y_list = self.stage5(x_list)
-        final_inputs.append(y_list[-1])
-
-        x_list = []
-        for i in range(self.stage6_cfg['NUM_BRANCHES']):
-            if self.transition5[i] is not None:
-                x_list.append(self.transition5[i](y_list[-1]))
-            else:
-                x_list.append(y_list[i])
-        y_list = self.stage6(x_list)
-        final_inputs.append(y_list[-1])
-        final_inputs.append(y_list[0])
+        final_inputs.reverse()
 
         outputs = []
         edges = []
@@ -661,10 +612,8 @@ class PoseHighResolutionNet(nn.Module):
             outputs.append(output)
             edges.append(edge_X)
 
-            # if ii < self.final_cfg["NUM_BRANCHES"] - 1:
-            #     final_inputs[ii+1] = torch.cat((output, final_inputs[ii+1]), dim=1)
-            if ii == 2:
-                final_inputs[ii + 1] = torch.cat((output, final_inputs[ii + 1]), dim=1)
+            if ii < self.final_cfg["NUM_BRANCHES"] - 1:
+                final_inputs[ii+1] = torch.cat((output, final_inputs[ii+1]), dim=1)
         outputs.reverse()
         edges.reverse()
 
@@ -719,10 +668,13 @@ def get_pose_net(cfg, pretrained, **kwargs):
 # if __name__ == '__main__':
 #     from config import cfg
 #
-#     dump_input = torch.rand((2, 3, 256, 256))
+#     dump_input = torch.rand((1, 3, 256, 256))
 #     cfg.merge_from_file("../config/cfg.yaml")
 #     model = get_pose_net(cfg, pretrained=None)
 #     model = model.cuda()
 #     dump_input = dump_input.cuda()
 #
-#     output = model(dump_input)
+#     outputs, edges = model(dump_input)
+#     for output, edge in zip(outputs, edges):
+#         print(output.size())
+#         print(edge.size())
