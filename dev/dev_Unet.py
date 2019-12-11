@@ -26,7 +26,7 @@ from torch.utils.checkpoint import checkpoint
 
 from utils.visualize import Visualizer
 from utils.myutils import tensor2im
-from models.MSCNN import MSCNN
+from models.Unet import UNet
 from data.dataset_Sun import MoireData
 
 class Config(object):
@@ -91,11 +91,11 @@ def train(**kwargs):
                             drop_last=True)
 
     last_epoch = 0
-    model = MSCNN()
+    model = UNet()
     model = model.to(opt.device)
 
-    # val_loss, val_psnr = val(model, val_dataloader, vis_val)
-    # print(val_loss, val_psnr)
+    val_loss, val_psnr = val(model, val_dataloader, vis_val)
+    print(val_loss, val_psnr)
 
     criterion = nn.MSELoss()
     lr = opt.lr
