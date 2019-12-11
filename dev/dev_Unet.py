@@ -60,7 +60,7 @@ class Config(object):
     vis = False if temp_winorserver else True
     env = 'demoire-Unet'
     plot_every = 100 #每隔20个batch, visdom画图一次
-    val_plot_every = 10
+    val_plot_every = 20
 
     save_every = 5  # 每5个epoch保存一次模型
     model_path = None #'checkpoints/HRnet_211.pth'
