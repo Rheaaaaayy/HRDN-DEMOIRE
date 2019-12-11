@@ -47,8 +47,8 @@ class Config(object):
                   0: "clear"}
     num_workers = 4
     image_size = 256
-    train_batch_size = 32 #train的维度为(64, 3, 256, 256) 一个batch10张照片，要1000次iter
-    val_batch_size = 32
+    train_batch_size = 48 #train的维度为(64, 3, 256, 256) 一个batch10张照片，要1000次iter
+    val_batch_size = 128
     max_epoch = 200
     lr = 1e-4
     lr_decay = 0.3
@@ -60,6 +60,7 @@ class Config(object):
     vis = False if temp_winorserver else True
     env = 'demoire-Unet'
     plot_every = 100 #每隔20个batch, visdom画图一次
+    val_plot_every = 10
 
     save_every = 5  # 每5个epoch保存一次模型
     model_path = None #'checkpoints/HRnet_211.pth'
@@ -227,7 +228,7 @@ def val(model, dataloader, vis=None):
         val_psnr = colour.utilities.metric_psnr(val_outputs, val_clears)
         psnr_meter.add(val_psnr)
 
-        if opt.vis and vis != None and (ii + 1) % 100 == 0:  # 每个个iter画图一次
+        if opt.vis and vis != None and (ii + 1) % opt.val_plot_every == 0:  # 每个个iter画图一次
             vis.images(val_moires, win='val_moire_image')
             vis.images(val_outputs, win='val_output_image')
             vis.images(val_clears, win='val_clear_image')
