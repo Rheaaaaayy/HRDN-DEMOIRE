@@ -51,7 +51,7 @@ class Config(object):
     val_batch_size = 32
     max_epoch = 200
     lr = 1e-4
-    lr_decay = 0.1
+    lr_decay = 0.3
     beta1 = 0.5  # Adam优化器的beta1参数
     accumulation_steps = 1  # 梯度累加的参数
     loss_alpha = 0.8  # 两个loss的权值
