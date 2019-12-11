@@ -59,8 +59,8 @@ class Config(object):
 
     vis = False if temp_winorserver else True
     env = 'demoire-Unet'
-    plot_every = 100 #每隔20个batch, visdom画图一次
-    val_plot_every = 20
+    plot_every = 200 #每隔20个batch, visdom画图一次
+    val_plot_every = 10
 
     save_every = 5  # 每5个epoch保存一次模型
     model_path = None #'checkpoints/HRnet_211.pth'
@@ -212,7 +212,7 @@ def val(model, dataloader, vis=None):
 
     loss_meter = meter.AverageValueMeter()
     psnr_meter = meter.AverageValueMeter()
-    vis.log("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
+    vis.log("~~~~~~~~~~~~~~~~~~start~~~~~~~~~~~~~~~~~~~~~~")
     for ii, (val_moires, val_clears) in tqdm(enumerate(dataloader)):
         val_moires = val_moires.to(opt.device)
         val_clears = val_clears.to(opt.device)
@@ -229,12 +229,13 @@ def val(model, dataloader, vis=None):
         psnr_meter.add(val_psnr)
 
         if opt.vis and vis != None and (ii + 1) % opt.val_plot_every == 0:  # 每个个iter画图一次
-            vis.images(val_moires, win='val_moire_image')
-            vis.images(val_outputs, win='val_output_image')
-            vis.images(val_clears, win='val_clear_image')
+            # vis.images(val_moires, win='val_moire_image')
+            # vis.images(val_outputs, win='val_output_image')
+            # vis.images(val_clears, win='val_clear_image')
 
             vis.log(">>>>>>>> val_loss:{val_loss}, val_psnr:{val_psnr}".format(val_loss=val_loss,
                                                                              val_psnr=val_psnr))
+    vis.log("~~~~~~~~~~~~~~~~~~end~~~~~~~~~~~~~~~~~~~~~~")
 
     model.train()
     return loss_meter.value()[0], psnr_meter.value()[0]
