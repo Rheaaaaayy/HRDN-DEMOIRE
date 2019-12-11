@@ -75,7 +75,7 @@ class UNet(nn.Module):
 
         output = self.final_conv(x1_r)
         
-        return output
+        return self.tanh(output)
 
 # if __name__ =="__main__":
 #     matrix = torch.randn(1,INPUT_CHANNEL,INPUT_SIZE,INPUT_SIZE)
