@@ -1,6 +1,5 @@
 import torch.nn as nn
 import torch
-from torchviz import make_dot
 
 # INPUT_SIZE = 572
 # INPUT_CHANNEL = 1
