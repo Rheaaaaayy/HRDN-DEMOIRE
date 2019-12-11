@@ -58,6 +58,7 @@ class UNet(nn.Module):
         self.right_conv4 = ConvBlock(128,64)
 
         self.final_conv = nn.Conv2d(64,OUTPUT_CHANNEL,1)
+        self.tanh = nn.Tanh()
 
 
 
