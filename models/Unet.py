@@ -57,10 +57,8 @@ class UNet(nn.Module):
         self.right_conv3 = ConvBlock(256,128)
         self.right_conv4 = ConvBlock(128,64)
 
-    # def copy_crop_concat(self,xl,xr):
-    #     crop_idx = (xl.size(2)-xr.size(2))//2
-    #     xl = xl[:,:,crop_idx:crop_idx+xr.size(2),crop_idx:crop_idx+xr.size(2)]
-    #     return torch.cat((xl,xr),1)
+        self.final_conv = nn.Conv2d(64,OUTPUT_CHANNEL,1)
+
 
 
     def forward(self,x):
@@ -75,16 +73,16 @@ class UNet(nn.Module):
         x2_r = self.right_conv3(copy_crop_concat(x2,self.up3(x3_r)))
         x1_r = self.right_conv4(copy_crop_concat(x1,self.up4(x2_r)))
 
-        output = nn.Conv2d(64,OUTPUT_CHANNEL,1)(x1_r)
+        output = self.final_conv(x1_r)
         
         return output
 
-if __name__ =="__main__":
-    matrix = torch.randn(1,INPUT_CHANNEL,INPUT_SIZE,INPUT_SIZE)
-    net = UNet()
-    print(net)
-    output = net(matrix)
-    print(output.size())
+# if __name__ =="__main__":
+#     matrix = torch.randn(1,INPUT_CHANNEL,INPUT_SIZE,INPUT_SIZE)
+#     net = UNet()
+#     print(net)
+#     output = net(matrix)
+#     print(output.size())
 
 
 
