@@ -125,7 +125,7 @@ def train(**kwargs):
     optimizer = torch.optim.Adam(
         params=model.parameters(),
         lr=lr,
-        weight_decay=0.005 #0.005
+        weight_decay=0.01 #0.005
     )
 
     if opt.model_path:
@@ -284,5 +284,5 @@ def val(model, dataloader, vis=None):
 
 
 if __name__ == '__main__':
-    train(model_path='checkpoints/TIP_origin_HR/HRnet_epoch24_1211_06_33_55.pth')
+    train(model_path='checkpoints/TIP_origin_HR/HRnet_epoch36_1212_07_15_46.pth')
     # train()

@@ -18,11 +18,12 @@ class DnCNN(nn.Module):
         layers.append(nn.Conv2d(in_channels=n_channels, out_channels=image_channels, kernel_size=kernel_size, padding=padding, bias=False))
         self.dncnn = nn.Sequential(*layers)
         self._initialize_weights()
+        self.tanh = nn.Tanh()
 
     def forward(self, x):
         y = x
         out = self.dncnn(x)
-        return y-out
+        return self.tanh(y-out)
 
     def _initialize_weights(self):
         for m in self.modules():
@@ -35,8 +36,8 @@ class DnCNN(nn.Module):
                 init.constant_(m.weight, 1)
                 init.constant_(m.bias, 0)
 
-if __name__ == '__main__':
-    dump_input = torch.rand(1, 3, 256, 256)
-    model = DnCNN()
-    output = model(dump_input)
-    print(output.size())
+# if __name__ == '__main__':
+#     dump_input = torch.rand(1, 3, 256, 256)
+#     model = DnCNN()
+#     output = model(dump_input)
+#     print(output.size())

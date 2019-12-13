@@ -78,13 +78,6 @@ class UNet(nn.Module):
         
         return self.tanh(output)
 
-# if __name__ =="__main__":
-#     matrix = torch.randn(1,INPUT_CHANNEL,INPUT_SIZE,INPUT_SIZE)
-#     net = UNet()
-#     print(net)
-#     output = net(matrix)
-#     print(output.size())
-
 
 
 

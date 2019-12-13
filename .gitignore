@@ -4,3 +4,4 @@ checkpoints/*
 *.pyc
 *.cpython-37.pyc
 */__pycache__/*
+results/*
