@@ -178,4 +178,3 @@ if __name__ == '__main__':
                   dtype='float32')
 '''
 
-

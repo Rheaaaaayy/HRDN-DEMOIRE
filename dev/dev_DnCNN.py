@@ -47,7 +47,7 @@ class Config(object):
                   0: "clear"}
     num_workers = 4
     image_size = 256
-    train_batch_size = 48 #train的维度为(64, 3, 256, 256) 一个batch10张照片，要1000次iter
+    train_batch_size = 32 #train的维度为(64, 3, 256, 256) 一个batch10张照片，要1000次iter
     val_batch_size = 128
     max_epoch = 200
     lr = 1e-4
@@ -92,11 +92,11 @@ def train(**kwargs):
                             drop_last=True)
 
     last_epoch = 0
-    model = UNet()
+    model = DnCNN()
     model = model.to(opt.device)
 
-    val_loss, val_psnr = val(model, val_dataloader, vis_val)
-    print(val_loss, val_psnr)
+    # val_loss, val_psnr = val(model, val_dataloader, vis_val)
+    # print(val_loss, val_psnr)
 
     criterion = nn.MSELoss()
     lr = opt.lr
@@ -129,6 +129,8 @@ def train(**kwargs):
         loss_list = []
 
         for ii, (moires, clear_list) in tqdm(enumerate(train_dataloader)):
+            if ii > 1000:
+                break
             moires = moires.to(opt.device)
             clears = clear_list[0].to(opt.device)
 
