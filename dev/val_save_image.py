@@ -36,8 +36,8 @@ class Config(object):
     is_server = True
     device = torch.device('cuda') if is_server else torch.device('cpu')
 
-    # test_path = "/HDD/sayhi/dataset/TIPbenchmark/test/testData"
-    test_path = "T:\\dataset\\moire image benchmark\\test"
+    test_path = "/HDD/sayhi/dataset/TIPbenchmark/test/testData"
+    # test_path = "T:\\dataset\\moire image benchmark\\test"
     test_batch_size = 100
 
     num_workers = 6 if is_server else 0
