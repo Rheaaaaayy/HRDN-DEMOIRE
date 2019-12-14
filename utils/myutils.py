@@ -24,8 +24,7 @@ def tensor2im(input_image, imtype=np.uint8):
 def save_single_image(img, img_path):
     img = np.transpose(img, (1, 2, 0))
     img = img * 255
-    plt.imshow(img)
-    plt.show()
+    cv2.imshow("img", img)
     # cv2.imwrite(img_path, img)
     return img
 
