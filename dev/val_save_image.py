@@ -9,9 +9,9 @@ import numpy as np
 import matplotlib.pyplot as plt
 import colour
 
-import fire
 import os
 import sys
+sys.path.append('../utils')
 import time
 from tqdm import tqdm
 import torch
