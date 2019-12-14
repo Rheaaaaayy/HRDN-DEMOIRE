@@ -47,10 +47,10 @@ class Config(object):
     plot_every = 100 #每隔20个batch, visdom画图一次
 
     model_list = ["HRDN", "DnCNN", "Unet", "Sun"]
-    HRDN_model_path = None
-    DnCNN_model_path = None
-    Unet_model_path = None
-    Sun_model_path = None
+    HRDN_model_path = "checkpoints/TIP_origin_HR/HRnet_epoch56_1214_02_25_11.pth"
+    DnCNN_model_path = "checkpoints/DnCNN/HRnet_epoch45_1214_11_21_03.pth"
+    Unet_model_path = "checkpoints/Unet/HRnet_epoch50_1213_11_32_25.pth"
+    Sun_model_path = "checkpoints/MSCNN/HRnet_epoch65_1211_13_58_06.pth"
     save_prefix = "results/"
 
 opt = Config()
