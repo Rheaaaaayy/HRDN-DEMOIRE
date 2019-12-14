@@ -46,7 +46,7 @@ class Config(object):
     env = 'test'
     plot_every = 10 #每隔20个batch, visdom画图一次
 
-    model_list = ["HRDN", "DnCNN", "Unet", "Sun"]
+    model_list = ["DnCNN", "Unet", "Sun"]
     HRDN_model_path = "checkpoints/TIP_origin_HR/HRnet_epoch56_1214_02_25_11.pth"
     DnCNN_model_path = "checkpoints/DnCNN/HRnet_epoch45_1214_11_21_03.pth"
     Unet_model_path = "checkpoints/Unet/HRnet_epoch50_1213_11_32_25.pth"
@@ -86,6 +86,7 @@ def get_model_dict(model_list):
     return models
 
 def get_model(model_name):
+    map_location = lambda storage, loc: storage
     if model_name == "HRDN":
         cfg.merge_from_file("config/cfg.yaml")
         model = get_pose_net(cfg, pretrained=opt.HRDN_model_path)
