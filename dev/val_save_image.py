@@ -11,7 +11,6 @@ import colour
 
 import os
 import sys
-sys.path.append('../utils')
 import time
 from tqdm import tqdm
 import torch
