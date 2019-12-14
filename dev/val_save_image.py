@@ -85,6 +85,28 @@ def get_model_dict(model_list):
             models[model_name] = model
     return models
 
+def get_model(model_name):
+    if model_name == "HRDN":
+        cfg.merge_from_file("config/cfg.yaml")
+        model = get_pose_net(cfg, pretrained=opt.HRDN_model_path)
+        model = model.to(opt.device)
+    elif model_name == "DnCNN":
+        checkpoints = torch.load(opt.DnCNN_model_path, map_location=map_location)
+        model = DnCNN()
+        model.load_state_dict(checkpoints["model"])
+        model = model.to(opt.device)
+    elif model_name == "Unet":
+        checkpoints = torch.load(opt.Unet_model_path, map_location=map_location)
+        model = Unet()
+        model.load_state_dict(checkpoints["model"])
+        model = model.to(opt.device)
+    elif model_name == "Sun":
+        checkpoints = torch.load(opt.Sun_model_path, map_location=map_location)
+        model = Sun()
+        model.load_state_dict(checkpoints["model"])
+        model = model.to(opt.device)
+    return model
+
 
 def test(**kwargs):
     for k_, v_ in kwargs.items():
@@ -102,7 +124,8 @@ def test(**kwargs):
 
     models = get_model_dict(opt.model_list)
 
-    for model_name, model in models.items():
+    for model_name in opt.model_list:
+        model = get_model(model_name)
         print(model_name)
         prefix = "{0}{1}/".format(opt.save_prefix, model_name)
         model.eval()
