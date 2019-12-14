@@ -46,7 +46,7 @@ class Config(object):
     env = 'test'
     plot_every = 10 #每隔20个batch, visdom画图一次
 
-    model_list = ["DnCNN", "Unet", "Sun"]
+    model_list = ["HRDN", "DnCNN", "Unet", "Sun"]
     HRDN_model_path = "checkpoints/TIP_origin_HR/HRnet_epoch56_1214_02_25_11.pth"
     DnCNN_model_path = "checkpoints/DnCNN/HRnet_epoch45_1214_11_21_03.pth"
     Unet_model_path = "checkpoints/Unet/HRnet_epoch50_1213_11_32_25.pth"
@@ -158,19 +158,15 @@ def test(**kwargs):
                 label = labels[jj]
                 img_path = "{0}{1}_output.png".format(prefix, label)
                 save_single_image(output, img_path)
-                break
 
                 single_ssim = calc_ssim(output, clear)
                 ssims += single_ssim
             ssims /= bs
             ssim_meter.add(ssims)
-            break
-
             if opt.vis and vis != None and (ii + 1) % 10 == 0:  # 每个个iter画图一次
                 vis.log(">>>>>>>> batch_psnr:{psnr}, batch_ssim:{ssim} <<<<<<<<<<".format(psnr=psnr, ssim=ssims))
 
             torch.cuda.empty_cache()
-        break
         print("average psnr is {}, average ssim is {}".format(psnr_meter.value()[0], ssim_meter.value()[0]))
         vis.log("~~~~~~~~~~~~~~~~~~end test {}~~~~~~~~~~~~~~~~~~~~~~".format(model_name))
 
