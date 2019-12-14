@@ -74,7 +74,7 @@ class Config(object):
 
     save_every = 2  # 每5个epoch保存一次模型
     model_path = None #'checkpoints/HRnet_211.pth'
-    save_prefix = "checkpoints/TIP_origin_HR/"
+    save_prefix = "checkpoints/TIP_regular_1e-2/"
 
 opt = Config()
 
@@ -284,5 +284,5 @@ def val(model, dataloader, vis=None):
 
 
 if __name__ == '__main__':
-    train(model_path='checkpoints/TIP_origin_HR/HRnet_epoch36_1212_07_15_46.pth')
-    # train()
+    # train(model_path='checkpoints/TIP_origin_HR/HRnet_epoch36_1212_07_15_46.pth')
+    train()
