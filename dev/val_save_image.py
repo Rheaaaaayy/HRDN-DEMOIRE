@@ -11,7 +11,7 @@ import colour
 
 import os
 import sys
-print(sys.path)
+sys.path.append("/home/publicuser/workspaces/demoire/hrnet-demoire")
 import time
 from tqdm import tqdm
 import torch
