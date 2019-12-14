@@ -44,7 +44,7 @@ class Config(object):
 
     vis = True if is_server else False
     env = 'test'
-    plot_every = 100 #每隔20个batch, visdom画图一次
+    plot_every = 10 #每隔20个batch, visdom画图一次
 
     model_list = ["HRDN", "DnCNN", "Unet", "Sun"]
     HRDN_model_path = "checkpoints/TIP_origin_HR/HRnet_epoch56_1214_02_25_11.pth"
