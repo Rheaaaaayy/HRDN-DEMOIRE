@@ -158,16 +158,19 @@ def test(**kwargs):
                 label = labels[jj]
                 img_path = "{0}{1}_output.png".format(prefix, label)
                 save_single_image(output, img_path)
+                break
 
                 single_ssim = calc_ssim(output, clear)
                 ssims += single_ssim
             ssims /= bs
             ssim_meter.add(ssims)
+            break
 
             if opt.vis and vis != None and (ii + 1) % 10 == 0:  # 每个个iter画图一次
                 vis.log(">>>>>>>> batch_psnr:{psnr}, batch_ssim:{ssim} <<<<<<<<<<".format(psnr=psnr, ssim=ssims))
 
             torch.cuda.empty_cache()
+        break
         print("average psnr is {}, average ssim is {}".format(psnr_meter.value()[0], ssim_meter.value()[0]))
         vis.log("~~~~~~~~~~~~~~~~~~end test {}~~~~~~~~~~~~~~~~~~~~~~".format(model_name))
 
