@@ -130,7 +130,6 @@ def test(**kwargs):
 
             ssims = 0
             bs = moires.shape[0]
-            print(bs)
             for jj in range(bs):
                 output, clear = outputs[jj], clears[jj]
                 label = labels[jj]
@@ -138,6 +137,7 @@ def test(**kwargs):
                 save_single_image(output, img_path)
 
                 single_ssim = calc_ssim(output, clear)
+                print(single_ssim)
                 ssims += single_ssim
             ssims /= moires.size(0)
             ssim_meter.add(ssims)
