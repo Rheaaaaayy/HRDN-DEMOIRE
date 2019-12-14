@@ -26,7 +26,7 @@ def save_single_image(img, img_path):
     img = img * 255
     plt.imshow(img)
     plt.show()
-    cv2.imwrite(img_path, img)
+    # cv2.imwrite(img_path, img)
     return img
 
 
