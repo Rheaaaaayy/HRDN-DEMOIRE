@@ -125,12 +125,13 @@ def calc_ssim(img1, img2):
     if img1.ndim == 2:
         return ssim(img1, img2)
     elif img1.ndim == 3:
-        if img1.shape[2] == 3:
+        if img1.shape[0] == 3:
             ssims = []
             for i in range(3):
                 ssims.append(ssim(img1, img2))
+            print(ssims)
             return np.array(ssims).mean()
-        elif img1.shape[2] == 1:
+        elif img1.shape[0] == 1:
             return ssim(np.squeeze(img1), np.squeeze(img2))
     else:
         raise ValueError('Wrong input image dimensions.')
