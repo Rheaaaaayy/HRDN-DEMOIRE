@@ -138,9 +138,8 @@ def test(**kwargs):
                 save_single_image(output, img_path)
 
                 single_ssim = calc_ssim(output, clear)
-                print(single_ssim)
                 ssims += single_ssim
-            ssims /= moires.size(0)
+            ssims /= bs
             ssim_meter.add(ssims)
 
             if opt.vis and vis != None and (ii + 1) % 10 == 0:  # 每个个iter画图一次

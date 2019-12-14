@@ -129,7 +129,6 @@ def calc_ssim(img1, img2):
             ssims = []
             for i in range(3):
                 ssims.append(ssim(img1[i], img2[i]))
-            print(ssims)
             return np.array(ssims).mean()
         elif img1.shape[0] == 1:
             return ssim(np.squeeze(img1), np.squeeze(img2))
