@@ -122,7 +122,6 @@ def test(**kwargs):
                                 num_workers=opt.num_workers,
                                 drop_last=False)
 
-    models = get_model_dict(opt.model_list)
 
     for model_name in opt.model_list:
         model = get_model(model_name)
