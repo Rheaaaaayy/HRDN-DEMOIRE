@@ -130,7 +130,6 @@ def test(**kwargs):
 
             ssims = 0
             bs = moires.shape[0]
-            print(outputs.shape, clears.shape)
             for jj in range(bs):
                 output, clear = outputs[jj], clears[jj]
                 label = labels[jj]
@@ -145,6 +144,7 @@ def test(**kwargs):
             if opt.vis and vis != None and (ii + 1) % 10 == 0:  # 每个个iter画图一次
                 vis.log(">>>>>>>> batch_psnr:{psnr}, batch_ssim:{ssim} <<<<<<<<<<".format(psnr=psnr, ssim=ssims))
 
+            torch.cuda.empty_cache()
         print("average psnr is {}, average ssim is {}".format(psnr_meter.value()[0], ssim_meter.value()[0]))
         vis.log("~~~~~~~~~~~~~~~~~~end test {}~~~~~~~~~~~~~~~~~~~~~~".format(model_name))
 
