@@ -11,6 +11,7 @@ import colour
 
 import os
 import sys
+print(sys.path)
 import time
 from tqdm import tqdm
 import torch
