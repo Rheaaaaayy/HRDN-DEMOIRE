@@ -129,7 +129,8 @@ def test(**kwargs):
             psnr_meter.add(psnr)
 
             ssims = 0
-            bs = moires.size(0)
+            bs = moires.size()
+            print(bs)
             for jj in range(bs):
                 output, clear = outputs[jj], clears[jj]
                 label = labels[jj]
