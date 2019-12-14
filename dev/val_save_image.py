@@ -62,7 +62,7 @@ def get_model_dict(model_list):
     for model_name in model_list:
         if model_name == "HRDN":
             cfg.merge_from_file("config/cfg.yaml")
-            model = get_pose_net(cfg, pretrained=opt.model_path)
+            model = get_pose_net(cfg, pretrained=opt.HRDN_model_path)
             model = model.to(opt.device)
             models[model_name] = model
         elif model_name == "DnCNN":
