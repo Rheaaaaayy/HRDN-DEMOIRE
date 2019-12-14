@@ -130,6 +130,7 @@ def test(**kwargs):
 
             ssims = 0
             bs = moires.shape[0]
+            print(outputs.shape, clears.shape)
             for jj in range(bs):
                 output, clear = outputs[jj], clears[jj]
                 label = labels[jj]
