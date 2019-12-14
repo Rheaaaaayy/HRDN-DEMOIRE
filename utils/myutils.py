@@ -23,6 +23,7 @@ def tensor2im(input_image, imtype=np.uint8):
 
 def save_single_image(img, img_path):
     img = np.transpose(img, (1, 2, 0))
+    img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
     cv2.imshow("img", img)
     cv2.waitKey()
     img = img * 255
