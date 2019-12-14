@@ -51,7 +51,7 @@ class Config(object):
     DnCNN_model_path = "checkpoints/DnCNN/HRnet_epoch45_1214_11_21_03.pth"
     Unet_model_path = "checkpoints/Unet/HRnet_epoch50_1213_11_32_25.pth"
     Sun_model_path = "checkpoints/MSCNN/HRnet_epoch65_1211_13_58_06.pth"
-    save_prefix = "results/"
+    save_prefix = "/home/publicuser/workspaces/demoire/all_results/"
 
 opt = Config()
 
