@@ -25,7 +25,7 @@ def save_single_image(img, img_path):
     img = np.transpose(img, (1, 2, 0))
     img = img * 255
     cv2.imshow("img", img)
-    cv2.waitKey(0)
+    cv2.waitKey()
     # cv2.imwrite(img_path, img)
     return img
 
