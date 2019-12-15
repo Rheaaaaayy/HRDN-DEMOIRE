@@ -288,5 +288,5 @@ def val(model, dataloader, vis=None):
 
 
 if __name__ == '__main__':
-    # train(model_path='checkpoints/TIP_origin_HR/HRnet_epoch36_1212_07_15_46.pth')
-    train()
+    train(model_path='checkpoints/TIP_regular_1e-2//HRnet_epoch6_1215_10_24_19.pth')
+    # train()
