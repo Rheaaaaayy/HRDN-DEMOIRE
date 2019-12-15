@@ -8,6 +8,7 @@ import colour
 import fire
 import os
 import sys
+sys.path.append("/home/publicuser/workspaces/demoire/hrnet-demoire")
 import time
 from tqdm import tqdm
 import torch
