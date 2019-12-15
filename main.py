@@ -161,11 +161,15 @@ def train(**kwargs):
             outputs, edge_X = output_list[0], edge_output_list[0]
 
             if epoch < 20:
-                c_loss = criterion_c(outputs, clears)
-                s_loss = criterion_s(edge_X, clears)
-                loss = opt.loss_alpha * c_loss + (1 - opt.loss_alpha) * s_loss
+                pass
+            elif epoch >= 20 and epoch < 40:
+                opt.loss_alpha = 0.9
             else:
-                loss = criterion_c(outputs, clears)
+                opt.loss_alpha = 1.0
+
+            c_loss = criterion_c(outputs, clears)
+            s_loss = criterion_s(edge_X, clears)
+            loss = opt.loss_alpha * c_loss + (1 - opt.loss_alpha) * s_loss
 
             # saocaozuo gradient accumulation
             loss = loss/accumulation_steps
