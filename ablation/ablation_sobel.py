@@ -43,9 +43,9 @@ class Config(object):
         test_path = "T:\\dataset\\moire image benchmark\\test"
         debug_file = 'F:\\workspaces\\demoire\\debug'  # 存在该文件则进入debug模式
     else:
-        train_path = "/seconddisk/sayhi/dataset/TIPbenchmark/train/trainData"
+        train_path = "/HDD/sayhi/dataset/TIPbenchmark/train/trainData"
         # valid_path = "/home/publicuser/sayhi/dataset/moire image benchmark/val"
-        test_path = "/seconddisk/sayhi/dataset/TIPbenchmark/test/testData"
+        test_path = "/HDD/sayhi/dataset/TIPbenchmark/test/testData"
         debug_file = '/home/publicuser/sayhi/demoire/HRnet-demoire/debug'  # 存在该文件则进入debug模式
     label_dict = {1: "moire",
                   0: "clear"}
