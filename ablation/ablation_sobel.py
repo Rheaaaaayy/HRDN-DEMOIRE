@@ -64,7 +64,7 @@ class Config(object):
     env = 'demoire'
     plot_every = 100 #每隔20个batch, visdom画图一次
 
-    save_every = 5  # 每5个epoch保存一次模型
+    save_every = 2  # 每5个epoch保存一次模型
     model_path = None #'checkpoints/HRnet_211.pth'
     save_prefix = "checkpoints/ablation/sobel/"
 
@@ -273,4 +273,4 @@ def val(model, dataloader, vis=None):
 
 
 if __name__ == '__main__':
-    train()
+    train(model_path="checkpoints/ablation/sobel/HRnet_epoch35_1216_06_58_47.pth")
