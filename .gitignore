@@ -1,6 +1,7 @@
 checkpoints/*
 .idea/
 *.out
+*.log
 *.pyc
 *.cpython-37.pyc
 */__pycache__/*
