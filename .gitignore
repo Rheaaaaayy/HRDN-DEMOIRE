@@ -6,3 +6,4 @@ checkpoints/*
 *.cpython-37.pyc
 */__pycache__/*
 results/*
+chosen/*
