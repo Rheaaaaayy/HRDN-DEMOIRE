@@ -127,7 +127,8 @@ def train(**kwargs):
         optimizer_state = checkpoint["optimizer"]
         optimizer.load_state_dict(optimizer_state)
 
-        lr = checkpoint["lr"]
+        # lr = checkpoint["lr"]
+        lr = 1e-7
         for param_group in optimizer.param_groups:
             param_group['lr'] = lr
 
@@ -146,8 +147,8 @@ def train(**kwargs):
         loss_list = []
 
         for ii, (moires, clear_list) in tqdm(enumerate(train_dataloader)):
-            if ii > 1000:
-                break
+            # if ii > 1000:
+            #     break
             moires = moires.to(opt.device)
             clears = clear_list[0].to(opt.device)
 
@@ -273,4 +274,4 @@ def val(model, dataloader, vis=None):
 
 
 if __name__ == '__main__':
-    train(model_path="checkpoints/ablation/sobel/HRnet_epoch35_1216_06_58_47.pth")
+    train(model_path="checkpoints/ablation/sobel/HRnet_epoch72_1217_08_13_33.pth")
