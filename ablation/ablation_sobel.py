@@ -127,8 +127,7 @@ def train(**kwargs):
         optimizer_state = checkpoint["optimizer"]
         optimizer.load_state_dict(optimizer_state)
 
-        # lr = checkpoint["lr"]
-        lr = 1e-7
+        lr = checkpoint["lr"]
         for param_group in optimizer.param_groups:
             param_group['lr'] = lr
 
@@ -274,4 +273,5 @@ def val(model, dataloader, vis=None):
 
 
 if __name__ == '__main__':
-    train(model_path="checkpoints/ablation/sobel/HRnet_epoch72_1217_08_13_33.pth")
+    # train(model_path="checkpoints/ablation/sobel/HRnet_epoch72_1217_08_13_33.pth")
+    train()
