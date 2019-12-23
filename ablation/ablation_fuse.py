@@ -78,7 +78,7 @@ def train(**kwargs):
 
     if opt.vis:
         vis = Visualizer(opt.env)
-        vis_val = Visualizer('valablation_final')
+        vis_val = Visualizer('valablation_fuse')
 
     #dataset
     FiveCrop_transforms = transforms.Compose([
