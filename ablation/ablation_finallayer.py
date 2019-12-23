@@ -8,9 +8,7 @@ import colour
 import fire
 import os
 import sys
-if "../" not in sys.path:
-    sys.path.append("../")
-print(sys.path)
+sys.path.append("/home/publicuser/sayhi/demoire/HRnet-demoire")
 import time
 from tqdm import tqdm
 import torch
