@@ -146,8 +146,6 @@ def train(**kwargs):
         loss_list = []
 
         for ii, (moires, clear_list) in tqdm(enumerate(train_dataloader)):
-            if ii > 1000:
-                break
             moires = moires.to(opt.device)
             clears = clear_list[0].to(opt.device)
 
