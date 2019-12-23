@@ -149,8 +149,7 @@ def train(**kwargs):
             moires = moires.to(opt.device)
             clears = clear_list[0].to(opt.device)
 
-            output_list, edge_output_list = model(moires)
-            outputs, edge_X = output_list[0], edge_output_list[0]
+            outputs, edge_X = model(moires)
 
             if epoch < 20:
                 pass
@@ -251,8 +250,7 @@ def val(model, dataloader, vis=None):
     for ii, (val_moires, val_clears) in tqdm(enumerate(dataloader)):
         val_moires = val_moires.to(opt.device)
         val_clears = val_clears.to(opt.device)
-        val_output_list, val_edge_output_list = model(val_moires)
-        val_outputs, val_edge_outputs = val_output_list[0], val_edge_output_list[0]
+        val_outputs, val_edge_outputs = model(val_moires)
 
         c_loss = criterion_c(val_outputs, val_clears)
         s_loss = criterion_s(val_edge_outputs, val_clears)
