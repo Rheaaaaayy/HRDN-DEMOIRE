@@ -8,7 +8,8 @@ import colour
 import fire
 import os
 import sys
-sys.path.append("/home/publicuser/workspaces/demoire/hrnet-demoire")
+if "../" not in sys.path:
+    sys.path.append("../")
 import time
 from tqdm import tqdm
 import torch
@@ -26,7 +27,7 @@ from utils.myutils import tensor2im
 from models.LossNet import L1_Charbonnier_loss, L1_Sobel_Loss
 
 
-from .model_finallayer import get_pose_net
+from ablation.model_finallayer import get_pose_net
 from config import cfg
 from data.dataset_Sun import MoireData
 

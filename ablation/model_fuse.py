@@ -9,6 +9,9 @@ from __future__ import division
 from __future__ import print_function
 
 import os
+import sys
+if "../" not in sys.path:
+    sys.path.append("../")
 import logging
 
 import torch

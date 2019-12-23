@@ -8,7 +8,8 @@ import colour
 import fire
 import os
 import sys
-sys.path.append("/home/publicuser/workspaces/demoire/hrnet-demoire")
+if "../" not in sys.path:
+    sys.path.append("../")
 import time
 from tqdm import tqdm
 import torch
@@ -26,7 +27,7 @@ from utils.myutils import tensor2im
 from models.LossNet import L1_Charbonnier_loss, L1_Sobel_Loss
 
 
-from .model_fuse import get_pose_net
+from ablation.model_fuse import get_pose_net
 from config import cfg
 from data.dataset_Sun import MoireData
 
@@ -61,12 +62,12 @@ class Config(object):
     loss_alpha = 0.8 #两个loss的权值
 
     vis = False if temp_winorserver else True
-    env = 'ablation_final'
+    env = 'ablation_fuse'
     plot_every = 100 #每隔20个batch, visdom画图一次
 
     save_every = 5  # 每5个epoch保存一次模型
     model_path = None #'checkpoints/HRnet_211.pth'
-    save_prefix = "checkpoints/ablation/finallayer/"
+    save_prefix = "checkpoints/ablation/fuse/"
 
 opt = Config()
 
