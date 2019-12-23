@@ -10,6 +10,7 @@ import os
 import sys
 if "../" not in sys.path:
     sys.path.append("../")
+print(sys.path)
 import time
 from tqdm import tqdm
 import torch

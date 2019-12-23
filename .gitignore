@@ -7,3 +7,4 @@ checkpoints/*
 */__pycache__/*
 results/*
 chosen/*
+nohup_out/*
