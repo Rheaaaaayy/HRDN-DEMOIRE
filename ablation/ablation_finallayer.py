@@ -278,4 +278,4 @@ def val(model, dataloader, vis=None):
 
 
 if __name__ == '__main__':
-    train()
+    train(model_path="checkpoints/ablation/finallayer/HRnet_epoch1_1223_16_09_15.pth")
