@@ -34,20 +34,22 @@ from config import cfg
 
 class Config(object):
     is_server = True
-    device = torch.device('cuda') if is_server else torch.device('cpu')
+    # device = torch.device('cuda') if is_server else torch.device('cpu')
+    device = torch.device('cpu')
 
     test_path = "/HDD/sayhi/dataset/TIPbenchmark/test/testData"
     # test_path = "T:\\dataset\\moire image benchmark\\test"
     test_batch_size = 16
 
-    num_workers = 6 if is_server else 0
+    num_workers = 4 if is_server else 0
 
     vis = True if is_server else False
     env = 'test'
     plot_every = 10 #每隔20个batch, visdom画图一次
 
-    model_list = ["HRDN", "DnCNN", "Unet", "Sun"]
-    HRDN_model_path = "checkpoints/TIP_origin_HR/HRnet_epoch56_1214_02_25_11.pth"
+    # model_list = ["HRDN", "DnCNN", "Unet", "Sun"]
+    model_list = ["HRDN"]
+    HRDN_model_path = "checkpoints/TIP_regular_1e-2/HRnet_epoch84_1221_14_43_05.pth"
     DnCNN_model_path = "checkpoints/DnCNN/HRnet_epoch45_1214_11_21_03.pth"
     Unet_model_path = "checkpoints/Unet/HRnet_epoch50_1213_11_32_25.pth"
     Sun_model_path = "checkpoints/MSCNN/HRnet_epoch65_1211_13_58_06.pth"
