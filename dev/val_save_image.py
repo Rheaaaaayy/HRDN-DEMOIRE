@@ -39,7 +39,7 @@ class Config(object):
 
     test_path = "/HDD/sayhi/dataset/TIPbenchmark/test/testData"
     # test_path = "T:\\dataset\\moire image benchmark\\test"
-    test_batch_size = 16
+    test_batch_size = 32
 
     num_workers = 4 if is_server else 0
 

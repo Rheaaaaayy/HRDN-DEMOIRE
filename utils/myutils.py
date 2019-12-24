@@ -29,7 +29,7 @@ def save_single_image(img, img_path):
     return img
 
 
-def pixel_unshuffle(batch_input, shuffle_scale = 2, device=torch.device('cuda')):
+def pixel_unshuffle(batch_input, shuffle_scale = 2, device=torch.device('cpu')):
     batch_size = batch_input.shape[0]
     num_channels = batch_input.shape[1]
     height = batch_input.shape[2]
