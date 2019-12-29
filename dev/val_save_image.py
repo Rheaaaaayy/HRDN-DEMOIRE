@@ -36,7 +36,7 @@ from config import cfg
 class Config(object):
     is_server = True
     # device = torch.device('cuda') if is_server else torch.device('cpu')
-    device = torch.device('cpu')
+    device = torch.device('cuda')
 
     test_path = "/HDD/sayhi/dataset/TIPbenchmark/test/testData"
     # test_path = "T:\\dataset\\moire image benchmark\\test"
