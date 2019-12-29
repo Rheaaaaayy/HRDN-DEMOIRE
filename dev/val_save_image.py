@@ -159,7 +159,7 @@ def test(**kwargs):
         for ii, (moires, clears, labels) in tqdm(enumerate(test_dataloader)):
             moires = moires.to(opt.device)
             clears = clears.to(opt.device)
-            if model_name == "HRDN":
+            if model_name == "HRDN" or model_name == "HRDN_sobel" or model_name == "HRDN_fuse":
                 output_list, _ = model(moires)
                 outputs = output_list[0]
             else:
