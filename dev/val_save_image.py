@@ -26,6 +26,7 @@ from models.LossNet import L1_Charbonnier_loss, L1_Sobel_Loss
 
 from data.dataset_val_save_image import Val_MoireData
 from models.HRNet import get_pose_net
+from ablation import model_fuse, model_finallayer
 from models.MSCNN import MSCNN as Sun
 from models.DnCNN import DnCNN
 from models.Unet import UNet as Unet
@@ -48,7 +49,10 @@ class Config(object):
     plot_every = 10 #每隔20个batch, visdom画图一次
 
     # model_list = ["HRDN", "DnCNN", "Unet", "Sun"]
-    model_list = ["HRDN"]
+    model_list = ["HRDN_sobel", "HRDN_finallayer", "HRDN_fuse"]
+    HRDN_sobel_path = "checkpoints/ablation/sobel/HRnet_epoch68_1223_07_30_30.pth"
+    HRDN_finallayer_path = "checkpoints/ablation/finallayer/HRnet_epoch60_1229_08_09_48.pth"
+    HRDN_fuse_path = "checkpoints/ablation/fuse/HRnet_epoch90_1229_11_11_59.pth"
     HRDN_model_path = "checkpoints/TIP_regular_1e-2/HRnet_epoch84_1221_14_43_05.pth"
     DnCNN_model_path = "checkpoints/DnCNN/HRnet_epoch45_1214_11_21_03.pth"
     Unet_model_path = "checkpoints/Unet/HRnet_epoch50_1213_11_32_25.pth"
@@ -57,7 +61,7 @@ class Config(object):
 
 opt = Config()
 
-
+'''
 def get_model_dict(model_list):
     models = {}
     map_location = lambda storage, loc: storage
@@ -86,9 +90,23 @@ def get_model_dict(model_list):
             model = model.to(opt.device)
             models[model_name] = model
     return models
+'''
 
 def get_model(model_name):
     map_location = lambda storage, loc: storage
+    if model_name == "HRDN_sobel":
+        cfg.merge_from_file("config/cfg.yaml")
+        model = get_pose_net(cfg, pretrained=opt.HRDN_sobel_path)
+        model = model.to(opt.device)
+    if model_name == "HRDN_finallayer":
+        cfg.merge_from_file("config/cfg.yaml")
+        model = model_finallayer.get_pose_net(cfg, pretrained=opt.HRDN_finallayer_path)
+        model = model.to(opt.device)
+    if model_name == "HRDN_fuse":
+        cfg.merge_from_file("config/cfg.yaml")
+        model = model_fuse.get_pose_net(cfg, pretrained=opt.HRDN_finallayer_path)
+        model = model.to(opt.device)
+
     if model_name == "HRDN":
         cfg.merge_from_file("config/cfg.yaml")
         model = get_pose_net(cfg, pretrained=opt.HRDN_model_path)
