@@ -20,7 +20,8 @@ from torchnet import meter
 
 
 from utils.visualize import Visualizer
-from utils.myutils import tensor2im, calc_ssim, save_single_image
+from skimage.metrics import structural_similarity as ssim
+from utils.myutils import tensor2im, save_single_image
 
 from models.LossNet import L1_Charbonnier_loss, L1_Sobel_Loss
 
@@ -179,7 +180,7 @@ def test(**kwargs):
                 img_path = "{0}{1}_output.png".format(prefix, label)
                 save_single_image(output, img_path)
 
-                single_ssim = calc_ssim(output, clear)
+                single_ssim = ssim(output, clear, multichannel=True)
                 ssims += single_ssim
             ssims /= bs
             ssim_meter.add(ssims)
