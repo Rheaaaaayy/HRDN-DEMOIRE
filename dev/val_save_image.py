@@ -155,7 +155,6 @@ def test(**kwargs):
         # loss_meter = meter.AverageValueMeter()
 
         psnr_meter = meter.AverageValueMeter()
-        ssim_meter = meter.AverageValueMeter()
         vis.log("~~~~~~~~~~~~~~~~~~start test {}~~~~~~~~~~~~~~~~~~~~~~".format(model_name))
         for ii, (moires, clears, labels) in tqdm(enumerate(test_dataloader)):
             moires = moires.to(opt.device)
@@ -174,7 +173,6 @@ def test(**kwargs):
             psnr = colour.utilities.metric_psnr(outputs, clears)
             psnr_meter.add(psnr)
 
-            ssims = 0
             bs = moires.shape[0]
             for jj in range(bs):
                 output, clear = outputs[jj], clears[jj]
@@ -182,16 +180,11 @@ def test(**kwargs):
                 img_path = "{0}{1}_output.png".format(prefix, label)
                 save_single_image(output, img_path)
 
-                print(output.shape, clear.shape)
-                single_ssim = ssim(output, clear, multichannel=True)
-                ssims += single_ssim
-            ssims /= bs
-            ssim_meter.add(ssims)
             if opt.vis and vis != None and (ii + 1) % 10 == 0:  # 每个个iter画图一次
-                vis.log(">>>>>>>> batch_psnr:{psnr}, batch_ssim:{ssim} <<<<<<<<<<".format(psnr=psnr, ssim=ssims))
+                vis.log(">>>>>>>> batch_psnr:{psnr}<<<<<<<<<<".format(psnr=psnr))
 
             torch.cuda.empty_cache()
-        print("average psnr is {}, average ssim is {}".format(psnr_meter.value()[0], ssim_meter.value()[0]))
+        print("average psnr is {}".format(psnr_meter.value()[0]))
         vis.log("~~~~~~~~~~~~~~~~~~end test {}~~~~~~~~~~~~~~~~~~~~~~".format(model_name))
 
 
