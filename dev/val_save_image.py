@@ -182,7 +182,7 @@ def test(**kwargs):
                 img_path = "{0}{1}_output.png".format(prefix, label)
                 save_single_image(output, img_path)
 
-                print(output.size(), clear.size())
+                print(output.shape, clear.shape)
                 single_ssim = ssim(output, clear, multichannel=True)
                 ssims += single_ssim
             ssims /= bs
