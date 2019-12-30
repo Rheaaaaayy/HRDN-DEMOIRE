@@ -50,7 +50,7 @@ class Config(object):
     plot_every = 10 #每隔20个batch, visdom画图一次
 
     # model_list = ["HRDN", "DnCNN", "Unet", "Sun"]
-    model_list = ["HRDN_sobel", "HRDN_finallayer", "HRDN_fuse"]
+    model_list = ["HRDN_finallayer", "HRDN_fuse"]
     HRDN_sobel_path = "checkpoints/ablation/sobel/HRnet_epoch68_1223_07_30_30.pth"
     HRDN_finallayer_path = "checkpoints/ablation/finallayer/HRnet_epoch60_1229_08_09_48.pth"
     HRDN_fuse_path = "checkpoints/ablation/fuse/HRnet_epoch90_1229_11_11_59.pth"
@@ -105,7 +105,7 @@ def get_model(model_name):
         model = model.to(opt.device)
     if model_name == "HRDN_fuse":
         cfg.merge_from_file("config/cfg.yaml")
-        model = model_fuse.get_pose_net(cfg, pretrained=opt.HRDN_finallayer_path)
+        model = model_fuse.get_pose_net(cfg, pretrained=opt.HRDN_fuse_path)
         model = model.to(opt.device)
 
     if model_name == "HRDN":
@@ -163,6 +163,8 @@ def test(**kwargs):
             if model_name == "HRDN" or model_name == "HRDN_sobel" or model_name == "HRDN_fuse":
                 output_list, _ = model(moires)
                 outputs = output_list[0]
+            elif model_name == "HRDN_finallayer":
+                outputs, _ = model(moires)
             else:
                 outputs = model(moires)
             moires = tensor2im(moires)
