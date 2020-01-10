@@ -1,6 +1,6 @@
 # HRDN-DEMOIRE
 
-This project is the official implementation of  "HIGH RESOLUTION DEMOIRE NETWORK". This work is done by the team from East China Normal University. For more information, please check our research paper **[HIGH RESOLUTION DEMOIR ´E NETWORK](High Resolution Demoire Network.pdf)**.
+This project is the official implementation of  "HIGH RESOLUTION DEMOIRE NETWORK". This work is done by the team from East China Normal University. For more information, please check our research paper **[HIGH RESOLUTION DEMOIR ´E NETWORK](https://github.com/Rheaaaaayy/HRDN-DEMOIRE/blob/master/High%20Resolution%20Demoire%20Network.pdf)**.
 
 Team member:
 
@@ -31,7 +31,7 @@ This project is developed using python 3.7，Pytorch1.3, CUDA 10.2 on NVIDIA Tit
 1. Clone the repo:
 
    ```shell
-   git clone 
+   git clone https://github.com/Rheaaaaayy/HRDN-DEMOIRE.git
    cd hrdn-demoire
    ```
 
