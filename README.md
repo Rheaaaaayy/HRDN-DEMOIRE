@@ -16,7 +16,9 @@ Team member:
 
 In this work, we are interested in removing moire artifact appeared in  screen-shot pictures. Previous work mainly used multi-scale framework to identify the complex frequencies of moire, but the relationship between different scales was ignored.  We proposed a novel **High-Resolution Demoire Network(HRDN)** to fully explore the relationship between feature maps with different resolutions. It consists of three main components: parallel high-resolution network, continuously information exchange modules and final feature fusion layer. Extensive experiments on benchmark dataset demonstrate that our method outperform the state-of-art both in quantity and quality.
 
+![result examples](network structure.jpg)
 
+The Architecture of High Resolution Demoire Network is displayed above. It consists of three main parts: preprocess on the left, backbone with several stages in the middle, and final feature fusion on the right. In the end of the network is edge-enhanced loss function.
 
 ## Environment
 
