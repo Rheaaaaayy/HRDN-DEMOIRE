@@ -3,6 +3,7 @@ checkpoints/*
 *.out
 *.log
 *.pyc
+*.pth
 *.cpython-37.pyc
 */__pycache__/*
 results/*

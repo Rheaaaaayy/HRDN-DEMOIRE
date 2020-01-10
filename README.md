@@ -10,7 +10,7 @@ In this work, we are interested in removing moire artifact appeared in  screen-s
 
 ## Environment
 
-The code is developed using python .... GPU are needed(?)
+The code is developed using python 3.7，Pytorch1.3 with CUDA 10.2 .... GPU are needed(?)
 
 
 
@@ -59,7 +59,7 @@ python test.py
 
 ## Experiments
 
-We implement HRDN using Pytorch1.3 with CUDA 10.1
+We implement HRDN using Pytorch1.3 with CUDA 10.2
 on NVIDIA Titan RTX GPU. Adam optimizer is used to training the model, we set the weight decay=0.01 to prevent overfitting. At first, we used *edge enhanced loss function* by set α = 0.8 for 20 epoch, and the loss quickly decreased to acceptable range. Then we set α = 1, so only the *L1 Charbonnier loss* would be used for fine-tune to achieve higher performance. In our experiments, the image size is 256×256, and the batch size is set to 32. The initial learning rate is 1e-4, and the learning rate decay is set to 0.5 when loss does not decrease every 10 epochs, we trained 100 epochs in total.
 
 Below shows the comparative experiments and Quantitative results

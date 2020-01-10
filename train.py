@@ -39,7 +39,7 @@ class Config(object):
     accumulation_steps = 1 #梯度累加的参数
     loss_alpha = 0.8 #两个loss的权值
 
-    vis = True
+    vis = False
     env = 'demoire'
     plot_every = 100
 
@@ -86,8 +86,12 @@ def train(**kwargs):
     model = get_pose_net(cfg, pretrained=opt.model_path) #initweight
     model = model.to(opt.device)
 
-    val_loss, val_psnr = val(model, test_dataloader, vis_val)
-    print(val_loss, val_psnr)
+    if opt.vis:
+        val_loss, val_psnr = val(model, test_dataloader, vis_val)
+        print(val_loss, val_psnr)
+    else:
+        val_loss, val_psnr = val(model, test_dataloader)
+        print(val_loss, val_psnr)
 
     criterion_c = L1_Charbonnier_loss()
     criterion_s = L1_Sobel_Loss()

@@ -2,26 +2,26 @@ class Path(object):
     @staticmethod
     def train_dir():
         #training data path
-        train_path = '/Path/to/UCF-101'
+        train_path = '/Path/to/TrainData'
         #validating data path
-        val_path = "/seconddisk/sayhi/dataset/TIPbenchmark/train/trainData"
+        val_path = "/Path/to/ValidationData"
 
         #save model into save_path
-        save_path = "/seconddisk/sayhi/dataset/TIPbenchmark/test/testData"
+        save_path = "/checkpoints"
 
         return train_path,val_path,save_path
 
     @staticmethod
     def test_dir():
         #testing data path
-        test_path = "/seconddisk/sayhi/dataset/TIPbenchmark/test/testData"
+        in_dir = "/Path/to/TestData"
 
         #save result into result_dir
-        result_dir = "/home/publicuser/workspaces/demoire/all_results/"
+        out_dir = "/Path/to/OutDemoireImage"
 
-        return test_path,result_dir
+        return in_dir, out_dir
 
 
     @staticmethod
     def model_dir():
-        return "checkpoints/TIP_regular_1e-2/HRnet_epoch84_1221_14_43_05.pth"
+        return "/Path/to/PretrainedModel"
