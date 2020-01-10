@@ -7,7 +7,7 @@ class Path(object):
         val_path = "/Path/to/ValidationData"
 
         #save model into save_path
-        save_path = "/checkpoints"
+        save_path = "/Path/to/SavePath"
 
         return train_path,val_path,save_path
 

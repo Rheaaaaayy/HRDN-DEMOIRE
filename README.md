@@ -1,6 +1,16 @@
 # HRDN-DEMOIRE
 
-This code is the official implementation of  "HIGH RESOLUTION DEMOIR ´E NETWORK". 
+This project is the official implementation of  "HIGH RESOLUTION DEMOIRE NETWORK". This work is done by the team from East China Normal University. For more information, please check our research paper **[HIGH RESOLUTION DEMOIR ´E NETWORK](High Resolution Demoire Network.pdf)**.
+
+Team member:
+
+| Name           | E-mail                      |
+| -------------- | --------------------------- |
+| Shanghui Yang  | 51185100011@stu.ecnu.edu.cn |
+| Yajing Lei     | 10175501115@stu.ecnu.edu.cn |
+| Shuangyu Xiong | 10174102103@stu.ecnu.edu.cn |
+
+
 
 ## Introduction
 
@@ -10,7 +20,7 @@ In this work, we are interested in removing moire artifact appeared in  screen-s
 
 ## Environment
 
-The code is developed using python 3.7，Pytorch1.3 with CUDA 10.2 .... GPU are needed(?)
+This project is developed using python 3.7，Pytorch1.3, CUDA 10.2 on NVIDIA Titan RTX GPU.
 
 
 
@@ -22,17 +32,32 @@ The code is developed using python 3.7，Pytorch1.3 with CUDA 10.2 .... GPU are 
 
    ```shell
    git clone 
-   cd 
+   cd hrdn-demoire
    ```
 
 2. Install dependencies:
 
-```shell
-pip install -r requirements.txt
-```
+   ```shell
+   pip install -r requirements.txt
+   ```
+
+   If you want to visualize the training process, here are some tips:
+
+   (1) Make sure you have installed `visdom` successfully.
+
+   (2) Start Visdom
+
+   ```shell
+   python -m visdom.server
+   ```
+
+   (3) Change the status of  `vis` in `train.py` and `test.py`, i.e.
+
+   ```python
+   vis = True    #default=False
+   ```
 
 3. Download pretrained model from [GoogleDrive](https://drive.google.com/open?id=19yV8NbL6LoirOZ9aM2K1XaN1g-XIBdaS)
-
 4. Configure your dataset and pretrained model path in `mypath.py`
 
 ### Datasets
