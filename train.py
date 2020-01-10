@@ -28,12 +28,9 @@ class Config(object):
     device = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
 
     train_path,test_path,save_prefix = Path.train_dir()
-    # debug_file = '/home/publicuser/sayhi/demoire/HRnet-demoire/debug'  # 存在该文件则进入debug模式
-    label_dict = {1: "moire",
-                  0: "clear"}
     num_workers = 6
     image_size = 256
-    train_batch_size = 32 #train的维度为(10, 3, 256, 256) 一个batch10张照片，要1000次iter
+    train_batch_size = 32
     val_batch_size = 32
     max_epoch = 200
     lr = 1e-4
@@ -44,10 +41,10 @@ class Config(object):
 
     vis = True
     env = 'demoire'
-    plot_every = 100 #每隔20个batch, visdom画图一次
+    plot_every = 100
 
-    save_every = 2  # 每5个epoch保存一次模型
-    model_path = None #'checkpoints/HRnet_211.pth'
+    save_every = 5  # 每5个epoch保存一次模型
+    model_path = None #'*.pth'
 
 opt = Config()
 
@@ -73,14 +70,14 @@ def train(**kwargs):
     train_data = MoireData(opt.train_path)
     test_data = MoireData(opt.test_path, is_val=True)
     train_dataloader = DataLoader(train_data,
-                            batch_size=opt.train_batch_size if opt.is_dev == False else 4,
+                            batch_size=opt.train_batch_size,
                             shuffle=True,
-                            num_workers=opt.num_workers if opt.is_dev == False else 0,
+                            num_workers=opt.num_workers,
                             drop_last=True)
     test_dataloader = DataLoader(test_data,
-                            batch_size=opt.val_batch_size if opt.is_dev == False else 4,
+                            batch_size=opt.val_batch_size,
                             shuffle=True,
-                            num_workers=opt.num_workers if opt.is_dev == False else 0,
+                            num_workers=opt.num_workers,
                             drop_last=True)
 
     last_epoch = 0
@@ -177,13 +174,15 @@ def train(**kwargs):
                 loss_list.append(str(loss_meter.value()[0]))
 
             torch.cuda.empty_cache()
-
-        val_loss, val_psnr = val(model, test_dataloader, vis_val)
         if opt.vis:
+            val_loss, val_psnr = val(model, test_dataloader, vis_val)
             vis.plot('val_loss', val_loss)
             vis.log("epoch:{epoch}, average val_loss:{val_loss}, average val_psnr:{val_psnr}".format(epoch=epoch+1,
                                                                                             val_loss=val_loss,
                                                                                             val_psnr=val_psnr))
+        else:
+            val_loss, val_psnr = val(model, test_dataloader)
+
         #每个epoch把loss写入文件
         with open(opt.save_prefix+"loss_list.txt", 'a') as f:
             f.write("\nepoch_{}\n".format(epoch+1))
@@ -228,7 +227,6 @@ def val(model, dataloader, vis=None):
 
     loss_meter = meter.AverageValueMeter()
     psnr_meter = meter.AverageValueMeter()
-    vis.log("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
     for ii, (val_moires, val_clears) in tqdm(enumerate(dataloader)):
         val_moires = val_moires.to(opt.device)
         val_clears = val_clears.to(opt.device)
@@ -249,6 +247,7 @@ def val(model, dataloader, vis=None):
         psnr_meter.add(val_psnr)
 
         if opt.vis and vis != None and (ii + 1) % 50 == 0:  # 每50个iter画图一次
+            vis.log("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
             vis.images(val_moires, win='val_moire_image')
             vis.images(val_outputs, win='val_output_image')
             vis.images(val_clears, win='val_clear_image')
