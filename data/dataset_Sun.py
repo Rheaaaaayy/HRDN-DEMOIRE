@@ -1,11 +1,9 @@
 import os
 import os.path
-import sys
 from PIL import Image
 from torch.utils import data
 import numpy as np
 from torchvision import transforms
-import matplotlib.pyplot as plt
 
 
 # Crop input as Sun et al.
