@@ -1,6 +1,6 @@
 # HRDN-DEMOIRE
 
-This project is the official implementation of  "HIGH RESOLUTION DEMOIRE NETWORK". This work is done by the team from East China Normal University. For more information, please check our research paper **[HIGH RESOLUTION DEMOIR ´E NETWORK](https://github.com/Rheaaaaayy/HRDN-DEMOIRE/blob/master/High%20Resolution%20Demoire%20Network.pdf)**.
+This project is the official implementation of  "HIGH RESOLUTION DEMOIRE NETWORK". This work is done by the team from East China Normal University. For more information, please check our research paper **[HIGH RESOLUTION DEMOIR ´E NETWORK](https://ieeexplore.ieee.org/abstract/document/9191255)**.
 
 Team member:
 
